@@ -1,0 +1,53 @@
+@startuml GeneralArchitecture
+note left of "Operator System"
+Project requirements:
+1) UI control board
+  (a) Camera integration
+  (b) Game state displaying
+  (c) UI for state controlling (ex. reset, start, step back…)
+2) Microcomputer (MC) communication
+  (a) Interface for inter mc communication (simple way to send message to other mcs)
+  (b) Interface for workflow feedback (ex. puzzle solved)
+3) Implementation of game workflow
+end note
+
+package "Operator room" {
+    [Browser]
+}
+
+package "MC [1 .. M]" {
+    [MC 1]
+    [MC ...]
+    [MC M]
+}
+
+package "Operator System" {
+    interface REST as REST
+    [Game workflow] - REST
+
+    interface TCP as TCP
+    [MC communication] -up-- TCP: provides
+
+    interface HTTP as HTTP
+    [UI control board] -up-- HTTP: provides
+
+    [UI control board] <..> REST
+    [MC communication] <..> REST: standardized format
+}
+
+package "ESP cams [1 .. N]" {
+    interface HTTP as HTTP1
+    
+    [ESP cam N] -down-- HTTP1: provides
+    [ESP cam ...] -down-- HTTP1: provides
+    [ESP cam 1] -down-- HTTP1: provides
+}
+
+[UI control board] <.. HTTP1: iframe
+[Browser] <..> HTTP
+
+[MC 1] <..> TCP
+[MC ...] <..> TCP
+[MC M] <..> TCP
+
+@enduml
