@@ -29,8 +29,8 @@ The communication interface allows the participated systems to exchange messages
 The game logic is an automaton which controls the game states and their transistions. It applies
 
 ## General architecture
-The following picture shows the general architecture according to the introduced three components. The diagram consists of four packages. There is a PC with in Browser in the "Operator room" and multiple cameras ("ESP cams") and micro computers (MCs) accessing the "Operator System". The "Operator System" consists the three components.
+The following picture shows the general architecture according to the introduced three components. The diagram consists of four packages. There is a PC with in Browser in the "Operator room" and multiple cameras ("ESP cams") and micro computers (MCs) accessing the "Operator System". The "Operator System" contains the three components.
 
-Moreover the digramm specifies the communication protocols between the components.
+Moreover the diagramm specifies the communication protocols between the components.
 
 ![Design general system architecture](out/design/GeneralArchitecture.svg)
