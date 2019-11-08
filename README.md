@@ -62,16 +62,16 @@ So every group gets an own IP range where they can use to connect their particip
 We are using the private ip range 192.168.0.0/24 (Subnet mask: 255.255.255.0).
 To simplify the allocation of the ip addresses for each group the assigned group ip range contains the group number.
 
-| Group No. | Group Name                     | IP range (from - to)        |
-| :-------- | :----------------------------- | :-------------------------- |
-| 1         | Operator Room                  | 192.168.0.10-192.168.0.19 |
-| 2         | Environment & AI               | 192.168.0.20-192.168.0.29 |
-| 3         | Mission Briefing               | 192.168.0.30-192.168.0.39 |
-| 4         | Both Doors & First Door Puzzle | 192.168.0.40-192.168.0.49 |
-| 5         | Safe & Puzzles                 | 192.168.0.50-192.168.0.59 |
+| Group No. | Group Name                     | IP range (from - to)       |
+| :-------- | :----------------------------- | :------------------------- |
+| 1         | Operator Room                  | 192.168.0.10-192.168.0.19  |
+| 2         | Environment & AI               | 192.168.0.20-192.168.0.29  |
+| 3         | Mission Briefing               | 192.168.0.30-192.168.0.39  |
+| 4         | Both Doors & First Door Puzzle | 192.168.0.40-192.168.0.49  |
+| 5         | Safe & Puzzles                 | 192.168.0.50-192.168.0.59  |
 | 6         | Prototype & Puzzles            | 192.168.0.060-192.168.0.69 |
-| 7         | Second Door Puzzles            | 192.168.0.70-192.168.0.79 |
-| 8         | AI Server & Puzzles            | 192.168.0.80-192.168.0.89 |
+| 7         | Second Door Puzzles            | 192.168.0.70-192.168.0.79  |
+| 8         | AI Server & Puzzles            | 192.168.0.80-192.168.0.89  |
 
 There are two special network members:
 
@@ -114,12 +114,12 @@ For all messages we defined following JSON schema:
 }
 ```
 
-| Property | Description                                                                                         | Example             |
-| :------- | :-------------------------------------------------------------------------------------------------- | :------------------ |
-| src-ip   | The source IP address. This must not be set by the client. It is overriden by the server.           | 192.168.0.201       |
-| dest-ip  | The destination IP address.                                                                         | 192.168.0.302       |
+| Property | Description                                                                                                                | Example             |
+| :------- | :------------------------------------------------------------------------------------------------------------------------- | :------------------ |
+| src-ip   | The source IP address. This must not be set by the client. It is overriden by the server.                                  | 192.168.0.21        |
+| dest-ip  | The destination IP address.                                                                                                | 192.168.0.32        |
 | method   | The method indicates the purpose of the sender. For details see paragraph [Communication handling](#communication-format). | POLL, SEND, TRIGGER |
-| data     | The data is the raw request of the sender. It's content is arbitary.                                | TURN ON main_light  |
+| data     | The data is the raw request of the sender. It's content is arbitary.                                                       | TURN ON main_light  |
 
 ### Communication handling
 To communicate over **TCP** the client has to establish a connection to the sever.
