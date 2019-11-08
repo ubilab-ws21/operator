@@ -7,8 +7,6 @@
     - [Communication](#communication)
     - [Game logic](#game-logic)
   - [General architecture](#general-architecture)
-  - [Minutes](#minutes)
-    - [Meeting 07.11.19 15:00](#meeting-071119-1500)
   - [UI Control Board](#ui-control-board)
   - [MC Communication](#mc-communication)
     - [Network](#network)
@@ -50,20 +48,6 @@ The following picture shows the general architecture according to the introduced
 Moreover the diagramm specifies the communication protocols between the components.
 
 ![Design general system architecture](out/design/GeneralArchitecture.svg)
-
-## Minutes
-
-### Meeting 07.11.19 15:00
-1. Implementation ideas for UI
-   - All webpage compoenents are iframes with refresh intervals if periodacally update is required
-   - Implemented in python if possible
-
-2. Every developer is responsible for one component
-   - Simon is interested in develop the UI control panel
-   - Jannik would prefer to implement the communication interface
-   - It would be great if Jybz installs the esp cams 
-
-3. The communication interface is responsible for routing the messages between the MCs and to redirect game logic relevant json to the game logic module.
 
 ## UI Control Board
 *"Nothing written yet"*
@@ -132,7 +116,7 @@ For all messages we defined following JSON schema:
 | :------- | :-------------------------------------------------------------------------------------------------- | :------------------ |
 | src-ip   | The source IP address. This must not be set by the client. It is overriden by the server.           | 192.168.0.201       |
 | dest-ip  | The destination IP address.                                                                         | 192.168.0.302       |
-| method   | The method indicates the purpose of the sender. For details see paragraph "Communication handling". | POLL, SEND, TRIGGER |
+| method   | The method indicates the purpose of the sender. For details see paragraph [Communication handling](#communication-format). | POLL, SEND, TRIGGER |
 | data     | The data is the raw request of the sender. It's content is arbitary.                                | TURN ON main_light  |
 
 ### Communication handling
