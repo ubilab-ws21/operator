@@ -1,6 +1,8 @@
 # Operator Room
 
+## Table of content
 - [Operator Room](#operator-room)
+  - [Table of content](#table-of-content)
   - [What is this about?](#what-is-this-about)
   - [Components](#components)
     - [Monitoring](#monitoring)
@@ -62,14 +64,14 @@ To simplify the allocation of the ip addresses for each group the assigned group
 
 | Group No. | Group Name                     | IP range (from - to)        |
 | :-------- | :----------------------------- | :-------------------------- |
-| 1         | Operator Room                  | 192.168.0.100-192.168.0.199 |
-| 2         | Environment & AI               | 192.168.0.200-192.168.0.299 |
-| 3         | Mission Briefing               | 192.168.0.300-192.168.0.399 |
-| 4         | Both Doors & First Door Puzzle | 192.168.0.400-192.168.0.499 |
-| 5         | Safe & Puzzles                 | 192.168.0.500-192.168.0.599 |
-| 6         | Prototype & Puzzles            | 192.168.0.600-192.168.0.699 |
-| 7         | Second Door Puzzles            | 192.168.0.700-192.168.0.799 |
-| 8         | AI Server & Puzzles            | 192.168.0.800-192.168.0.899 |
+| 1         | Operator Room                  | 192.168.0.10-192.168.0.19 |
+| 2         | Environment & AI               | 192.168.0.20-192.168.0.29 |
+| 3         | Mission Briefing               | 192.168.0.30-192.168.0.39 |
+| 4         | Both Doors & First Door Puzzle | 192.168.0.40-192.168.0.49 |
+| 5         | Safe & Puzzles                 | 192.168.0.50-192.168.0.59 |
+| 6         | Prototype & Puzzles            | 192.168.0.060-192.168.0.69 |
+| 7         | Second Door Puzzles            | 192.168.0.70-192.168.0.79 |
+| 8         | AI Server & Puzzles            | 192.168.0.80-192.168.0.89 |
 
 There are two special network members:
 
