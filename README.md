@@ -72,7 +72,7 @@ To simplify the allocation of the ip addresses each group gets an ip range in **
 | 6         | Prototype & Puzzles            | 10.0.6.0-10.0.6.254  |
 | 7         | Second Door Puzzles            | 10.0.7.0-10.0.7.254  |
 | 8         | AI Server & Puzzles            | 10.0.8.0-10.0.8.254  |
-| -         | DHCP Addresses                 | 10.0.8.0-10.0.8.254  |
+| -         | DHCP Addresses                 | 10.0.9.0-10.0.9.254  |
 
 There are two special network members:
 
