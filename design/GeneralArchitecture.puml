@@ -22,8 +22,8 @@ package "MC [1 .. M]" {
 }
 
 package "Operator System" {
-    interface REST as REST
-    [Game workflow] - REST
+    interface TCP as TCP1
+    [Game workflow] - TCP1
 
     interface TCP as TCP
     [MC communication] -up-- TCP: provides
@@ -31,8 +31,8 @@ package "Operator System" {
     interface HTTP as HTTP
     [UI control board] -up-- HTTP: provides
 
-    [UI control board] <..> REST
-    [MC communication] <..> REST: standardized format
+    [UI control board] <..> TCP1
+    [MC communication] <..> TCP1: standardized format
 }
 
 package "ESP cams [1 .. N]" {

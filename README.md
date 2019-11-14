@@ -12,8 +12,6 @@
   - [UI Control Board](#ui-control-board)
   - [MC Communication](#mc-communication)
     - [Network](#network)
-    - [Protocol](#protocol)
-    - [Communication format](#communication-format)
     - [Communication handling](#communication-handling)
 
 ## What is this about?
@@ -80,57 +78,9 @@ There are two special network members:
 It is also the default gateway of the network.
 2. The **main server** is reachable unter the ip address **10.0.0.2**.
 
-### Protocol
-The supported protocol of the **main server** is **TCP**.
-An connection can be established on port **1337**.
-In python for example you can do this by execution the following code (more information [here](https://wiki.python.org/moin/TcpCommunication)):
-
-```python
-import socket
-
-TCP_IP = '10.0.0.2'
-TCP_PORT = 1337
-BUFFER_SIZE = 1024
-MESSAGE = "Hello, World!"
- 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((TCP_IP, TCP_PORT))
-s.close()
-```
-
-### Communication format
-The format of the messages exchanged between the participants is **JSON**.
-JSON is a very simple and compact data format to exchange data (more information [here](https://en.wikipedia.org/wiki/JSON)). 
-
-All messages are sended over the **main server** even if the destination is an other client.
-This is to log and monitor all communication centrally on the **main server** 
-For all messages we defined following JSON schema: 
-
-```javascript
-{
-  "src-ip": "<ip-addr>",
-  "dest-ip": "<ip-addr>",
-  "method": "<method>",
-  "data": "<data>"
-}
-```
-
-| Property | Description                                                                                                                | Example             |
-| :------- | :------------------------------------------------------------------------------------------------------------------------- | :------------------ |
-| src-ip   | The source IP address. This must not be set by the client. It is overriden by the server.                                  | 10.0.1.1            |
-| dest-ip  | The destination IP address.                                                                                                | 10.0.2.2            |
-| method   | The method indicates the purpose of the sender. For details see paragraph [Communication handling](#communication-format). | POLL, SEND, TRIGGER |
-| data     | The data is the raw request of the sender. It's content is arbitary.                                                       | TURN ON main_light  |
-
 ### Communication handling
-To communicate over **TCP** the client has to establish a connection to the sever.
-In general the communication from client to server is unidirectional. This means only the client sends requests to the server.
-
-We will solve this problem by **polling**. If there is a message for the client it has to fetch them by initiating a new request to the server.
-The client polls periodically for received messages.
 
 | Method Name | Description                                                                                                   |
 | :---------- | :------------------------------------------------------------------------------------------------------------ |
-| POLL        | Client polls for new received messages.                                                                       |
-| SEND        | Client likes to send a message to another client                                                              |
+| STATUS      | Client likes to transmit it's status.                                                                         |
 | TRIGGER     | Client triggers a state change. This method allows to change the state of the game logic (ex. riddle solved). |
