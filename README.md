@@ -12,7 +12,8 @@
   - [UI Control Board](#ui-control-board)
   - [MC Communication](#mc-communication)
     - [Network](#network)
-    - [Communication handling](#communication-handling)
+    - [Protocol](#protocol)
+    - [Communication format](#communication-format)
 
 ## What is this about?
 The operator room is the control center of the escape room. It's a separate room where the operator (game master) is taking place to observe the happenings in the escape room.
@@ -78,9 +79,27 @@ There are two special network members:
 It is also the default gateway of the network.
 2. The **main server** is reachable unter the ip address **10.0.0.2**.
 
-### Communication handling
+### Protocol
+The server provides a MQTT server (more information [here](https://en.wikipedia.org/wiki/MQTT)) where all clients can publish messages to there own topics (channels) and register to topics of other clients. This allows a dynamic and centralized way to react to messages of other client without strictly defining the communication rules.
 
-| Method Name | Description                                                                                                   |
-| :---------- | :------------------------------------------------------------------------------------------------------------ |
-| STATUS      | Client likes to transmit it's status.                                                                         |
-| TRIGGER     | Client triggers a state change. This method allows to change the state of the game logic (ex. riddle solved). |
+The topics of every client are clustered by group. They can be found [here](MQTTTopics.md).
+
+### Communication format
+The format of the messages exchanged between the the clients and the server is **JSON**.
+JSON is a very simple and compact data format to exchange data (more information [here](https://en.wikipedia.org/wiki/JSON)). 
+
+All messages are sended to the **main server** should JSON schema: 
+
+```javascript
+{
+  "method": "<method>",
+  "state": "<state>",
+  "data": "<data>"
+}
+```
+
+| Method  | State                    | Description                                       |
+| :------ | :----------------------- | :------------------------------------------------ |
+| MESSAGE |                          | Ignored by the server. For m2m communication.     |
+| STATUS  | inactive, active, solved | Transmitted status of the client.                 |
+| TRIGGER | on, off                  | Client triggers a state change (ex. lamp on/off). |
