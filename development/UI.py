@@ -4,7 +4,7 @@ from urllib import parse
 
 class UIRequestHandler (server.BaseHTTPRequestHandler):
     def do_GET(self):
-        if self.path == "index.html":
+        if self.path == "debug.html":
             pass
         elif self.path.startswith("getstate"):
             
