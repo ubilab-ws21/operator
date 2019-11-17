@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 import subprocess
 
-OPT = "../../../opt/ue-operator/"
+OPT = "../../opt/ue-operator/"
 REPOS = ["ai-server/", "environment/", "first-door/", "indoorloc/", "mission-briefing/", "prototype/", "safe/", "second-door/"]
 SCRIPTNAME = "server.py"
 
