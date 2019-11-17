@@ -3,41 +3,60 @@
 from argparse import ArgumentParser
 import subprocess
 
+OPT = "../../../opt/ue-operator/"
+REPOS = ["ai-server/", "environment/", "first-door/", "indoorloc/", "mission-briefing/", "prototype/", "safe/", "second-door/"]
+SCRIPTNAME = "server.py"
+
 
 if __name__ == "__main__":
     parser = ArgumentParser(description='Command-line interface for the ubilab-escape operator')
     parser.add_argument('command', metavar='CMD', type=str, choices=["init", "start", "help"], nargs="?",
-                        help='the command to execute', default="help")
+                        help='the command to execute\n(init, start)', default="help")
     parser.add_argument("-v", '--verbose', action='store_true', default=False, help='outputs debug information')
     parser.add_argument('--version', action='version', version='%(prog)s 1.0-1')
     args = parser.parse_args()
     v = args.verbose
+    processes = []
 
     try:
         """
             Initializing the network and stuff
         """
         if args.command == "init":
-            if v:
-                print("Operator initiated")
+            if v: print("Operator initiated")
+            processes.append(subprocess.Popen(["git", "clone", "--recurse-submodules", "https://github.com/ubilab-escape/integration", OPT+"integration"]))
 
         """
             Starting all services and scripts
         """
         if args.command == "start":
-            if v:
-                print("Operator started")
-            p = subprocess.Popen(["mosquitto", "-c", "../../../opt/ue-operator/mosquitto.conf"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            for line in iter(p.stdout.readline, b''):
-                print(line.decode("UTF-8"), end="")
+            for rep in REPOS:
+                try:
+                    p = subprocess.Popen(["python3", OPT+"integration/"+rep+SCRIPTNAME], stderr=subprocess.STDIN)
+                    processes.append(p)
+                    p.check_returncode()
+                    if v: print("Plugin "+rep+" started successfully")
+                except:
+                    if v: print("Plugin "+rep+" could not be started")
+            processes.append(subprocess.Popen(["python3", "-m", "http.server", "8080"], cwd=OPT+"webinterface"))
+            if v: print("Webserver started")
+            processes.append(subprocess.Popen(["mosquitto", "-c", OPT+"mosquitto.conf"]))
+            if v: print("Mosquitto started successfully")
+            for p in processes:
+                p.wait()
 
         """
             Outputting the help
         """
         if args.command == "help":
-            print("Select a CMD: init, start")
+            print("Select a CMD to execute")
             parser.parse_args(["--help"])
             exit(1)
     except KeyboardInterrupt:
+        for p in processes:
+            try:
+                p.terminate()
+            except KeyboardInterrupt:
+                pass
         print("Operator ended by user")
         exit(0)

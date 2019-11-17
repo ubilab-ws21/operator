@@ -1,0 +1,44 @@
+#output {
+    width: 100%;
+    height: calc(95vh - 3em);
+    resize: none;
+}
+
+nav {
+	background-color: black;
+}
+
+.navitem {
+	display: inline-block;
+	text-align: center;
+	background-color: #1a1a1a;
+	margin: 0;
+}
+
+.navitem a {
+	color: greenyellow;
+	text-decoration: none;
+	font-weight: bold;
+        display: inline-block;
+        padding: 1em;
+}
+
+.navitem a:hover {
+	color: green;
+}
+
+.selected a {
+	color: green;
+}
+
+main {
+	margin-top: 0.5em;
+}
+
+.webcam {
+    display: inline-block;
+    resize: both;
+    width: 100%;
+    max-width: 600px;
+    height: 400px;
+}
