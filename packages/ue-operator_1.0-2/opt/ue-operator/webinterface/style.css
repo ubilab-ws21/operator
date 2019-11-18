@@ -1,6 +1,6 @@
 #output {
     width: 100%;
-    height: calc(95vh - 3em);
+    height: calc(95vh - 6em);
     resize: none;
 }
 
@@ -41,4 +41,24 @@ main {
     width: 100%;
     max-width: 600px;
     height: 400px;
+}
+
+.subs {
+	display: inline-block;
+}
+
+.subs button {
+	border: 2px solid black;
+	border-radius: 8px;
+	cursor: pointer;
+	padding: 0.5em;
+	margin: 2px;
+}
+
+.subs.on button{
+	background-color: red;
+}
+
+.subs.off button {
+	background-color: green;
 }
