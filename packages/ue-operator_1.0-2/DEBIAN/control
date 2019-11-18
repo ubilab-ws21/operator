@@ -6,5 +6,6 @@ Architecture: i386
 Depends: python3, mosquitto, mosquitto-clients
 Maintainer: Simon Moser <mosers@tf.uni-freiburg.de>
 Description: ubilab escape operator
- This package provides all necessary software to run the escape room's operator server
+ This package provides all necessary software to run the operator server
+ for the ubilab escape room lab course 2019/2020 at University of Freiburg
 
