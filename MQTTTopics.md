@@ -4,7 +4,7 @@
 | 2         | Environment & AI               |                                                         |
 | 3         | Mission Briefing               |                                                         |
 | 4         | Both Doors & First Door Puzzle |                                                         |
-| 5         | Safe & Puzzles                 | 5_activate_safe, 5_safe_control                                          |
-| 6         | Prototype & Puzzles            | 6_floppy_puzzle, 6_terminal_puzzle                      |
-| 7         | Second Door Puzzles            | 7_fusebox, 7_robot, 7_laser, 7_button_server, 7_catflap |
-| 8         | AI Server & Puzzles            | 8_maze_puzzle, 8_simon_puzzle, 8_testing                |
+| 5         | Safe & Puzzles                 | 5/safe/activate, 5/safe/control                                          |
+| 6         | Prototype & Puzzles            | 6/puzzle/floppy, 6/puzzle/terminal                      |
+| 7         | Second Door Puzzles            | 7/fusebox, 7/robot, 7/laser, 7/button/server, 7/catflap |
+| 8         | AI Server & Puzzles            | 8/puzzle/maze, 8/puzzle/simon, 8/testing                |
