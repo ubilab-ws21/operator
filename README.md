@@ -59,10 +59,11 @@ All communication between the micro computers and the server will done over IP/T
 So every group gets an own IP range where they can use to connect their participants to the local network.
 
 We are using the private ip range 10.0.0.0/16 (Subnet mask: 255.255.0.0).
-To simplify the allocation of the ip addresses each group gets an ip range in **10.0.\<group-id\>.0/24** to use with fixed addresses. Additionally, the router acts as a DHCP server which assigns addresses from the 10.0.9.0/24 range (and above, if necessary).
+To simplify the allocation of the ip addresses each group gets an ip range in **10.0.\<group-id\>.0/24** to use with fixed addresses. Additionally, the router acts as a DHCP server which assigns addresses from the 10.0.0.0/24 range (from 10.0.0.10).
 
 | Group No. | Group Name                     | IP range (from - to) |
 | :-------- | :----------------------------- | :------------------- |
+| -         | DHCP Addresses                 | 10.0.0.10-10.0.0.254  |
 | 1         | Operator Room                  | 10.0.1.0-10.0.1.254  |
 | 2         | Environment & AI               | 10.0.2.0-10.0.2.254  |
 | 3         | Mission Briefing               | 10.0.3.0-10.0.3.254  |
@@ -71,7 +72,6 @@ To simplify the allocation of the ip addresses each group gets an ip range in **
 | 6         | Prototype & Puzzles            | 10.0.6.0-10.0.6.254  |
 | 7         | Second Door Puzzles            | 10.0.7.0-10.0.7.254  |
 | 8         | AI Server & Puzzles            | 10.0.8.0-10.0.8.254  |
-| -         | DHCP Addresses                 | 10.0.9.0-10.0.9.254  |
 
 There are two special network members:
 
