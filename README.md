@@ -9,6 +9,7 @@
     - [Communication](#communication)
     - [Game logic](#game-logic)
   - [General architecture](#general-architecture)
+  - [Base system](#base-system)
   - [UI Control Board](#ui-control-board)
   - [MC Communication](#mc-communication)
     - [Network](#network)
@@ -50,8 +51,21 @@ Moreover the diagramm specifies the communication protocols between the componen
 
 ![Design general system architecture](out/design/GeneralArchitecture.svg)
 
+## Base system
+The base system controls the deployment of software and requirements. This is done with a .deb package which contains the whole operator server. Furthermore, the package adds a script which is able to start the server and initialize settings. Currently, the script should start the following components:
+
+- Webserver for the UI
+- Main game logic
+- Mosquitto message broker
+- Plugin scripts of all groups
+
 ## UI Control Board
-*"Nothing written yet"*
+The UI Control Board is implemented by multiple .html files served by a simple python HTTP server which is listening on port 8080. The main functions of the UI consist of:
+
+- Displaying and changing the current states of all puzzles and actors
+- Displaying the camera streams
+- Serving debug information about the mosquitto software
+  - Possibly replaying a set of mosquitto topics
 
 ## MC Communication
 ### Network
