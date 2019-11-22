@@ -1,4 +1,4 @@
-@startuml GeneralArchitecture
+@startuml general_architecture
 note left of "Operator System"
 Project requirements:
 1) UI control board

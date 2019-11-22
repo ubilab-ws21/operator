@@ -49,7 +49,7 @@ The following picture shows the general architecture according to the introduced
 
 Moreover the diagramm specifies the communication protocols between the components.
 
-![Design general system architecture](out/design/GeneralArchitecture.svg)
+![Design general system architecture](out/design/general_architecture.svg)
 
 ## Base system
 The base system controls the deployment of software and requirements. This is done with a .deb package which contains the whole operator server. Furthermore, the package adds a script which is able to start the server and initialize settings. Currently, the script should start the following components:

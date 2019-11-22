@@ -1,0 +1,26 @@
+@startuml group_4_puzzle_entry_door
+actor operator
+participant MQTT_4_door_entrance_puzzle
+participant puzzle
+participant MQTT_4_door_entrance
+
+== Init ==
+puzzle -> MQTT_4_door_entrance_puzzle: register
+
+== Solve puzzle ==
+operator -> MQTT_4_door_entrance_puzzle: trigger: on
+MQTT_4_door_entrance_puzzle -> puzzle: trigger: on
+puzzle -> MQTT_4_door_entrance_puzzle: state: active
+
+loop [while input wrong key]
+    alt [on kepad input]
+        puzzle -> MQTT_4_door_entrance_puzzle: state: active [input]
+    end
+end
+
+puzzle -> MQTT_4_door_entrance_puzzle: state: solved
+MQTT_4_door_entrance_puzzle -> operator: state: solved
+
+== Open entrance door  ==
+operator -> MQTT_4_door_entrance: trigger: on
+@enduml
