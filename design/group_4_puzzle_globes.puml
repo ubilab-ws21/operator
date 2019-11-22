@@ -5,10 +5,10 @@ box "Globes"
     collections slaves
     participant master
 end box
-participant MQTT_4_door_entry
+participant MQTT_4_door_entrance
 
 == Init ==
-master -> MQTT_4_door_entry: register
+master -> MQTT_4_door_entrance: register
 master -> MQTT_4_globes: register
 slaves -> MQTT_4_globes: register
 
@@ -19,11 +19,11 @@ MQTT_4_globes -> slaves: trigger: on [#participants]
 
 loop [while door is open (state != inactive [closed])]
     alt [on all globes are touched]
-        master -> MQTT_4_door_entry: trigger: off
+        master -> MQTT_4_door_entrance: trigger: off
         ...
-        MQTT_4_door_entry -> master: state: inactive [closed]
+        MQTT_4_door_entrance -> master: state: inactive [closed]
     else [on any globe was released]
-        master -> MQTT_4_door_entry: trigger: on
+        master -> MQTT_4_door_entrance: trigger: on
     else
         ...
         master -> MQTT_4_globes: state: active [stateOfAllGlobes]
