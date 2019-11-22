@@ -77,7 +77,7 @@ To simplify the allocation of the ip addresses each group gets an ip range in **
 
 | Group No. | Group Name                     | IP range (from - to) |
 | :-------- | :----------------------------- | :------------------- |
-| -         | DHCP Addresses                 | 10.0.0.10-10.0.0.254  |
+| -         | DHCP Addresses                 | 10.0.0.10-10.0.0.254 |
 | 1         | Operator Room                  | 10.0.1.0-10.0.1.254  |
 | 2         | Environment & AI               | 10.0.2.0-10.0.2.254  |
 | 3         | Mission Briefing               | 10.0.3.0-10.0.3.254  |
@@ -112,8 +112,27 @@ All messages are sended to the **main server** should JSON schema:
 }
 ```
 
-| Method  | State                    | Description                                       |
-| :------ | :----------------------- | :------------------------------------------------ |
-| MESSAGE |                          | Ignored by the server. For m2m communication.     |
-| STATUS  | inactive, active, solved | Transmitted status of the client.                 |
-| TRIGGER | on, off                  | Client triggers a state change (ex. lamp on/off). |
+| Method  | State                    | Description                                                                                |
+| :------ | :----------------------- | :----------------------------------------------------------------------------------------- |
+| MESSAGE |                          | Ignored by the server. For m2m communication.                                              |
+| STATUS  | inactive, active, solved | The transmitted status of the client. The \<data> of status messages is printed in the UI. |
+| TRIGGER | on, off                  | Triggers a state change of an other module (ex. lamp on/off).                              |
+
+This definition is not sufficient for understanding the semantic of the message. This semantic depends on the use case. For example the transmitted data of a finger print sensor (binary) is completely different from the data to turn on a light (boolean).
+
+Conveniently we can solve this problem along with the definition of the puzzle workflows (sequence the messages are sent). To do so we'll use UML sequence digrams
+(more information [here](https://en.wikipedia.org/wiki/Sequence_diagram)).
+The calls of the sequence diagram can be interprated as follows:
+
+```
+\<method>: \<state> [\<data>]
+```
+
+[\<data>] is optional. For some use cases the trigger states "on" and "off" can be irritating. However, they are only indicators of a change of state.
+
+Example:
+
+![Communication format example](out/design/communication_format_example.svg)
+
+
+
