@@ -13,8 +13,9 @@
   - [UI Control Board](#ui-control-board)
   - [MC Communication](#mc-communication)
     - [Network](#network)
-    - [Protocol](#protocol)
+    - [Message protocol](#message-protocol)
     - [Communication format](#communication-format)
+    - [Communication protocol](#communication-protocol)
 
 ## What is this about?
 The operator room is the control center of the escape room. It's a separate room where the operator (game master) is taking place to observe the happenings in the escape room.
@@ -49,7 +50,7 @@ The following picture shows the general architecture according to the introduced
 
 Moreover the diagramm specifies the communication protocols between the components.
 
-![Design general system architecture](out/design/general_architecture.svg)
+![Design general system architecture](doc/design/general_architecture.svg)
 
 ## Base system
 The base system controls the deployment of software and requirements. This is done with a .deb package which contains the whole operator server. Furthermore, the package adds a script which is able to start the server and initialize settings. Currently, the script should start the following components:
@@ -93,7 +94,7 @@ There are two special network members:
 It is also the default gateway of the network.
 2. The **main server** is reachable unter the ip address **10.0.0.2**.
 
-### Protocol
+### Message protocol
 The server provides a MQTT server (more information [here](https://en.wikipedia.org/wiki/MQTT)) where all clients can publish messages to there own topics (channels) and register to topics of other clients. This allows a dynamic and centralized way to react to messages of other client without strictly defining the communication rules.
 
 The topics of every client are clustered by group. They can be found [here](MQTTTopics.md).
@@ -118,21 +119,36 @@ All messages are sended to the **main server** should JSON schema:
 | STATUS  | inactive, active, solved | The transmitted status of the client. The \<data> of status messages is printed in the UI. |
 | TRIGGER | on, off                  | Triggers a state change of an other module (ex. lamp on/off).                              |
 
-This definition is not sufficient for understanding the semantic of the message. This semantic depends on the use case. For example the transmitted data of a finger print sensor (binary) is completely different from the data to turn on a light (boolean).
+### Communication protocol
+The definition of the message protocol and the communication format is not sufficient for understanding the semantic and chronology of the messages shared between the participants. The semantic of these messages depends on the particular use case. For example the transmittion data of a finger print sensor (binary) is completely different from the data to turn on a light (boolean). The chronology of the messages is crucial to ensure the correct overall process workflow.
 
-Conveniently we can solve this problem along with the definition of the puzzle workflows (sequence the messages are sent). To do so we'll use UML sequence digrams
+We'll solve these problems using UML sequence digrams
 (more information [here](https://en.wikipedia.org/wiki/Sequence_diagram)).
-The calls of the sequence diagram can be interprated as follows:
+The calls of the sequence diagram can be interprated as follows (refer to section [communication format](#communication-format)):
 
 ```
-\<method>: \<state> [\<data>]
+<method>: <state> [<data>]
 ```
 
 [\<data>] is optional. For some use cases the trigger states "on" and "off" can be irritating. However, they are only indicators of a change of state.
 
-Example:
+For the sake of compatibility the slashes of the topic names in the sequence diagram are replaced by an underline *'\_'* and prefixed with an *'mqtt\_'*.
 
-![Communication format example](out/design/communication_format_example.svg)
+For example the topic name *4/door/entry* is transformed into *mqtt_4_door_entrance*.
 
+![Communication format example](doc/design/communication_format_example.svg)
+
+To ensure the overall process we'll have to define the communication protocol for every group. The following table provides the communication definitions per group.
+
+| Group No. | Group Name                     | Communication definition                                                                                                                                        |
+| :-------- | :----------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1         | Operator Room                  |                                                                                                                                                                 |
+| 2         | Environment & AI               |                                                                                                                                                                 |
+| 3         | Mission Briefing               |                                                                                                                                                                 |
+| 4         | Both Doors & First Door Puzzle | [Doors](doc/design/group_4_door.svg), [Entrance door puzzle](doc/design/group_4_puzzle_entrance_door.svg), [Globe puzzle](doc/design/group_4_puzzle_globes.svg) |
+| 5         | Safe & Puzzles                 |                                                                                                                                                                 |
+| 6         | Prototype & Puzzles            |                                                                                                                                                                 |
+| 7         | Second Door Puzzles            |                                                                                                                                                                 |
+| 8         | AI Server & Puzzles            |                                                                                                                                                                 |
 
 

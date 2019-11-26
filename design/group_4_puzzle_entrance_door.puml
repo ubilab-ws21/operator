@@ -1,4 +1,4 @@
-@startuml group_4_puzzle_entry_door
+@startuml group_4_puzzle_entrance_door
 actor operator
 participant MQTT_4_door_entrance_puzzle
 participant puzzle
