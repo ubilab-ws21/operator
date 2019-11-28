@@ -44,7 +44,7 @@ if __name__ == "__main__":
                 except:
                     if v: print("Plugin "+rep+" could not be started")
             for i in range(1, 6):
-                processes.append(subprocess.Popen(["python", "relay.py", "-p", "808"+str(i), "http://10.0.1."+str(i)],
+                processes.append(subprocess.Popen(["python", "relay.py", "-p", "808"+str(i), "-w", "1234"+str(i), "http://10.0.1."+str(i)],
                                                   cwd="/opt/mjpeg-relay/"))
             processes.append(subprocess.Popen(["mosquitto", "-c", OPT+"mosquitto.conf"]))
             if v: print("Mosquitto started successfully")

@@ -3,6 +3,7 @@ Description=ue-operator Service
 
 [Service]
 Type=simple
+User=ubilab
 ExecStart=/usr/bin/ue-operator start
 
 [Install]
