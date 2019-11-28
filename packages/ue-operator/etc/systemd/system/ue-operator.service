@@ -1,0 +1,9 @@
+[Unit]
+Description=ue-operator Service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/ue-operator start
+
+[Install]
+WantedBy=multi-user.target

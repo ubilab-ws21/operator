@@ -1,5 +1,5 @@
 Package: ue-operator
-Version: 1.0-3
+Version: %VERSION%
 Section: games
 Homepage: https://github.com/ubilab-escape/operator
 Priority: optional

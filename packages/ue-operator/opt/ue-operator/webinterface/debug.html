@@ -7,7 +7,7 @@
     <script type="text/javascript">
         let mqtt;
         let reconnectTimeout = 2000;
-        let host = "127.0.0.1";
+        let host = "10.0.0.2";
         let port = 9001;
 
         function onFailure(message) {
@@ -33,7 +33,7 @@
 
         function MQTTconnect() {
             console.log("Connecting to " + host + ":" + port + "...");
-            mqtt = new Paho.MQTT.Client(host, port, "", "ws-client");
+            mqtt = new Paho.MQTT.Client(host, port, "", "ws-client-" + ~~(Date.now()/1000));
             let options = {timeout: 3, onSuccess: onConnect, onFailure: onFailure};
             mqtt.onMessageArrived = onMessageArrived;
             mqtt.connect(options);
@@ -77,3 +77,4 @@
 <script>MQTTconnect();</script>
 </body>
 </html>
+
