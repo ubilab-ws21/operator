@@ -1,4 +1,0 @@
-[ue-operator]
-title=ubilab escape operator
-description=the ubilab escape operator server
-ports=1883,8080,9001/tcp

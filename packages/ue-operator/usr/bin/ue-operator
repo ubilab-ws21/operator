@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 import subprocess
 
-OPT = "../../opt/ue-operator/"
+OPT = "/opt/ue-operator/"
 REPOS = ["ai-server/", "environment/", "first-door/", "indoorloc/", "mission-briefing/", "prototype/", "safe/", "second-door/"]
 SCRIPTNAME = "server.py"
 
@@ -24,7 +24,12 @@ if __name__ == "__main__":
         """
         if args.command == "init":
             if v: print("Operator initiated")
-            processes.append(subprocess.Popen(["git", "clone", "--recurse-submodules", "https://github.com/ubilab-escape/integration", OPT+"integration"]))
+            processes.append(subprocess.Popen(["git", "clone", "--recurse-submodules",
+                                               "https://github.com/ubilab-escape/integration", OPT+"integration"]))
+            processes.append(subprocess.Popen(["git", "clone", "--recurse-submodules",
+                                               "https://github.com/OliverF/mjpeg-relay.git", "/opt/mjpeg-relay"]))
+            processes.append(subprocess.Popen(["python", "-m", "pip", "install", "-r", "requirements.txt"],
+                                              cwd="/opt/mjpeg-relay/"))
 
         """
             Starting all services and scripts
@@ -38,8 +43,9 @@ if __name__ == "__main__":
                     if v: print("Plugin "+rep+" started successfully")
                 except:
                     if v: print("Plugin "+rep+" could not be started")
-            # processes.append(subprocess.Popen(["python3", "-m", "http.server", "8080"], cwd=OPT+"webinterface"))
-            # if v: print("Webserver started")
+            for i in range(1, 6):
+                processes.append(subprocess.Popen(["python", "relay.py", "-p", "808"+str(i), "http://10.0.1."+str(i)],
+                                                  cwd="/opt/mjpeg-relay/"))
             processes.append(subprocess.Popen(["mosquitto", "-c", OPT+"mosquitto.conf"]))
             if v: print("Mosquitto started successfully")
             for p in processes:
