@@ -63,7 +63,7 @@ const char* password = "XXX";
   #define PWDN_GPIO_NUM     -1
   #define RESET_GPIO_NUM    15
   #define XCLK_GPIO_NUM     27
-  #define SIOD_GPIO_NUM     25
+  #define SIOD_GPIO_NUM     22
   #define SIOC_GPIO_NUM     23
   
   #define Y9_GPIO_NUM       19
@@ -74,7 +74,7 @@ const char* password = "XXX";
   #define Y4_GPIO_NUM       34
   #define Y3_GPIO_NUM       35
   #define Y2_GPIO_NUM       32
-  #define VSYNC_GPIO_NUM    22
+  #define VSYNC_GPIO_NUM    25
   #define HREF_GPIO_NUM     26
   #define PCLK_GPIO_NUM     21
 
@@ -137,6 +137,20 @@ static esp_err_t stream_handler(httpd_req_t *req){
     return res;
   }
 
+  size_t buf_len = httpd_req_get_url_query_len(req) + 1;
+  uint8_t quality = 80; 
+  if (buf_len > 1) {
+    char* buf = (char*) malloc(buf_len);
+    if (httpd_req_get_url_query_str(req, buf, buf_len) == ESP_OK) {
+      char * param;
+      /* Get value of expected key from query string */
+      if (httpd_query_key_value(buf, "quality", param, sizeof(param)) == ESP_OK) {
+        quality = atoi(param);
+      }
+    }
+    free(buf);
+  }
+
   while(true){
     fb = esp_camera_fb_get();
     if (!fb) {
@@ -145,7 +159,7 @@ static esp_err_t stream_handler(httpd_req_t *req){
     } else {
       if(fb->width > 400){
         if(fb->format != PIXFORMAT_JPEG){
-          bool jpeg_converted = frame2jpg(fb, 80, &_jpg_buf, &_jpg_buf_len);
+          bool jpeg_converted = frame2jpg(fb, quality, &_jpg_buf, &_jpg_buf_len);
           esp_camera_fb_return(fb);
           fb = NULL;
           if(!jpeg_converted){
@@ -230,7 +244,7 @@ void setup() {
   config.pixel_format = PIXFORMAT_JPEG; 
   
   if(psramFound()){
-    config.frame_size = FRAMESIZE_UXGA;
+    config.frame_size = FRAMESIZE_SVGA;
     config.jpeg_quality = 10;
     config.fb_count = 2;
   } else {
