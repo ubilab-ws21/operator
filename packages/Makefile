@@ -8,7 +8,7 @@ TMP_DIR = ue-operator_$(VERSION)
 build:
 	cp -r ue-operator $(TMP_DIR)
 	# example copying the webinterface
-	cp -r ../webinterface $(TMP_DIR)/opt/ue-operator/
+	cp -r ../webinterface/* $(TMP_DIR)/var/www/html/
 	# Add custom copy commands here
 	sudo chown -R root:root $(TMP_DIR)/etc
 	sudo chown -R root:root $(TMP_DIR)/usr

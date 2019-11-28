@@ -38,8 +38,8 @@ if __name__ == "__main__":
                     if v: print("Plugin "+rep+" started successfully")
                 except:
                     if v: print("Plugin "+rep+" could not be started")
-            processes.append(subprocess.Popen(["python3", "-m", "http.server", "8080"], cwd=OPT+"webinterface"))
-            if v: print("Webserver started")
+            # processes.append(subprocess.Popen(["python3", "-m", "http.server", "8080"], cwd=OPT+"webinterface"))
+            # if v: print("Webserver started")
             processes.append(subprocess.Popen(["mosquitto", "-c", OPT+"mosquitto.conf"]))
             if v: print("Mosquitto started successfully")
             for p in processes:
