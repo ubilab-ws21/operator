@@ -116,7 +116,7 @@ All messages are sended to the **main server** should JSON schema:
 | Method  | State                    | Description                                                                                |
 | :------ | :----------------------- | :----------------------------------------------------------------------------------------- |
 | MESSAGE |                          | Ignored by the server. For m2m communication.                                              |
-| STATUS  | inactive, active, solved | The transmitted status of the client. The \<data> of status messages is printed in the UI. |
+| STATUS  | inactive, active, solved | The transmitted status of the client. The \<data> of status messages is printed in the UI. All messages using this method **must** set the retained flag! |
 | TRIGGER | on, off                  | Triggers a state change of an other module (ex. lamp on/off).                              |
 
 ### Communication protocol
