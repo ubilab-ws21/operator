@@ -21,12 +21,12 @@ loop [while door is open (state != inactive [closed])]
     alt [on all globes are touched]
         master -> MQTT_4_door_entrance: trigger: off
         ...
-        MQTT_4_door_entrance -> master: state: inactive [closed]
+        MQTT_4_door_entrance -> master: status: inactive [closed]
     else [on any globe was released]
         master -> MQTT_4_door_entrance: trigger: on
     else
         ...
-        master -> MQTT_4_globes: state: active [stateOfAllGlobes]
+        master -> MQTT_4_globes: status: active [stateOfAllGlobes]
         note left
             The master publishes the states
             of all globes.
@@ -42,6 +42,6 @@ loop [while door is open (state != inactive [closed])]
 
 end
 
-MQTT_4_globes <- master: state: solved
-operator <- MQTT_4_globes: state: solved
+MQTT_4_globes <- master: status: solved
+operator <- MQTT_4_globes: status: solved
 @enduml

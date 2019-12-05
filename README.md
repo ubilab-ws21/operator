@@ -113,11 +113,11 @@ All messages are sended to the **main server** should JSON schema:
 }
 ```
 
-| Method  | State                    | Description                                                                                |
-| :------ | :----------------------- | :----------------------------------------------------------------------------------------- |
-| MESSAGE |                          | Ignored by the server. For m2m communication.                                              |
-| STATUS  | inactive, active, solved | The transmitted status of the client. The \<data> of status messages is printed in the UI. All messages using this method **must** set the retained flag if the MQTT protocol! |
-| TRIGGER | on, off                  | Triggers a state change of an other module (ex. lamp on/off).                              |
+| Method  | State                            | Description                                                                                |
+| :------ | :------------------------------- | :----------------------------------------------------------------------------------------- |
+| MESSAGE |                                  | Ignored by the server. For m2m communication.                                              |
+| STATUS  | inactive, active, solved, failed | The transmitted status of the client. The \<data> of status messages is printed in the UI. |
+| TRIGGER | on, off                          | Triggers a state change of an other module (ex. lamp on/off).                              |
 
 ### Communication protocol
 The definition of the message protocol and the communication format is not sufficient for understanding the semantic and chronology of the messages shared between the participants. The semantic of these messages depends on the particular use case. For example the transmittion data of a finger print sensor (binary) is completely different from the data to turn on a light (boolean). The chronology of the messages is crucial to ensure the correct overall process workflow.
@@ -138,7 +138,13 @@ For example the topic name *4/door/entry* is transformed into *mqtt_4_door_entra
 
 ![Communication format example](doc/design/communication_format_example.svg)
 
-To ensure the overall process we'll have to define the communication protocol for every group. The following table provides the communication definitions per group.
+To ensure the overall process we'll have to define the communication protocol. 
+Because most of the groups have simliar communication protocols, we have defined a default sequence diagram:
+
+![Default communication protocol](doc/design/general_μC_workflow.svg)
+
+If there are different use cases for some groups we're defining customized communication protocols.
+The following table provides the customized communication definitions:
 
 | Group No. | Group Name                     | Communication definition                                                                                                                                        |
 | :-------- | :----------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------- |

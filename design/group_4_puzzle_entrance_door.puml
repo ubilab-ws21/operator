@@ -10,16 +10,16 @@ puzzle -> MQTT_4_door_entrance_puzzle: register
 == Solve puzzle ==
 operator -> MQTT_4_door_entrance_puzzle: trigger: on
 MQTT_4_door_entrance_puzzle -> puzzle: trigger: on
-puzzle -> MQTT_4_door_entrance_puzzle: state: active
+puzzle -> MQTT_4_door_entrance_puzzle: status: active
 
 loop [while input wrong key]
     alt [on kepad input]
-        puzzle -> MQTT_4_door_entrance_puzzle: state: active [input]
+        puzzle -> MQTT_4_door_entrance_puzzle: status: active [input]
     end
 end
 
-puzzle -> MQTT_4_door_entrance_puzzle: state: solved
-MQTT_4_door_entrance_puzzle -> operator: state: solved
+puzzle -> MQTT_4_door_entrance_puzzle: status: solved
+MQTT_4_door_entrance_puzzle -> operator: status: solved
 
 == Open entrance door  ==
 operator -> MQTT_4_door_entrance: trigger: on

@@ -5,10 +5,10 @@ participant door
 
 Actor -> mqtt_door_topic: trigger: on
 mqtt_door_topic -> door: trigger: on
-door -> mqtt_door_topic: state: active [opening]
+door -> mqtt_door_topic: status: active [opening]
 loop [on door is not opened]
-    door -> door: sliding on
+    door -> door: opening
 end
 
-door -> mqtt_door_topic: state: inactive [opened]
+door -> mqtt_door_topic: status: inactive [opened]
 @enduml

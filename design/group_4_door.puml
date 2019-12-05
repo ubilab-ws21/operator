@@ -13,20 +13,20 @@ door -> mqtt_door_topic: register
 == Open door ==
 Actor -> mqtt_door_topic: trigger: on
 mqtt_door_topic -> door: trigger: on
-door -> mqtt_door_topic: state: active [opening]
+door -> mqtt_door_topic: status: active [opening]
 loop [on door is not opened]
-    door -> door: sliding on
+    door -> door: opening
 end
 
-door -> mqtt_door_topic: state: inactive [opened]
+door -> mqtt_door_topic: status: inactive [opened]
 
 == Close door ==
 Actor -> mqtt_door_topic: trigger: off
 mqtt_door_topic -> door: trigger: off
-door -> mqtt_door_topic: state: active [closing]
+door -> mqtt_door_topic: status: active [closing]
 loop [on door is not closed]
-    door -> door: sliding off
+    door -> door: closing
 end
 
-door -> mqtt_door_topic: state: inactive [closed]
+door -> mqtt_door_topic: status: inactive [closed]
 @enduml
