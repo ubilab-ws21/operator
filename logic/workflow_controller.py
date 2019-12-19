@@ -32,7 +32,7 @@ class WorkflowController:
         """
         self.client.connect(self.mqtt_url)
         self.client.loop_start()
-        print("Workflow started...")
+        print("Main workflow started...")
 
     def stop(self):
         """
@@ -40,7 +40,7 @@ class WorkflowController:
         """
         self.client.disconnect()
         self.client.loop_stop()
-        print("Workflow stopped...")
+        print("Main workflow stopped...")
 
     def __on_connect(self, client, userdata, flags, rc):
         """
@@ -65,10 +65,12 @@ class WorkflowController:
 
     def __on_workflow_failed(self, error):
         self.stop()
-        print("An error occured. The workflow exited. Error: %s" % (error))
+        workflow = self.workflows[self.current_workflow]
+        print("[%s] An error occured: %s" % (workflow.name, error))
 
     def __on_workflow_solved(self):
-        print("Puzzle solved...")
+        workflow = self.workflows[self.current_workflow]
+        print("Puzzle '%s' solved..." % (workflow.name))
         self.__unsubscribeCurrentWorkflow(self.client)
         self.current_workflow += 1
         if self.current_workflow >= len(self.workflows):

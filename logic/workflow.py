@@ -5,7 +5,7 @@ class Workflow:
     https://github.com/ubilab-escape/operator/blob/master/doc/design/general_%CE%BCC_workflow.svg
     """
 
-    def __init__(self, topic):
+    def __init__(self, name, topic):
         """
         Initializes a new instance of this class.
 
@@ -15,6 +15,7 @@ class Workflow:
             Name of the MQTT topic.
         """
         self.topic = topic
+        self.name = name
         self._on_workflow_failed = None
         self._on_workflow_solved = None
 
@@ -28,7 +29,7 @@ class Workflow:
             MQTT client
         """
         client.subscribe(self.topic)
-        print("Workflow subscribed to topic '%s'..." % (self.topic))
+        print("[%s] Subscribed to topic '%s'..." % (self.name, self.topic))
 
     def unsubscribe(self, client):
         """
@@ -40,7 +41,7 @@ class Workflow:
             MQTT client
         """
         client.unsubscribe(self.topic)
-        print("Workflow unsubscribed from topic '%s'..." % (self.topic))
+        print("[%s] Unsubscribed from topic '%s'..." % (self.name, self.topic))
 
     def on_message(self, msg):
         """
