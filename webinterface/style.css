@@ -63,3 +63,24 @@ main {
 .subs.off button {
 	background-color: green;
 }
+
+.control {
+	display: inline-block;
+	padding: 5px;
+	border: 1px solid black;
+	border-radius: 5px;
+	margin: 5px;
+}
+
+.control form {
+	margin: 0;
+}
+
+.control input, .control button, .control select {
+	width: 10em;
+}
+
+.control b {
+	text-align: center;
+	display: block;
+}

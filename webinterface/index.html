@@ -2,7 +2,109 @@
 <head>
     <title>Operator - Control</title>
     <meta charset="utf-8"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript" crossorigin="anonymous"></script>
     <link href="style.css" rel="stylesheet">
+    <script type="text/javascript">
+        let mqtt;
+        let reconnectTimeout = 2000;
+        let host = "10.0.0.2";
+        let port = 9001;
+
+        function onFailure(message) {
+            console.log("Connection attempt failed");
+            setTimeout(MQTTconnect, reconnectTimeout);
+        }
+
+        function onMessageArrived(msg) {
+            // console.log(msg.payloadString);
+            try {
+                let obj = JSON.parse(msg.payloadString);
+                if(obj.method === "status") {
+                    let dst = msg.destinationName;
+                    let dst_b64 = btoa(dst);
+
+                    // Create the status box if it doesn't exist yet
+                    if(document.getElementById(dst_b64) == null) {
+                        // Create dropdown options
+                        let opt1 = document.createElement("option");
+                        opt1.innerText = "inactive";
+                        opt1.value = "inactive";
+                        let opt2 = document.createElement("option");
+                        opt2.innerText = "active";
+                        opt2.value = "active";
+                        let opt3 = document.createElement("option");
+                        opt3.innerText = "solved";
+                        opt3.value = "solved";
+                        let opt4 = document.createElement("option");
+                        opt4.innerText = "failed";
+                        opt4.value = "failed";
+                        // Create dropdown field and append options
+                        let select = document.createElement("select");
+                        select.id = dst_b64 + "_state";
+                        select.appendChild(opt1);
+                        select.appendChild(opt2);
+                        select.appendChild(opt3);
+                        select.appendChild(opt4);
+                        // Create data field
+                        let data = document.createElement("input");
+                        data.type = "text";
+                        data.id = dst_b64 + "_data";
+                        // Create button
+                        let button = document.createElement("button");
+                        button.innerText = "Change";
+                        button.type = "button";
+                        button.setAttribute("onclick", "changeState('" + dst_b64 + "');");
+                        // Create form and append fields
+                        let form = document.createElement("form");
+                        form.appendChild(select);
+                        form.appendChild(document.createElement("br"));
+                        form.appendChild(data);
+                        form.appendChild(document.createElement("br"));
+                        form.appendChild(button);
+                        // Create title/topic name
+                        let header = document.createElement("b");
+                        header.innerText = dst;
+                        // Create container and append elements
+                        let ele = document.createElement("div");
+                        ele.id = dst_b64;
+                        ele.className = "control";
+                        ele.appendChild(header);
+                        ele.appendChild(form);
+                        // Select group container and append single container
+                        let cont = document.getElementById("c" + dst.charAt(0));
+                        cont.appendChild(ele);
+                    }
+
+                    // Change the state of the status box
+                    document.getElementById(dst_b64 + "_state").value = obj.state;
+                    document.getElementById(dst_b64 + "_data").value = obj.data || "";
+                }
+            } catch { }
+        }
+
+        function onConnect() {
+            console.log("Connected");
+            for(let i = 1; i < 9; i++) {
+                mqtt.subscribe(i.toString() + "/#");
+            }
+        }
+
+        function MQTTconnect() {
+            console.log("Connecting to " + host + ":" + port + "...");
+            mqtt = new Paho.MQTT.Client(host, port, "", "ws-client-" + ~~(Date.now()/1000));
+            let options = {timeout: 3, onSuccess: onConnect, onFailure: onFailure};
+            mqtt.onMessageArrived = onMessageArrived;
+            mqtt.connect(options);
+        }
+
+        function changeState(dst_b64) {
+            let dst = atob(dst_b64);
+            let state = document.getElementById(dst_b64 + "_state").value;
+            let data = document.getElementById(dst_b64 + "_data").value;
+            let json_obj = JSON.stringify({method: "status", state: state, data: data});
+            mqtt.send(dst, json_obj, 0, true);
+        }
+    </script>
 </head>
 <body>
 <nav>
@@ -10,5 +112,17 @@
     <div class="navitem"><a href="cameras.html">Cameras</a></div>
     <div class="navitem"><a href="debug.html">Mosquitto</a></div>
 </nav>
+<main>
+    <div class="control-group" id="c1"></div>
+    <div class="control-group" id="c2"></div>
+    <div class="control-group" id="c3"></div>
+    <div class="control-group" id="c4"></div>
+    <div class="control-group" id="c5"></div>
+    <div class="control-group" id="c6"></div>
+    <div class="control-group" id="c7"></div>
+    <div class="control-group" id="c8"></div>
+</main>
+<script>MQTTconnect();</script>
 </body>
 </html>
+
