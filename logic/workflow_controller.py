@@ -19,9 +19,7 @@ class WorkflowController:
         workflows : Workflow[]
             An array of workflows defining the sequence of their execution.
         """
-        self.client = mqtt.Client()
-        self.client.on_connect = self.__on_connect
-        self.client.on_message = self.__on_message
+        self.client = None
         self.mqtt_url = mqtt_url
         self.workflows = workflows
         self.current_workflow = 0
@@ -30,6 +28,9 @@ class WorkflowController:
         """
         Starts the main workflow.
         """
+        self.client = mqtt.Client()
+        self.client.on_connect = self.__on_connect
+        self.client.on_message = self.__on_message
         self.client.connect(self.mqtt_url)
         self.client.loop_start()
         print("Main workflow started...")
@@ -41,12 +42,21 @@ class WorkflowController:
         self.client.disconnect()
         self.client.loop_stop()
         print("Main workflow stopped...")
+    
+    def reset(self):
+        """
+        Resets the main workflow.
+        """
+        self.stop()
+        self.current_workflow = 0
+        self.start()
 
     def __on_connect(self, client, userdata, flags, rc):
         """
         Subscribing in on_connect() means that if we lose the connection and
         reconnect then subscriptions will be renewed.
         """
+        print("Test")
         self.__subscribeCurrentWorkflow(client)
 
     def __on_message(self, client, userdata, msg):
@@ -55,26 +65,27 @@ class WorkflowController:
 
     def __subscribeCurrentWorkflow(self, client):
         workflow = self.workflows[self.current_workflow]
-        workflow.subscribe(client)
         workflow.register_on_failed(self.__on_workflow_failed)
         workflow.register_on_solved(self.__on_workflow_solved)
+        workflow.execute(client)
 
     def __unsubscribeCurrentWorkflow(self, client):
         workflow = self.workflows[self.current_workflow]
-        workflow.unsubscribe(client)
+        workflow.register_on_failed(None)
+        workflow.register_on_solved(None)
+        workflow.dispose(client)
 
     def __on_workflow_failed(self, error):
-        self.stop()
-        workflow = self.workflows[self.current_workflow]
-        print("[%s] An error occured: %s" % (workflow.name, error))
+        pass
 
     def __on_workflow_solved(self):
-        workflow = self.workflows[self.current_workflow]
-        print("Puzzle '%s' solved..." % (workflow.name))
         self.__unsubscribeCurrentWorkflow(self.client)
         self.current_workflow += 1
         if self.current_workflow >= len(self.workflows):
-            self.stop()
+            print("===============================")
             print("Workflow finished successfully!")
+            print("===============================")
+            self.reset()
+            print("Main workflow resetted...")
         else:
             self.__subscribeCurrentWorkflow(self.client)

@@ -1,3 +1,7 @@
+from message import Message, Method, State, fromJSON
+import json
+
+
 class Workflow:
     """
     This class represents the default workflow implementation of a puzzle,
@@ -19,21 +23,24 @@ class Workflow:
         self._on_workflow_failed = None
         self._on_workflow_solved = None
 
-    def subscribe(self, client):
+    def execute(self, client):
         """
-        Subscribes the given client to the topic of this workflow.
+        Executes this workflow.
 
         Parameters
         ----------
         client : Client
             MQTT client
         """
+        message = Message(Method.TRIGGER, State.ON)
+        client.publish(self.topic, message.toJSON())
+        print("[%s] Started..." % (self.name))
         client.subscribe(self.topic)
         print("[%s] Subscribed to topic '%s'..." % (self.name, self.topic))
 
-    def unsubscribe(self, client):
+    def dispose(self, client):
         """
-        Unsubscribes the given client from the topic of this workflow.
+        Disposes this workflow.
 
         Parameters
         ----------
@@ -52,10 +59,35 @@ class Workflow:
         msg : Message
             Message from the MQTT topic.
         """
-        print("%s | %s" % (msg.topic, msg.payload))
-
-        if self._on_workflow_solved:
-            self._on_workflow_solved()
+        try:
+            message = msg.payload.decode("utf-8")
+            obj = fromJSON(message)
+            if obj.method == Method.STATUS:
+                print("[%s] State change to '%s'" % (self.name, obj.state.name))
+                if obj.state == State.INACTIVE:
+                    self.__on_received_status_inactive(obj.data)
+                elif obj.state == State.ACTIVE:
+                    self.__on_received_status_active(obj.data)
+                elif obj.state == State.SOLVED:
+                    self.__on_received_status_solved(obj.data)
+                if obj.state == State.FAILED:
+                    self.__on_received_status_failed(obj.data)
+                else:
+                    self._on_workflow_failed("[%s] State '%s' is not supported" % (self.name, obj.state))
+            elif obj.method == Method.TRIGGER:
+                print("[%s] Requested trigger '%s'" % (self.name, obj.state.name))
+                if obj.state == State.ON:
+                    self.__on_received_trigger_on(obj.data)
+                elif obj.state == State.OFF:
+                    self.__on_received_trigger_off(obj.data)
+                else:
+                    self._on_workflow_failed("[%s] Trigger state '%s' is not supported" % (self.name, obj.state))
+            elif obj.method == Method.MESSAGE:
+                print("[%s] Received message with method 'MESSAGE'. Nothing to do..." % (self.name))
+            else:
+                self._on_workflow_failed("[%s] Method '%s' is not supported" % (self.name, obj.method))
+        except Exception as e:
+            self._on_workflow_failed("[%s] No valid JSON: %s" % (self.name, str(e)))
 
     def register_on_failed(self, func):
         """
@@ -78,3 +110,23 @@ class Workflow:
             Handler function: func()
         """
         self._on_workflow_solved = func
+
+    def __on_received_status_inactive(self, data):
+        print("  ==> Nothing to do")
+
+    def __on_received_status_active(self, data):
+        print("  ==> Nothing to do")
+
+    def __on_received_status_solved(self, data):
+        print("  ==> Puzzle solved successfully")
+        self._on_workflow_solved()
+
+    def __on_received_status_failed(self, data):
+        print("  ==> An error occured: %s" % (data))
+        self._on_workflow_failed(data)
+
+    def __on_received_trigger_on(self, data):
+        print("  ==> Nothing to do")
+
+    def __on_received_trigger_off(self, data):
+        print("  ==> Nothing to do")
