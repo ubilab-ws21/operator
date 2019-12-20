@@ -16,7 +16,6 @@
         }
 
         function onMessageArrived(msg) {
-            // console.log(msg.payloadString);
             try {
                 let obj = JSON.parse(msg.payloadString);
                 if(obj.method === "status") {
@@ -100,8 +99,7 @@
         function changeState(dst_b64) {
             let dst = atob(dst_b64);
             let state = document.getElementById(dst_b64 + "_state").value;
-            let data = document.getElementById(dst_b64 + "_data").value;
-            let json_obj = JSON.stringify({method: "status", state: state, data: data});
+            let json_obj = JSON.stringify({method: "trigger", state: "on", data: state});
             mqtt.send(dst, json_obj, 0, true);
         }
     </script>
