@@ -14,6 +14,8 @@ class Workflow:
 
         Parameters
         ----------
+        name : str
+            Display name of the workflow.
         topic : str
             Name of the MQTT topic.
         """
@@ -59,42 +61,52 @@ class Workflow:
             Message from the MQTT topic.
         """
         try:
+            # Check for relevant topic
+            if msg.topic != self.topic:
+                return
+
             message = msg.payload.decode("utf-8")
             obj = fromJSON(message)
             if obj.method == Method.STATUS:
                 print("[%s] State change to '%s'"
                       % (self.name, obj.state.name))
                 if obj.state == State.INACTIVE:
-                    self.__on_received_status_inactive(obj.data)
+                    self.on_received_status_inactive(obj.data)
                 elif obj.state == State.ACTIVE:
-                    self.__on_received_status_active(obj.data)
+                    self.on_received_status_active(obj.data)
                 elif obj.state == State.SOLVED:
-                    self.__on_received_status_solved(obj.data)
+                    self.on_received_status_solved(obj.data)
                 if obj.state == State.FAILED:
-                    self.__on_received_status_failed(obj.data)
+                    self.on_received_status_failed(obj.data)
                 else:
-                    self._on_workflow_failed("[%s] State '%s' is not supported"
-                                             % (self.name, obj.state))
+                    self._on_workflow_failed(
+                        self.name,
+                        "[%s] State '%s' is not supported"
+                        % (self.name, obj.state))
             elif obj.method == Method.TRIGGER:
                 print("[%s] Requested trigger '%s'"
                       % (self.name, obj.state.name))
                 if obj.state == State.ON:
-                    self.__on_received_trigger_on(obj.data)
+                    self.on_received_trigger_on(obj.data)
                 elif obj.state == State.OFF:
-                    self.__on_received_trigger_off(obj.data)
+                    self.on_received_trigger_off(obj.data)
                 else:
                     self._on_workflow_failed(
+                        self.name,
                         "[%s] Trigger state '%s' is not supported"
                         % (self.name, obj.state))
             elif obj.method == Method.MESSAGE:
                 print("[%s] Received message with method 'MESSAGE'. "
                       "Nothing to do..." % (self.name))
             else:
-                self._on_workflow_failed("[%s] Method '%s' is not supported"
-                                         % (self.name, obj.method))
+                self._on_workflow_failed(
+                    self.name,
+                    "[%s] Method '%s' is not supported"
+                    % (self.name, obj.method))
         except Exception as e:
-            self._on_workflow_failed("[%s] No valid JSON: %s"
-                                     % (self.name, str(e)))
+            self._on_workflow_failed(
+                self.name,
+                "[%s] No valid JSON: %s" % (self.name, str(e)))
 
     def register_on_failed(self, func):
         """
@@ -118,22 +130,22 @@ class Workflow:
         """
         self._on_workflow_solved = func
 
-    def __on_received_status_inactive(self, data):
+    def on_received_status_inactive(self, data):
         print("  ==> Nothing to do")
 
-    def __on_received_status_active(self, data):
+    def on_received_status_active(self, data):
         print("  ==> Nothing to do")
 
-    def __on_received_status_solved(self, data):
+    def on_received_status_solved(self, data):
         print("  ==> Puzzle solved successfully")
-        self._on_workflow_solved()
+        self._on_workflow_solved(self.name)
 
-    def __on_received_status_failed(self, data):
+    def on_received_status_failed(self, data):
         print("  ==> An error occured: %s" % (data))
-        self._on_workflow_failed(data)
+        self._on_workflow_failed(self.name, data)
 
-    def __on_received_trigger_on(self, data):
+    def on_received_trigger_on(self, data):
         print("  ==> Nothing to do")
 
-    def __on_received_trigger_off(self, data):
+    def on_received_trigger_off(self, data):
         print("  ==> Nothing to do")

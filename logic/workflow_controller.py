@@ -74,10 +74,10 @@ class WorkflowController:
         workflow.register_on_solved(None)
         workflow.dispose(client)
 
-    def __on_workflow_failed(self, error):
+    def __on_workflow_failed(self, name, error):
         pass
 
-    def __on_workflow_solved(self):
+    def __on_workflow_solved(self, name):
         self.__unsubscribeCurrentWorkflow(self.client)
         self.current_workflow += 1
         if self.current_workflow >= len(self.workflows):
