@@ -1,5 +1,4 @@
 from message import Message, Method, State, fromJSON
-import json
 
 
 class Workflow:
@@ -63,7 +62,8 @@ class Workflow:
             message = msg.payload.decode("utf-8")
             obj = fromJSON(message)
             if obj.method == Method.STATUS:
-                print("[%s] State change to '%s'" % (self.name, obj.state.name))
+                print("[%s] State change to '%s'"
+                      % (self.name, obj.state.name))
                 if obj.state == State.INACTIVE:
                     self.__on_received_status_inactive(obj.data)
                 elif obj.state == State.ACTIVE:
@@ -73,21 +73,28 @@ class Workflow:
                 if obj.state == State.FAILED:
                     self.__on_received_status_failed(obj.data)
                 else:
-                    self._on_workflow_failed("[%s] State '%s' is not supported" % (self.name, obj.state))
+                    self._on_workflow_failed("[%s] State '%s' is not supported"
+                                             % (self.name, obj.state))
             elif obj.method == Method.TRIGGER:
-                print("[%s] Requested trigger '%s'" % (self.name, obj.state.name))
+                print("[%s] Requested trigger '%s'"
+                      % (self.name, obj.state.name))
                 if obj.state == State.ON:
                     self.__on_received_trigger_on(obj.data)
                 elif obj.state == State.OFF:
                     self.__on_received_trigger_off(obj.data)
                 else:
-                    self._on_workflow_failed("[%s] Trigger state '%s' is not supported" % (self.name, obj.state))
+                    self._on_workflow_failed(
+                        "[%s] Trigger state '%s' is not supported"
+                        % (self.name, obj.state))
             elif obj.method == Method.MESSAGE:
-                print("[%s] Received message with method 'MESSAGE'. Nothing to do..." % (self.name))
+                print("[%s] Received message with method 'MESSAGE'. "
+                      "Nothing to do..." % (self.name))
             else:
-                self._on_workflow_failed("[%s] Method '%s' is not supported" % (self.name, obj.method))
+                self._on_workflow_failed("[%s] Method '%s' is not supported"
+                                         % (self.name, obj.method))
         except Exception as e:
-            self._on_workflow_failed("[%s] No valid JSON: %s" % (self.name, str(e)))
+            self._on_workflow_failed("[%s] No valid JSON: %s"
+                                     % (self.name, str(e)))
 
     def register_on_failed(self, func):
         """

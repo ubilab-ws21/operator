@@ -18,39 +18,40 @@ class State(Enum):
 
 
 def fromJSON(text):
-        """
-        Creates a message object from a JSON.
+    """
+    Creates a message object from a JSON.
 
-        >>> m = '{"method": "STATUS", "state": "ACTIVE", "data": null}'
-        >>> message = fromJSON(m)
-        >>> isinstance(message, Message)
-        True
-        >>> (message.method, message.state, message.data)
-        (<Method.STATUS: 1>, <State.ACTIVE: 3>, None)
-        >>> m = '{"method": "TRIGGER", "state": "ON", "data": "INACTIVE"}'
-        >>> message = fromJSON(m)
-        >>> isinstance(message, Message)
-        True
-        >>> (message.method, message.state, message.data)
-        (<Method.TRIGGER: 2>, <State.ON: 1>, 'INACTIVE')
-        """
-        obj = json.loads(text)
-        method = obj.get("method")
-        if not method:
-            raise Exception("JSON attribute 'method' is missing.")
-        elif method not in [k.name for k in Method]:
-            raise Exception("Method '%s' is not valid." % (method))
-        
-        state = obj.get("state")
-        if not state:
-            raise Exception("JSON attribute 'state' is missing.")
-        elif state not in [k.name for k in State]:
-            raise Exception("State '%s' is not valid." % (state))
-        
-        date = obj.get("data")
+    >>> m = '{"method": "STATUS", "state": "ACTIVE", "data": null}'
+    >>> message = fromJSON(m)
+    >>> isinstance(message, Message)
+    True
+    >>> (message.method, message.state, message.data)
+    (<Method.STATUS: 1>, <State.ACTIVE: 3>, None)
+    >>> m = '{"method": "TRIGGER", "state": "ON", "data": "INACTIVE"}'
+    >>> message = fromJSON(m)
+    >>> isinstance(message, Message)
+    True
+    >>> (message.method, message.state, message.data)
+    (<Method.TRIGGER: 2>, <State.ON: 1>, 'INACTIVE')
+    """
+    obj = json.loads(text)
+    method = obj.get("method")
+    if not method:
+        raise Exception("JSON attribute 'method' is missing.")
+    elif method not in [k.name for k in Method]:
+        raise Exception("Method '%s' is not valid." % (method))
 
-        return Message(Method[method], State[state], date)
-        
+    state = obj.get("state")
+    if not state:
+        raise Exception("JSON attribute 'state' is missing.")
+    elif state not in [k.name for k in State]:
+        raise Exception("State '%s' is not valid." % (state))
+
+    date = obj.get("data")
+
+    return Message(Method[method], State[state], date)
+
+
 class Message:
     """
     Represents the specified data transfer object for the communication
@@ -59,7 +60,7 @@ class Message:
     https://github.com/ubilab-escape/operator#communication-format
     """
 
-    def __init__(self, method, state, data = None):
+    def __init__(self, method, state, data=None):
         """
         Initializes a new instance of this class.
 

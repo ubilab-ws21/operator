@@ -42,7 +42,7 @@ class WorkflowController:
         self.client.disconnect()
         self.client.loop_stop()
         print("Main workflow stopped...")
-    
+
     def reset(self):
         """
         Resets the main workflow.
@@ -56,7 +56,6 @@ class WorkflowController:
         Subscribing in on_connect() means that if we lose the connection and
         reconnect then subscriptions will be renewed.
         """
-        print("Test")
         self.__subscribeCurrentWorkflow(client)
 
     def __on_message(self, client, userdata, msg):
