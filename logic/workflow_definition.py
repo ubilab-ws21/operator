@@ -8,11 +8,29 @@ class WorkflowDefinition:
 
     def get(self):
         return [
+            # First puzzle
             Workflow("Keypad_code_entrance_door", "4/door/entrance/puzzle"),
-            DoorWorkflow("Door_opening", "4/door/entrance", ds.OPENED),
-            Workflow("Globes_server_room", "4/puzzle", {'participants': 4}),
+            # Open door after successfully solved previous puzzle
+            DoorWorkflow("Entrance_door_opening",
+                         "4/door/entrance", ds.OPENED),
+            # Second puzzle for closing lab door
+            Workflow("Closing_entrance_door_globes",
+                     "4/puzzle", {'participants': 4}),
+            # Allow multiple riddles in lab room
             ParallelWorkflow("Lab room", [
-                Workflow("Puzzle 4", "QUEUE_Puzzle_4"),
-                Workflow("Puzzle 5", "QUEUE_Puzzle_5")
+                Workflow("Activate_safe_lab_room", "5/safe/activate"),
+                Workflow("Open_safe_lab_room", "5/safe/control"),
+                Workflow("Floppy_disk_lab_room", "6/puzzle/floppy"),
+                Workflow("Terminal_lab_room", "6/puzzle/terminal"),
+                Workflow("Fusebox_lab_room", "7/fusebox"),
+                Workflow("Robot_lab_room", "7/robot"),
+                Workflow("Laser_lab_room", "7/laser"),
+                Workflow("Button_lab_room", "7/buttonServer"),
+                Workflow("Catflap_lab_room", "7/catflap")
+            ]),
+            # Allow multiple riddles in server room
+            ParallelWorkflow("Server room", [
+                Workflow("Maze_server_room", "8/puzzle/maze"),
+                Workflow("Simon_server_room", "8/puzzle/simon")
             ])
         ]
