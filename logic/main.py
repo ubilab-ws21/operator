@@ -48,6 +48,5 @@ if __name__ == "__main__":
     controller.stop()
     game_timer.cancel()
 
-    # TODO: Implement the group 4 workflows
     # TODO: Design game workflow
     # TODO: Worklow simulation
