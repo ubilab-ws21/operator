@@ -22,7 +22,7 @@ class WorkflowController:
         """
         self.client = None
         self.mqtt_url = mqtt_url
-        self.main_workflow_sequence = SequenceWorkflow("main", workflows)
+        self.main_sequence = SequenceWorkflow("main", workflows)
         self.current_workflow = 0
 
     def start(self):
@@ -57,11 +57,11 @@ class WorkflowController:
         Subscribing in on_connect() means that if we lose the connection and
         reconnect then subscriptions will be renewed.
         """
-        self.main_workflow_sequence.register_on_solved(self.__on_workflow_solved)
-        self.main_workflow_sequence.execute(client)
+        self.main_sequence.register_on_solved(self.__on_workflow_solved)
+        self.main_sequence.execute(client)
 
     def __on_message(self, client, userdata, msg):
-        self.main_workflow_sequence.on_message(msg)
+        self.main_sequence.on_message(msg)
 
     def __on_workflow_solved(self, name):
         print("===============================")
