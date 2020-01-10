@@ -12,8 +12,10 @@ build:
 	mkdir -p $(TMP_DIR)/var/www/html/
 	cp -r ../webinterface/* $(TMP_DIR)/var/www/html/
 	# copying the game logic
+	mkdir -p $(TMP_DIR)/opt/ue-operator/logic
 	cp -r ../logic/* $(TMP_DIR)/opt/ue-operator/logic
 	# copying binaries
+	mkdir -p $(TMP_DIR)/usr/bin/
 	cp -r ../bin/* $(TMP_DIR)/usr/bin/
 	# changing directory and binary execution permissions
 	sudo chown -R root:root $(TMP_DIR)/etc

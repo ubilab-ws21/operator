@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from http import HTTPStatus
+from argparse import ArgumentParser
+from subprocess import Popen
+
+
+class ControlHandler(BaseHTTPRequestHandler):
+    """
+    The control handler handle HTTP requests for defined methods
+    """
+    currentProcess = None
+
+    def do_CONNECT(self):
+        """
+        This implements the connect method to connect the multiplexer to another camera
+        """
+        address = "http://10.0.1."
+        try:
+            if int(self.path) not in range(1,6):
+                raise ValueError(f"{self.path} is not a valid camera number (1-5)")
+            address += self.path
+        except ValueError:
+            self.send_error(HTTPStatus.NOT_FOUND, "Invalid Number", "The camera number (path) has to be between 1 and 5")
+            return
+        except Exception as e:
+            self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, "Unexpected error", str(e))
+        if self.currentProcess is not None:
+            self.currentProcess.terminate()
+        self.currentProcess = Popen(["python", "relay.py", "-p", "8080", "-w", "12340", address], cwd="/opt/mjpeg-relay/")
+        self.send_response(200)
+        self.end_headers()
+
+
+if __name__ == "__main__":
+    """
+    This starts the web server on a given port
+    """
+    parser = ArgumentParser(description='Web server for the ubilab-escape camera control')
+    parser.add_argument('--port', '-p', action='store', default=9000, type=int, help='set the port to listen on')
+    args = parser.parse_args()
+    v = args.verbose
+    httpd = HTTPServer(("localhost", args.port), ControlHandler)
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        print("Camera Control ended by user")
+    exit(0)

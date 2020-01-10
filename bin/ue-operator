@@ -13,7 +13,6 @@ if __name__ == "__main__":
     parser.add_argument('command', metavar='CMD', type=str, choices=["init", "start", "help"], nargs="?",
                         help='the command to execute\n(init, start)', default="help")
     parser.add_argument("-v", '--verbose', action='store_true', default=False, help='outputs debug information')
-    parser.add_argument('--version', action='version', version='%(prog)s 1.0-1')
     args = parser.parse_args()
     v = args.verbose
     processes = []
