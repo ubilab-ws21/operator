@@ -38,9 +38,6 @@ main {
 .webcam {
     display: inline-block;
     resize: both;
-    width: 100%;
-    max-width: 600px;
-    height: 400px;
     transform: rotate(180deg);
 }
 

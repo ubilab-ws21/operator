@@ -22,6 +22,7 @@ build:
 	sudo chown -R root:root $(TMP_DIR)/usr
 	sudo chown -R root:root $(TMP_DIR)/var
 	sudo chmod +x $(TMP_DIR)/usr/bin/ue-operator
+	sudo chmod +x $(TMP_DIR)/usr/bin/ue-camera
 	# Write version and build
 	sed -i 's/%VERSION%/$(VERSION)/g' $(TMP_DIR)/DEBIAN/control 
 	dpkg-deb --build $(TMP_DIR)

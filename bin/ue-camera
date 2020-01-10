@@ -12,24 +12,29 @@ class ControlHandler(BaseHTTPRequestHandler):
     """
     currentProcess = None
 
-    def do_CONNECT(self):
+    def do_GET(self):
         """
-        This implements the connect method to connect the multiplexer to another camera
+        This implements the GET method to connect the multiplexer to another camera
         """
         address = "http://10.0.1."
         try:
-            if int(self.path) not in range(1,6):
-                raise ValueError(f"{self.path} is not a valid camera number (1-5)")
-            address += self.path
-        except ValueError:
-            self.send_error(HTTPStatus.NOT_FOUND, "Invalid Number", "The camera number (path) has to be between 1 and 5")
-            return
+            if int(self.path[1]) not in range(1, 6):
+                raise ValueError(f"{self.path[1]} is not a valid camera number (1-5)")
+            address += self.path[1]
         except Exception as e:
-            self.send_error(HTTPStatus.INTERNAL_SERVER_ERROR, "Unexpected error", str(e))
+            if isinstance(e, ValueError):
+                self.send_response(HTTPStatus.NOT_FOUND)
+            else:
+                self.send_response(HTTPStatus.INTERNAL_SERVER_ERROR)
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            print(str(e))
+
         if self.currentProcess is not None:
             self.currentProcess.terminate()
         self.currentProcess = Popen(["python", "relay.py", "-p", "8080", "-w", "12340", address], cwd="/opt/mjpeg-relay/")
-        self.send_response(200)
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
 
 
@@ -40,7 +45,6 @@ if __name__ == "__main__":
     parser = ArgumentParser(description='Web server for the ubilab-escape camera control')
     parser.add_argument('--port', '-p', action='store', default=9000, type=int, help='set the port to listen on')
     args = parser.parse_args()
-    v = args.verbose
     httpd = HTTPServer(("localhost", args.port), ControlHandler)
     try:
         httpd.serve_forever()
