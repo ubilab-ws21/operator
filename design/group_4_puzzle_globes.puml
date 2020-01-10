@@ -13,17 +13,27 @@ master -> MQTT_4_globes: register
 slaves -> MQTT_4_globes: register
 
 == Solve puzzle ==
-operator -> MQTT_4_globes: trigger: on [#participants]
-MQTT_4_globes -> master: trigger: on [#participants]
-MQTT_4_globes -> slaves: trigger: on [#participants]
+operator -> MQTT_4_globes: trigger: on [new_state, #participants]
+MQTT_4_globes -> master: trigger: on [new_state, #participants]
+note right
+As JSON:
+{
+    "new_state": "<new_state>",
+    "#participants": "<#participants>"
+}
+end note
+MQTT_4_globes -> slaves: trigger: on [new_state, #participants]
 
-loop [while door is open (state != inactive [closed])]
-    alt [on all globes are touched]
+loop door is open (state != inactive [closed])
+    alt on all globes are touched
         master -> MQTT_4_door_entrance: trigger: off
         ...
         MQTT_4_door_entrance -> master: status: inactive [closed]
-    else [on any globe was released]
+    else on any globe was released
         master -> MQTT_4_door_entrance: trigger: on
+    else on error
+        ...
+        master -> MQTT_4_globes: status: failed [error_json]
     else
         ...
         master -> MQTT_4_globes: status: active [stateOfAllGlobes]
@@ -37,9 +47,7 @@ loop [while door is open (state != inactive [closed])]
             Type "MESSAGE" because of
             internal communication
         end note
-    else 
     end
-
 end
 
 MQTT_4_globes <- master: status: solved

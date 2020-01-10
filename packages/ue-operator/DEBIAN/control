@@ -4,7 +4,7 @@ Section: games
 Homepage: https://github.com/ubilab-escape/operator
 Priority: optional
 Architecture: all
-Depends: python3, mosquitto, mosquitto-clients, git, apache2, python, python-pip
+Depends: python3, mosquitto, mosquitto-clients, git, apache2, python, python-pip, python3-paho-mqtt
 X-Python3-Version: >= 3.6
 Maintainer: Simon Moser <mosers@tf.uni-freiburg.de>
 Description: ubilab escape operator
