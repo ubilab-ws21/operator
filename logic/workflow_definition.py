@@ -1,6 +1,7 @@
 from workflow import Workflow
 from workflow import ParallelWorkflow
 from workflow import DoorWorkflow
+from workflow import SequenceWorkflow
 from workflow import DoorTargetState as ds
 
 
@@ -18,18 +19,22 @@ class WorkflowDefinition:
                      "4/puzzle", {'participants': 4}),
             # Allow multiple riddles in lab room
             ParallelWorkflow("Lab room", [
-                Workflow("Activate_safe_lab_room", "5/safe/activate"),
-                Workflow("Open_safe_lab_room", "5/safe/control"),
-                Workflow("Floppy_disk_lab_room", "6/puzzle/floppy"),
-                Workflow("Terminal_lab_room", "6/puzzle/terminal"),
-                Workflow("Fusebox_lab_room", "7/fusebox"),
-                Workflow("Robot_lab_room", "7/robot"),
-                Workflow("Laser_lab_room", "7/laser"),
-                Workflow("Button_lab_room", "7/buttonServer"),
-                Workflow("Catflap_lab_room", "7/catflap")
+                SequenceWorkflow("Solve safe", [
+                    Workflow("Activate_safe_lab_room", "5/safe/activate"),
+                    Workflow("Open_safe_lab_room", "5/safe/control")
+                ]),
+                SequenceWorkflow("Solve fusebox", [
+                    Workflow("Laser_lab_room", "7/laser"),
+                    Workflow("Fusebox_lab_room", "7/fusebox"),
+                    Workflow("Robot_lab_room", "7/robot")
+                ])
+                # Workflow("Button_lab_room", "7/buttonServer"),
+                # Workflow("Catflap_lab_room", "7/catflap")
             ]),
             # Allow multiple riddles in server room
             ParallelWorkflow("Server room", [
+                Workflow("Floppy_disk_server_room", "6/puzzle/floppy"),
+                # Workflow("Terminal_server_room", "6/puzzle/terminal"),
                 Workflow("Maze_server_room", "8/puzzle/maze"),
                 Workflow("Simon_server_room", "8/puzzle/simon")
             ])

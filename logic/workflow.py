@@ -94,7 +94,7 @@ class Workflow:
                     self.on_received_status_active(obj.data)
                 elif obj.state == State.SOLVED:
                     self.on_received_status_solved(obj.data)
-                if obj.state == State.FAILED:
+                elif obj.state == State.FAILED:
                     self.on_received_status_failed(obj.data)
                 else:
                     self._on_workflow_failed(
@@ -167,6 +167,94 @@ class Workflow:
 
     def on_received_trigger_off(self, data):
         print("  ==> Nothing to do")
+
+
+class SequenceWorkflow(Workflow):
+    """
+    This class implements a wrapper to run multiple workflows in sequence.
+    """
+
+    def __init__(self, name, workflows):
+        """
+        Initializes a new instance of this class.
+
+        Parameters
+        ----------
+        name : str
+            Display name of the workflow.
+        topic : str
+            Name of the MQTT topic.
+        workflows : Workflow[]
+            Collection of workflows should be executed in parallel.
+        """
+        super().__init__(name, None)
+        self.workflows = workflows
+        self.client = None
+        self.current_workflow = 0
+
+    def execute(self, client):
+        """
+        Executes this workflow.
+
+        Parameters
+        ----------
+        client : Client
+            MQTT client
+        """
+        self.client = client
+        self.__subscribeCurrentWorkflow(self.client)
+
+    def dispose(self, client):
+        """
+        Disposes this workflow.
+
+        Parameters
+        ----------
+        client : Client
+            MQTT client
+        """
+        pass
+
+    def on_message(self, msg):
+        """
+        Processes the message sended by the MQTT server.
+
+        Parameters
+        ----------
+        msg : Message
+            Message from the MQTT topic.
+        """
+        if (self.current_workflow < len(self.workflows)):
+            workflow = self.workflows[self.current_workflow]
+            workflow.on_message(msg)
+
+    def on_received_status_solved(self, data):
+        # A workflow sequence is solved iff the last workflow is solved
+        pass
+
+    def __on_workflow_failed(self, name, error):
+        self._on_workflow_failed(error)
+
+    def __on_workflow_solved(self, name):
+        self.__unsubscribeCurrentWorkflow(self.client)
+        self.current_workflow += 1
+        if self.current_workflow >= len(self.workflows):
+            print("  ==> Workflow sequence '%s' finished..." % (self.name))
+            self._on_workflow_solved(self.name)
+        else:
+            self.__subscribeCurrentWorkflow(self.client)
+
+    def __subscribeCurrentWorkflow(self, client):
+        workflow = self.workflows[self.current_workflow]
+        workflow.register_on_failed(self.__on_workflow_failed)
+        workflow.register_on_solved(self.__on_workflow_solved)
+        workflow.execute(client)
+
+    def __unsubscribeCurrentWorkflow(self, client):
+        workflow = self.workflows[self.current_workflow]
+        # workflow.register_on_failed(None)
+        # workflow.register_on_solved(None)
+        workflow.dispose(client)
 
 
 class ParallelWorkflow(Workflow):

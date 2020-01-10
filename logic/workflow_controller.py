@@ -1,4 +1,5 @@
 import paho.mqtt.client as mqtt
+from workflow import SequenceWorkflow
 
 
 class WorkflowController:
@@ -21,7 +22,7 @@ class WorkflowController:
         """
         self.client = None
         self.mqtt_url = mqtt_url
-        self.workflows = workflows
+        self.main_workflow_sequence = SequenceWorkflow("main", workflows)
         self.current_workflow = 0
 
     def start(self):
@@ -56,35 +57,15 @@ class WorkflowController:
         Subscribing in on_connect() means that if we lose the connection and
         reconnect then subscriptions will be renewed.
         """
-        self.__subscribeCurrentWorkflow(client)
+        self.main_workflow_sequence.register_on_solved(self.__on_workflow_solved)
+        self.main_workflow_sequence.execute(client)
 
     def __on_message(self, client, userdata, msg):
-        workflow = self.workflows[self.current_workflow]
-        workflow.on_message(msg)
-
-    def __subscribeCurrentWorkflow(self, client):
-        workflow = self.workflows[self.current_workflow]
-        workflow.register_on_failed(self.__on_workflow_failed)
-        workflow.register_on_solved(self.__on_workflow_solved)
-        workflow.execute(client)
-
-    def __unsubscribeCurrentWorkflow(self, client):
-        workflow = self.workflows[self.current_workflow]
-        workflow.register_on_failed(None)
-        workflow.register_on_solved(None)
-        workflow.dispose(client)
-
-    def __on_workflow_failed(self, name, error):
-        pass
+        self.main_workflow_sequence.on_message(msg)
 
     def __on_workflow_solved(self, name):
-        self.__unsubscribeCurrentWorkflow(self.client)
-        self.current_workflow += 1
-        if self.current_workflow >= len(self.workflows):
-            print("===============================")
-            print("Workflow finished successfully!")
-            print("===============================")
-            self.reset()
-            print("Main workflow resetted...")
-        else:
-            self.__subscribeCurrentWorkflow(self.client)
+        print("===============================")
+        print("Workflow finished successfully!")
+        print("===============================")
+        self.reset()
+        print("Main workflow resetted...")
