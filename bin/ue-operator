@@ -13,6 +13,7 @@ if __name__ == "__main__":
     parser.add_argument('command', metavar='CMD', type=str, choices=["init", "start", "help"], nargs="?",
                         help='the command to execute\n(init, start)', default="help")
     parser.add_argument("-v", '--verbose', action='store_true', default=False, help='outputs debug information')
+    parser.add_argument("-f", "--fallback", action="store_true", default=False, help="use the fallback camera control")
     args = parser.parse_args()
     v = args.verbose
     processes = []
@@ -42,7 +43,13 @@ if __name__ == "__main__":
                     if v: print("Plugin "+rep+" started successfully")
                 except:
                     if v: print("Plugin "+rep+" could not be started")
-            processes.append(subprocess.Popen(["python3", "/usr/bin/ue-camera"]))
+            if args.f:
+                processes.append(subprocess.Popen(["python3", "/usr/bin/ue-camera"]))
+            else:
+                for i in range(1, 6):
+                    processes.append(subprocess.Popen(
+                        ["python", "relay.py", "-p", "808" + str(i), "-w", "1234" + str(i), "http://10.0.1." + str(i)],
+                        cwd="/opt/mjpeg-relay/"))
             if v: print("CameraControl started successfully")
             processes.append(subprocess.Popen(["mosquitto", "-c", OPT+"mosquitto.conf"]))
             if v: print("Mosquitto started successfully")
