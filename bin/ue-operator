@@ -14,6 +14,12 @@ if __name__ == "__main__":
                         help='the command to execute\n(init, start)', default="help")
     parser.add_argument("-v", '--verbose', action='store_true', default=False, help='outputs debug information')
     parser.add_argument("-f", "--fallback", action="store_true", default=False, help="use the fallback camera control")
+    help_text = """
+    definition of the workflow.
+    Format: module:class
+    with get method returning an array of Workflows.
+    """
+    parser.add_argument("--workflow_def", "-d", help=help_text)
     args = parser.parse_args()
     v = args.verbose
     processes = []
@@ -53,7 +59,10 @@ if __name__ == "__main__":
             if v: print("CameraControl started successfully")
             processes.append(subprocess.Popen(["mosquitto", "-c", OPT+"mosquitto.conf"]))
             if v: print("Mosquitto started successfully")
-            processes.append(subprocess.Popen(["python3", OPT + "logic/main.py"]))
+            logic_command = ["python3", OPT + "logic/main.py"]
+            if args.workflow_def:
+                logic_command.extend(["-d", args.workflow_def])
+            processes.append(subprocess.Popen(logic_command))
             if v: print("GameLogic started successfully")
             for p in processes:
                 p.wait()
