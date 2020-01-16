@@ -97,10 +97,11 @@ class Workflow:
                 elif obj.state == State.FAILED:
                     self.on_received_status_failed(obj.data)
                 else:
-                    self._on_workflow_failed(
-                        self.name,
-                        "[%s] State '%s' is not supported"
-                        % (self.name, obj.state))
+                    if self._on_workflow_failed:
+                        self._on_workflow_failed(
+                            self.name,
+                            "[%s] State '%s' is not supported"
+                            % (self.name, obj.state))
             elif obj.method == Method.TRIGGER:
                 print("[%s] Requested trigger '%s'"
                       % (self.name, obj.state.name))
@@ -109,22 +110,25 @@ class Workflow:
                 elif obj.state == State.OFF:
                     self.on_received_trigger_off(obj.data)
                 else:
-                    self._on_workflow_failed(
-                        self.name,
-                        "[%s] Trigger state '%s' is not supported"
-                        % (self.name, obj.state))
+                    if self._on_workflow_failed:
+                        self._on_workflow_failed(
+                            self.name,
+                            "[%s] Trigger state '%s' is not supported"
+                            % (self.name, obj.state))
             elif obj.method == Method.MESSAGE:
                 print("[%s] Received message with method 'MESSAGE'. "
                       "Nothing to do..." % (self.name))
             else:
+                if self._on_workflow_failed:
+                    self._on_workflow_failed(
+                        self.name,
+                        "[%s] Method '%s' is not supported"
+                        % (self.name, obj.method))
+        except Exception as e:
+            if self._on_workflow_failed:
                 self._on_workflow_failed(
                     self.name,
-                    "[%s] Method '%s' is not supported"
-                    % (self.name, obj.method))
-        except Exception as e:
-            self._on_workflow_failed(
-                self.name,
-                "[%s] No valid JSON: %s" % (self.name, str(e)))
+                    "[%s] No valid JSON: %s" % (self.name, str(e)))
 
     def register_on_failed(self, func):
         """
@@ -156,11 +160,13 @@ class Workflow:
 
     def on_received_status_solved(self, data):
         print("  ==> Puzzle solved successfully")
-        self._on_workflow_solved(self.name)
+        if self._on_workflow_solved:
+            self._on_workflow_solved(self.name)
 
     def on_received_status_failed(self, data):
         print("  ==> An error occured: %s" % (data))
-        self._on_workflow_failed(self.name, data)
+        if self._on_workflow_failed:
+            self._on_workflow_failed(self.name, data)
 
     def on_received_trigger_on(self, data):
         print("  ==> Nothing to do")
@@ -233,14 +239,16 @@ class SequenceWorkflow(Workflow):
         pass
 
     def __on_workflow_failed(self, name, error):
-        self._on_workflow_failed(error)
+        if self._on_workflow_failed:
+            self._on_workflow_failed(error)
 
     def __on_workflow_solved(self, name):
         self.__unsubscribeCurrentWorkflow(self.client)
         self.current_workflow += 1
         if self.current_workflow >= len(self.workflows):
             print("  ==> Workflow sequence '%s' finished..." % (self.name))
-            self._on_workflow_solved(self.name)
+            if self._on_workflow_solved:
+                self._on_workflow_solved(self.name)
         else:
             self.__subscribeCurrentWorkflow(self.client)
 
@@ -328,12 +336,14 @@ class ParallelWorkflow(Workflow):
         pass
 
     def __on_workflow_failed(self, name, error):
-        self._on_workflow_failed(error)
+        if self._on_workflow_failed:
+            self._on_workflow_failed(error)
 
     def __on_workflow_solved(self, name):
         self.workflow_solved[name] = True
         if all(list(self.workflow_solved.values())):
-            self._on_workflow_solved(name)
+            if self._on_workflow_solved:
+                self._on_workflow_solved(name)
 
 
 class DoorTargetState(Enum):
@@ -365,6 +375,7 @@ class DoorWorkflow(Workflow):
         """
         if data.lower() == self.target_state.name.lower():
             print("  ==> Door %s" % data.lower())
-            self._on_workflow_solved(self.name)
+            if self._on_workflow_solved:
+                self._on_workflow_solved(self.name)
         else:
             super.on_received_status_inactive(data)
