@@ -23,7 +23,6 @@ class WorkflowController:
         self.client = None
         self.mqtt_url = mqtt_url
         self.main_sequence = SequenceWorkflow("main", workflows)
-        self.current_workflow = 0
 
     def start(self):
         """
@@ -49,7 +48,7 @@ class WorkflowController:
         Resets the main workflow.
         """
         self.stop()
-        self.current_workflow = 0
+        self.main_sequence.dispose(self.client)
         self.start()
 
     def __on_connect(self, client, userdata, flags, rc):

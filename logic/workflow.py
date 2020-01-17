@@ -219,7 +219,7 @@ class SequenceWorkflow(Workflow):
         client : Client
             MQTT client
         """
-        pass
+        self.current_workflow = 0
 
     def on_message(self, msg):
         """
