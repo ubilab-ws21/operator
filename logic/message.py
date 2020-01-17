@@ -46,7 +46,7 @@ def fromJSON(text):
     state = obj.get("state")
     if not state:
         raise Exception("JSON attribute 'state' is missing.")
-    
+
     state = state.upper()
     if state not in [k.name for k in State]:
         raise Exception("State '%s' is not valid." % (state))

@@ -380,6 +380,7 @@ class DoorWorkflow(Workflow):
         else:
             super.on_received_status_inactive(data)
 
+
 class ActivateLaserWorkflow(Workflow):
     def execute(self, client):
         """
@@ -394,7 +395,7 @@ class ActivateLaserWorkflow(Workflow):
         message = Message(Method.TRIGGER, State.ON, data)
         client.publish(self.topic, message.toJSON())
         print("[%s] Started..." % (self.name))
-        
+
         print("[%s] Laser is activated..." % (self.name))
         if self._on_workflow_solved:
             self._on_workflow_solved(self.name)
