@@ -4,68 +4,71 @@ from argparse import ArgumentParser
 import subprocess
 
 OPT = "/opt/ue-operator/"
-REPOS = ["ai-server/", "environment/", "first-door/", "indoorloc/", "mission-briefing/", "prototype/", "safe/", "second-door/"]
+REPOS = ["ai-server/", "environment/", "first-door/", "indoorloc/", "mission-briefing/", "prototype/", "safe/",
+         "second-door/"]
 SCRIPTNAME = "server.py"
+
+
+class ProcessList(list):
+    def append(self, cmd, cwd=None, stderr=None):
+        if isinstance(cmd, str) or isinstance(cmd, list):
+            process = subprocess.Popen(cmd, shell=isinstance(cmd, str), cwd=cwd, stderr=stderr)
+        else:
+            raise TypeError("Expecting a string or a list as cmd")
+        process.check_returncode()
+        super().append(process)
+
+    def wait(self):
+        try:
+            for process in self:
+                process.wait()
+        except subprocess.CalledProcessError as e:
+            print(str(e))
+            self.wait()
 
 
 if __name__ == "__main__":
     parser = ArgumentParser(description='Command-line interface for the ubilab-escape operator')
     parser.add_argument('command', metavar='CMD', type=str, choices=["init", "start", "help"], nargs="?",
                         help='the command to execute\n(init, start)', default="help")
-    parser.add_argument("-v", '--verbose', action='store_true', default=False, help='outputs debug information')
     parser.add_argument("-f", "--fallback", action="store_true", default=False, help="use the fallback camera control")
-    help_text = """
-    definition of the workflow.
-    Format: module:class
-    with get method returning an array of Workflows.
-    """
+    help_text = "definition of the workflow.\nFormat: module:class\nwith get method returning an array of Workflows."
     parser.add_argument("--workflow_def", "-d", help=help_text)
     args = parser.parse_args()
-    v = args.verbose
-    processes = []
+    pl = ProcessList()
 
     try:
         """
             Initializing the network and stuff
         """
         if args.command == "init":
-            if v: print("Operator initiated")
-            processes.append(subprocess.Popen(["git", "clone", "--recurse-submodules",
-                                               "https://github.com/ubilab-escape/integration", OPT+"integration"]))
-            processes.append(subprocess.Popen(["git", "clone", "--recurse-submodules",
-                                               "https://github.com/OliverF/mjpeg-relay.git", "/opt/mjpeg-relay"]))
-            processes.append(subprocess.Popen(["python", "-m", "pip", "install", "-r", "requirements.txt"],
-                                              cwd="/opt/mjpeg-relay/"))
+            pl.append(["git", "clone", "--recurse-submodules", "https://github.com/ubilab-escape/integration",
+                       OPT + "integration"])
+            pl.append(["git", "clone", "--recurse-submodules", "https://github.com/OliverF/mjpeg-relay.git",
+                       "/opt/mjpeg-relay"])
+            pl.append(["python", "-m", "pip", "install", "-r", "requirements.txt"], cwd="/opt/mjpeg-relay/")
+            pl.wait()
 
         """
             Starting all services and scripts
         """
         if args.command == "start":
             for rep in REPOS:
-                try:
-                    p = subprocess.Popen(["python3", OPT+"integration/"+rep+SCRIPTNAME], stderr=subprocess.STDIN)
-                    processes.append(p)
-                    p.check_returncode()
-                    if v: print("Plugin "+rep+" started successfully")
-                except:
-                    if v: print("Plugin "+rep+" could not be started")
+                pl.append(["python3", OPT + "integration/" + rep + SCRIPTNAME], stderr=subprocess.STDOUT)
             if args.fallback:
-                processes.append(subprocess.Popen(["python3", "/usr/bin/ue-camera"]))
+                pl.append(["python3", "/usr/bin/ue-camera"])
             else:
                 for i in range(1, 6):
-                    processes.append(subprocess.Popen(
+                    pl.append(
                         ["python", "relay.py", "-p", "808" + str(i), "-w", "1234" + str(i), "http://10.0.1." + str(i)],
-                        cwd="/opt/mjpeg-relay/"))
-            if v: print("CameraControl started successfully")
-            processes.append(subprocess.Popen(["mosquitto", "-c", OPT+"mosquitto.conf"]))
-            if v: print("Mosquitto started successfully")
+                        cwd="/opt/mjpeg-relay/")
+            pl.append(["mosquitto", "-c", OPT + "mosquitto.conf"])
             logic_command = ["python3", OPT + "logic/main.py"]
-            if args.workflow_def:
-                logic_command.extend(["-d", args.workflow_def])
-            processes.append(subprocess.Popen(logic_command))
-            if v: print("GameLogic started successfully")
-            for p in processes:
-                p.wait()
+            if args.workflow_def: logic_command.extend(["-d", args.workflow_def])
+            pl.append(logic_command)
+            pl.append("mosquitto_sub -h localhost -t \\# -v | ts '%s' >" +
+                      "/var/log/mosquitto/message_log_$(date +%Y-%m-%d_%H%M%S).txt")
+            pl.wait()
 
         """
             Outputting the help
@@ -75,7 +78,7 @@ if __name__ == "__main__":
             parser.parse_args(["--help"])
             exit(1)
     except KeyboardInterrupt:
-        for p in processes:
+        for p in pl:
             try:
                 p.terminate()
             except KeyboardInterrupt:
