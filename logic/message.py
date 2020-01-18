@@ -38,13 +38,17 @@ def fromJSON(text):
     method = obj.get("method")
     if not method:
         raise Exception("JSON attribute 'method' is missing.")
-    elif method not in [k.name for k in Method]:
+
+    method = method.upper()
+    if method not in [k.name for k in Method]:
         raise Exception("Method '%s' is not valid." % (method))
 
     state = obj.get("state")
     if not state:
         raise Exception("JSON attribute 'state' is missing.")
-    elif state not in [k.name for k in State]:
+
+    state = state.upper()
+    if state not in [k.name for k in State]:
         raise Exception("State '%s' is not valid." % (state))
 
     date = obj.get("data")
