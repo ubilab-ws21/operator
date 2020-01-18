@@ -58,7 +58,8 @@ class WorkflowController:
         """
         if self.game_state != GameState.STARTED:
             if self.game_state == GameState.STOPPED:
-                self.main_sequence.register_on_solved(self.__on_workflow_solved)
+                self.main_sequence.register_on_solved(
+                    self.__on_workflow_solved)
                 self.main_sequence.execute(self.client)
             self.game_timer.start()
             self.game_state = GameState.STARTED
@@ -102,8 +103,8 @@ class WorkflowController:
             elif message == "pause":
                 self.pause()
             else:
-                print ("The game command '%s' is not supported."
-                       % (str(message)))
+                print("The game command '%s' is not supported."
+                      % (str(message)))
         else:
             self.main_sequence.on_message(msg)
 

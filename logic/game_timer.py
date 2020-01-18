@@ -3,6 +3,7 @@ import paho.mqtt.client as mqtt
 from datetime import timedelta
 from enum import Enum
 
+
 class TimerState(Enum):
     STOPPED = 0
     STARTED = 1
