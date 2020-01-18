@@ -4,11 +4,17 @@ body, textarea {
     font-family: Verdana, Geneva, sans-serif;
 }
 
-textarea {
+textarea, #control-groups {
     border: 5px solid #002b36;
     padding-left: 0.5em;
     border-top: 0;
     margin: 0 0 1em;
+    height: calc(95vh - 8em);
+    resize: none;
+}
+
+textarea {
+    width: 100%;
 }
 
 input, button, select {
@@ -22,12 +28,6 @@ input, button, select {
 button {
     font-weight: bold;
     cursor: pointer;
-}
-
-#output {
-    width: 100%;
-    height: calc(95vh - 8em);
-    resize: none;
 }
 
 nav {
@@ -72,17 +72,26 @@ nav {
     display: inline-block;
 }
 
-.subs button {
+.subs button, #command-container button {
     margin: 2px;
     color: black;
 }
 
-.subs.on button {
+:disabled {
+    cursor: default;
+    color: #586e75;
+}
+
+.subs.on button, #start {
     background-color: #859900;
 }
 
-.subs.off button {
+.subs.off button, #stop {
     background-color: #cb4b16;
+}
+
+#pause {
+    background-color: #b58900;
 }
 
 footer form {
@@ -90,7 +99,7 @@ footer form {
     margin-bottom: 0;
 }
 
-#helpmark {
+#helpmark, #helpmark2 {
     border: 1px solid #93a1a1;
     color: #93a1a1;
     border-radius: 50%;
@@ -100,14 +109,14 @@ footer form {
     background-color: #002b36;
 }
 
-#helpmark:hover {
+#helpmark:hover, #helpmark2:hover {
     cursor: pointer;
 }
 
-#help {
+#help, #help2 {
     font-family: "Lucida Console", Monaco, monospace;
     cursor: text;
-    width: 30em;
+    width: 31em;
     border: 0;
     line-height: 1.2;
 }
@@ -118,6 +127,7 @@ footer form {
     border-radius: 5px;
     margin: 5px;
 	background-color: #002b36;
+    float: left;
 }
 
 .control form {
@@ -131,4 +141,16 @@ footer form {
 .control b {
     text-align: center;
     display: block;
+}
+
+#time-container {
+    float: right;
+}
+
+#env-container {
+    text-align: center;
+}
+
+#env-number1, #env-number2, #env-number3 {
+    width: 4em;
 }

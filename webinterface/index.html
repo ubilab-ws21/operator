@@ -15,14 +15,48 @@
     <div class="navitem"><a onclick="changeTab('mosquitto')" id="b-mosquitto">Mosquitto</a></div>
 </nav>
 <div id="control">
-    <div class="control-group" id="c1"></div>
-    <div class="control-group" id="c2"></div>
-    <div class="control-group" id="c3"></div>
-    <div class="control-group" id="c4"></div>
-    <div class="control-group" id="c5"></div>
-    <div class="control-group" id="c6"></div>
-    <div class="control-group" id="c7"></div>
-    <div class="control-group" id="c8"></div>
+    <div id="control-groups">
+        <div class="control-group" id="c1"></div>
+        <div class="control-group" id="c2"></div>
+        <div class="control-group" id="c3"></div>
+        <div class="control-group" id="c4"></div>
+        <div class="control-group" id="c5"></div>
+        <div class="control-group" id="c6"></div>
+        <div class="control-group" id="c7"></div>
+        <div class="control-group" id="c8"></div>
+    </div>
+    <footer>
+        <div id="env-container">
+            <select id="env-target" onchange="validateCommands(this)">
+                <option value="0" selected>&larr;select&rarr;</option>
+                <option value="2/ledstrip/timer">ledstrip/timer</option>
+                <option value="2/ledstrip/labroom/north">ledstrip/labroom/north</option>
+                <option value="2/ledstrip/labroom/south">ledstrip/labroom/south</option>
+                <option value="2/ledstrip/labroom/middle">ledstrip/labroom/middle</option>
+                <option value="2/ledstrip/serverroom">ledstrip/serverroom</option>
+                <option value="2/ledstrip/doorserverroom">ledstrip/doorserverroom</option>
+                <option value="2/gyrophare">gyrophare</option>
+            </select>
+            <select id="env-command" onchange="validateNumbers(this)" disabled>
+                <option value="0" selected>&larr;select&rarr;</option>
+                <option value="power:">power</option>
+                <option value="pattern:">pattern</option>
+                <option value="brightness:">brightness</option>
+                <option value="brightnessAdjust:">brightnessAdjust</option>
+                <option value="patternAdjust:">patternAdjust</option>
+            </select>
+            <input type="number" id="env-number1" value="0" min="0" disabled>
+            <input type="number" id="env-number2" value="0" style="display: none">
+            <input type="number" id="env-number3" value="0" style="display: none">
+            <button id="env-button" type="button" onclick="envSet();" disabled>Set</button>
+        </div>
+        <div id="time-container">Time: <span id="time"></span></div>
+        <div id="command-container">
+            <button type="button" id="start" onclick="command('start');">Start</button>
+            <button type="button" id="pause" onclick="command('pause');" disabled>Pause</button>
+            <button type="button" id="stop" onclick="command('stop');" disabled>Stop</button>
+        </div>
+    </footer>
 </div>
 <div id="mosquitto" style="display: none">
     <textarea id="output" readonly></textarea>
@@ -47,8 +81,12 @@
             <input id="send_message" type="text" placeholder="Message">
             <label><input id="send_retain" type="checkbox">Retain</label>
             <button type="button" onclick="send();">Send</button>
-            <span id="helpmark" onclick="toggleHelp()">?</span>
-            <input type="text" readonly id="help" style="display: none" value='{"method":"TRIGGER","state":"on","data":"spam"}'>
+            <span id="helpmark" onclick="toggleHelp(1)">?</span>
+            <input type="text" readonly id="help" style="display: none"
+                   value='{"method":"TRIGGER","state":"on","data":"spam"}'>
+            <span id="helpmark2" onclick="toggleHelp(2)">?</span>
+            <input type="text" readonly id="help2" style="display: none"
+                   value='{"method":"STATUS","state":"active","data":"spam"}'>
         </form>
     </footer>
 </div>
@@ -72,6 +110,7 @@
         <button type="button" onclick="changeCamera()">Change Camera</button>
     </form>
 </div>
-<script>MQTTconnect();MQTTconnectControl();</script>
+<script>MQTTconnect();
+MQTTconnectControl();</script>
 </body>
 </html>

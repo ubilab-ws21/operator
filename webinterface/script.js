@@ -4,6 +4,9 @@ let reconnectTimeout = 2000;
 let host = "10.0.0.2";
 let port = 9001;
 
+function getID(id) {
+    return document.getElementById(id);
+}
 
 function onFailure(message) {
     console.log("Connection attempt for debug failed");
@@ -29,7 +32,7 @@ function onConnectControl() {
 }
 
 function onMessageArrived(msg) {
-    let op = document.getElementById("output");
+    let op = getID("output");
     op.value += "Topic " + msg.destinationName + "; time ";
     if (!msg.payloadString.match(/\d{10}: .*/i)) op.value += ~~(Date.now() / 1000) + " ";
     op.value += msg.payloadString + "\n";
@@ -37,6 +40,27 @@ function onMessageArrived(msg) {
 }
 
 function onMessageArrivedControl(msg) {
+    if (msg.destinationName === "1/gameTime") {
+        getID("time").innerText = msg.payloadString;
+    } else if (msg.destinationName === "1/gameControl") {
+        switch (msg.payloadString) {
+            case "start":
+                getID("start").disabled = true;
+                getID("pause").disabled = false;
+                getID("stop").disabled = false;
+                break;
+            case "pause":
+                getID("start").disabled = false;
+                getID("pause").disabled = true;
+                getID("stop").disabled = false;
+                break;
+            case "stop":
+                getID("start").disabled = false;
+                getID("pause").disabled = true;
+                getID("stop").disabled = true;
+                break;
+        }
+    }
     try {
         let obj = JSON.parse(msg.payloadString);
         if (obj.method.toLowerCase() === "status") {
@@ -44,7 +68,7 @@ function onMessageArrivedControl(msg) {
             let dst_b64 = btoa(dst);
 
             // Create the status box if it doesn't exist yet
-            if (document.getElementById(dst_b64) == null) {
+            if (getID(dst_b64) == null) {
                 // Create dropdown options
                 let opt1 = document.createElement("option");
                 opt1.innerText = "inactive";
@@ -92,13 +116,13 @@ function onMessageArrivedControl(msg) {
                 ele.appendChild(header);
                 ele.appendChild(form);
                 // Select group container and append single container
-                let cont = document.getElementById("c" + dst.charAt(0));
+                let cont = getID("c" + dst.charAt(0));
                 cont.appendChild(ele);
             }
 
             // Change the state of the status box
-            document.getElementById(dst_b64 + "_state").value = obj.state.toLowerCase;
-            document.getElementById(dst_b64 + "_data").value = obj.data || "";
+            getID(dst_b64 + "_state").value = obj.state.toLowerCase;
+            getID(dst_b64 + "_data").value = obj.data || "";
         }
     } catch {
     }
@@ -124,37 +148,38 @@ function toggle(topic, button) {
     } else {
         mqtt.unsubscribe(topic + "/#");
     }
-    document.getElementById(button.parentElement.id === "soff" ? "son" : "soff").appendChild(button);
+    getID(button.parentElement.id === "soff" ? "son" : "soff").appendChild(button);
 }
 
 function toggleAll(from) {
-    while (document.getElementById(from).firstElementChild !== null) {
-        document.getElementById(from).firstElementChild.click();
+    while (getID(from).firstElementChild !== null) {
+        getID(from).firstElementChild.click();
     }
 }
 
 function send() {
-    if (document.getElementById("send_topic").value === "") {
+    if (getID("send_topic").value === "") {
         alert("Topic is required");
         return;
     }
-    mqtt.publish(document.getElementById("send_topic").value, document.getElementById("send_message").value, 0, document.getElementById("send_retain").checked);
-    document.getElementById("send_topic").value = "";
-    document.getElementById("send_message").value = "";
-    document.getElementById("send_retain").checked = false;
+    mqtt.publish(getID("send_topic").value, getID("send_message").value, 0, getID("send_retain").checked);
+    getID("send_topic").value = "";
+    getID("send_message").value = "";
+    getID("send_retain").checked = false;
 }
 
-function toggleHelp() {
-    if(document.getElementById("help").style.display === "none") {
-        document.getElementById("help").style.display = "inline-block";
+function toggleHelp(n) {
+    let id = n === 1 ? "help" : "help2";
+    if (getID(id).style.display === "none") {
+        getID(id).style.display = "inline-block";
     } else {
-        document.getElementById("help").style.display = "none";
+        getID(id).style.display = "none";
     }
 }
 
 function changeCamera() {
     let xhr = new XMLHttpRequest();
-    let number = document.getElementById("camera-selection").value;
+    let number = getID("camera-selection").value;
 
     xhr.onload = function () {
         console.log(this.statusText.concat(" (", this.status.toString(), ")"));
@@ -166,7 +191,7 @@ function changeCamera() {
 
 function changeState(dst_b64) {
     let dst = atob(dst_b64);
-    let state = document.getElementById(dst_b64 + "_state").value;
+    let state = getID(dst_b64 + "_state").value;
     let json_obj = JSON.stringify({method: "trigger", state: "on", data: state});
     mqttControl.send(dst, json_obj, 2);
 }
@@ -174,11 +199,68 @@ function changeState(dst_b64) {
 function changeTab(target) {
     for (name of ["control", "cameras", "cameras-fallback", "mosquitto"]) {
         if (name !== target) {
-            document.getElementById(name).style.display = "none";
-            document.getElementById("b-" + name).parentElement.className = "navitem";
+            getID(name).style.display = "none";
+            getID("b-" + name).parentElement.className = "navitem";
         } else {
-            document.getElementById(name).style.display = "block";
-            document.getElementById("b-" + name).parentElement.className = "navitem selected";
+            getID(name).style.display = "block";
+            getID("b-" + name).parentElement.className = "navitem selected";
         }
+    }
+}
+
+function command(content) {
+    mqttControl.send("1/gameControl", content, 2, true);
+}
+
+function envSet() {
+    mqttControl.send(getID("env-target").value, getID("env-command").value + getID("env-number1").value);
+}
+
+function validateCommands(select) {
+    let cmd = getID("env-command");
+    cmd.disabled = false;
+    switch (select.value) {
+        case "0":
+            cmd.disabled = true;
+            getID("env-number1").disabled = true;
+            getID("env-button").disabled = true;
+            break;
+        case "2/gyrophare":
+            for (let child of cmd.children) {
+                child.disabled = child.value !== "power:";
+                if(child.value === "power:") {
+                    child.selected = true;
+                    getID("env-number1").disabled = false;
+                    getID("env-number1").max = 1;
+                    getID("env-button").disabled = false;
+                }
+            }
+            break;
+        default:
+            for (let child of cmd.children) {
+                child.disabled = false;
+            }
+            break;
+    }
+}
+
+function validateNumbers(select) {
+    let num = getID("env-number1");
+    num.disabled = false;
+    getID("env-button").disabled = false;
+    switch (select.value) {
+        case "0":
+            num.disabled = true;
+            getID("env-button").disabled = true;
+            break;
+        case "pattern:":
+            num.max = 11;
+            break;
+        case "brightness:":
+            num.max = 255;
+            break;
+        default:
+            num.max = 1;
+            break;
     }
 }
