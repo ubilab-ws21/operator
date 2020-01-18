@@ -34,26 +34,35 @@ def fromJSON(text):
     >>> (message.method, message.state, message.data)
     (<Method.TRIGGER: 2>, <State.ON: 1>, 'INACTIVE')
     """
-    obj = json.loads(text)
-    method = obj.get("method")
-    if not method:
-        raise Exception("JSON attribute 'method' is missing.")
+    try:
+        obj = json.loads(text)
 
-    method = method.upper()
-    if method not in [k.name for k in Method]:
-        raise Exception("Method '%s' is not valid." % (method))
+        methodStr = obj.get("method")
+        if not methodStr:
+            raise Exception("JSON attribute 'method' is missing.")
 
-    state = obj.get("state")
-    if not state:
-        raise Exception("JSON attribute 'state' is missing.")
+        methodStr = methodStr.upper()
+        if methodStr not in [k.name for k in Method]:
+            raise Exception("Method '%s' is not valid." % (methodStr))
 
-    state = state.upper()
-    if state not in [k.name for k in State]:
-        raise Exception("State '%s' is not valid." % (state))
+        stateStr = obj.get("state")
+        if not stateStr:
+            raise Exception("JSON attribute 'state' is missing.")
 
-    date = obj.get("data")
+        stateStr = stateStr.upper()
+        if stateStr not in [k.name for k in State]:
+            raise Exception("State '%s' is not valid." % (stateStr))
 
-    return Message(Method[method], State[state], date)
+        method = Method[methodStr]
+        state = State[stateStr]
+        data = obj.get("data")
+    except ValueError:
+        print("Message is no JSON.")
+        method = Method.MESSAGE
+        state = None
+        data = text
+
+    return Message(method, state, data)
 
 
 class Message:
