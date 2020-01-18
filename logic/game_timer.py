@@ -1,7 +1,12 @@
 import threading
-import json
 import paho.mqtt.client as mqtt
 from datetime import timedelta
+from enum import Enum
+
+class TimerState(Enum):
+    STOPPED = 0
+    STARTED = 1
+    PAUSED = 2
 
 
 class GameTimer:
@@ -29,23 +34,37 @@ class GameTimer:
         self.topic = topic
         self.game_time_sec = 0
         self.interval = interval
-        self.timer = threading.Timer(self.interval, self.publish_game_time)
+        self.timer_state = TimerState.STOPPED
 
     def start(self):
         """
         Starts the game timer.
         """
-        self.client = mqtt.Client()
-        self.client.connect(self.mqtt_url)
-        self.client.loop_start()
-        self.publish_game_time()
+        if self.timer_state != TimerState.STARTED:
+            if self.timer_state == TimerState.STOPPED:
+                self.client = mqtt.Client()
+                self.client.connect(self.mqtt_url)
+                self.client.loop_start()
+            self.timer_state = TimerState.STARTED
+            self.publish_game_time()
 
-    def cancel(self):
+    def stop(self):
         """
-        Cancels the game timer.
+        Stops the game timer.
         """
-        self.timer.cancel()
-        self.client.loop_stop()
+        if self.timer_state != TimerState.STOPPED:
+            self.timer.cancel()
+            self.client.loop_stop()
+            self.game_time_sec = 0
+            self.timer_state = TimerState.STOPPED
+
+    def pause(self):
+        """
+        Pauses the game timer
+        """
+        if self.timer_state != TimerState.PAUSED:
+            self.timer.cancel()
+            self.timer_state = TimerState.PAUSED
 
     def publish_game_time(self):
         """
@@ -54,8 +73,6 @@ class GameTimer:
         self.game_time_sec += self.interval
         self.timer = threading.Timer(self.interval, self.publish_game_time)
         self.timer.start()
-        result = json.dumps({
-            "gameTimeInSec": self.game_time_sec,
-            "formattedGameTime": str(timedelta(seconds=self.game_time_sec))
-        })
-        self.client.publish(self.topic, result)
+        formatted_game_time = str(timedelta(seconds=self.game_time_sec))
+        self.client.publish(self.topic + "_in_sec", self.game_time_sec)
+        self.client.publish(self.topic + "_formatted", formatted_game_time)
