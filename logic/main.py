@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import argparse
 from workflow_controller import WorkflowController
-from game_timer import GameTimer
 
 
 def loadWorkflow(module_name, class_name):
@@ -39,13 +38,8 @@ if __name__ == "__main__":
 
     mqtt_url = "127.0.0.1"
 
-    game_timer = GameTimer(mqtt_url, "1/gameTime")
     workflowDefinition = loadWorkflow(workflow_module, workflow_class)
     controller = WorkflowController(mqtt_url, workflowDefinition.get())
-    game_timer.start()
-    controller.start()
+    controller.connect()
     input("Press Enter to continue...\n")
-    controller.stop()
-    game_timer.cancel()
-
-    # TODO: Worklow simulation
+    controller.disconnect()
