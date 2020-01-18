@@ -95,12 +95,12 @@ class WorkflowController:
 
     def __on_message(self, client, userdata, msg):
         if msg.topic == self.game_control_topic:
-            message = msg.payload.decode("utf-8")
-            if message == "start":
+            message = msg.payload.decode("utf-8").upper()
+            if message == "START":
                 self.start()
-            elif message == "stop":
+            elif message == "STOP":
                 self.stop()
-            elif message == "pause":
+            elif message == "PAUSE":
                 self.pause()
             else:
                 print("The game command '%s' is not supported."
