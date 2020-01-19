@@ -338,7 +338,7 @@ function onLoad() {
 
     // Read topics into textarea
     let client = new XMLHttpRequest();
-    client.open('GET', 'http://10.0.0.2/MQTTTopics.md');
+    client.open('GET', 'MQTTTopics.md');
     client.onload = function() {
         if(client.status === 200) {
             getID("topics").innerText = client.responseText;
