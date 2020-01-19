@@ -1,20 +1,18 @@
-body, textarea {
+body, textarea, pre {
     background-color: #073642;
     color: #839496;
     font-family: Verdana, Geneva, sans-serif;
 }
 
-textarea, #control-groups {
+textarea, #control-groups, #topics {
     border: 5px solid #002b36;
     padding-left: 0.5em;
     border-top: 0;
     margin: 0 0 1em;
     height: calc(95vh - 8em);
     resize: none;
-}
-
-textarea {
     width: 100%;
+    box-sizing: border-box;
 }
 
 input, button, select {

@@ -1,10 +1,8 @@
-// Debug client
 let mqtt;
-// Control client
-let mqttControl;
 let reconnectTimeout = 2000;
 let host = "10.0.0.2";
 let port = 9001;
+let topics = new Set();
 
 /**
  * Short version of getElementById
@@ -16,64 +14,40 @@ function getID(id) {
 }
 
 /**
- * Is called when the connection fails for the debug client
+ * Is called when the connection fails for the mqtt client
  * Tries to restart the client connection
  * @param message
  */
 function onFailure(message) {
-    console.log("Connection attempt for debug failed");
+    console.log("Connection attempt failed");
     console.log(message);
     setTimeout(mqttConnect, reconnectTimeout);
 }
 
 /**
- * Is called when the connection fails for the control client
- * Tries to restart the client connection
- * @param message
- */
-function onFailureControl(message) {
-    console.log("Connection attempt for control failed");
-    console.log(message);
-    setTimeout(mqttConnectControl, reconnectTimeout);
-}
-
-/**
- * Is called when the debug client connected
+ * Is called when the client connected
  */
 function onConnect() {
     console.log("Connected debug");
-}
-
-/**
- * Is called when the control client connected
- * Subscribes to the topic of all groups
- */
-function onConnectControl() {
-    console.log("Connected control");
     for (let i = 1; i < 9; i++) {
-        mqttControl.subscribe(i.toString() + "/#");
+        mqtt.subscribe(i.toString() + "/#");
     }
 }
 
 /**
- * Is called when the debug client gets a message
- * Prints the message to the textarea
- * @param msg
- */
-function onMessageArrived(msg) {
-    let op = getID("output");
-    op.value += "Topic " + msg.destinationName + "; time ";
-    if (!msg.payloadString.match(/\d{10}: .*/i)) op.value += ~~(Date.now() / 1000) + " ";
-    op.value += msg.payloadString + "\n";
-    op.scrollTop = op.scrollHeight;
-}
-
-/**
- * Is called when the control client gets a message
+ * Is called when the client gets a message
  * Performs different actions
  * @param msg
  */
-function onMessageArrivedControl(msg) {
+function onMessageArrived(msg) {
+    if(topics.has(msg.destinationName.substr(0,1))) {
+        let op = getID("output");
+        op.value += "Topic " + msg.destinationName + "; time ";
+        if (!msg.payloadString.match(/\d{10}: .*/i)) op.value += ~~(Date.now() / 1000) + " ";
+        op.value += msg.payloadString + "\n";
+        op.scrollTop = op.scrollHeight;
+    }
+
     // Displays game time
     if (msg.destinationName === "1/gameTime_formatted") {
         getID("time").innerText = msg.payloadString;
@@ -130,7 +104,7 @@ function onMessageArrivedControl(msg) {
 }
 
 /**
- * Creates and connects the debug client
+ * Creates and connects the mqtt client
  * @constructor
  */
 function mqttConnect() {
@@ -141,26 +115,21 @@ function mqttConnect() {
 }
 
 /**
- * Creates and connects the control client
- * @constructor
- */
-function mqttConnectControl() {
-    console.log("Connecting control to " + host + ":" + port + "...");
-    mqttControl = new Paho.Client(host, port, "", "ws-client-c" + ~~(Date.now() / 1000));
-    mqttControl.onMessageArrived = onMessageArrivedControl;
-    mqttControl.connect({timeout: 3, onSuccess: onConnectControl, onFailure: onFailureControl});
-}
-
-/**
  * Toggles the subscription button for a specific topic
  * @param topic
  * @param button
  */
 function toggle(topic, button) {
     if (button.parentElement.id === "soff") {
-        mqtt.subscribe(topic + "/#");
+        if(topic.startsWith("$")) {
+            mqtt.subscribe(topic + "/#");
+        }
+        topics.add(topic.substr(0,1));
     } else {
-        mqtt.unsubscribe(topic + "/#");
+        if(topic.startsWith("$")) {
+            mqtt.unsubscribe(topic + "/#");
+        }
+        topics.delete(topic.substr(0,1));
     }
     getID(button.parentElement.id === "soff" ? "son" : "soff").appendChild(button);
 }
@@ -238,7 +207,7 @@ function changeState(dst_b64) {
     let dst = atob(dst_b64);
     let state = getID(dst_b64 + "_state").value;
     let json_obj = JSON.stringify({method: "trigger", state: "on", data: state});
-    mqttControl.send(dst, json_obj, 2);
+    mqtt.send(dst, json_obj, 2);
 }
 
 /**
@@ -262,14 +231,14 @@ function changeTab(target) {
  * @param content
  */
 function command(content) {
-    mqttControl.send("1/gameControl", content, 2, true);
+    mqtt.send("1/gameControl", content, 2, true);
 }
 
 /**
  * Sends a environment control command
  */
 function envSet() {
-    mqttControl.send(getID("env-target").value, getID("env-command").value + getID("env-number1").value);
+    mqtt.send(getID("env-target").value, getID("env-command").value + getID("env-number1").value);
 }
 
 /**
@@ -334,7 +303,6 @@ function validateNumbers(select) {
  */
 function onLoad() {
     new mqttConnect();
-    new mqttConnectControl();
 
     // Read topics into textarea
     let client = new XMLHttpRequest();

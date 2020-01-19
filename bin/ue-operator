@@ -15,7 +15,7 @@ class ProcessList(list):
             process = subprocess.Popen(cmd, shell=isinstance(cmd, str), cwd=cwd, stderr=stderr)
         else:
             raise TypeError("Expecting a string or a list as cmd")
-        process.check_returncode()
+        # process.check_returncode()
         super().append(process)
 
     def wait(self):
