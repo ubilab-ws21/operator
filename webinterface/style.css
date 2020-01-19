@@ -49,6 +49,7 @@ nav {
     font-weight: bold;
     display: inline-block;
     padding: 0.8em;
+    user-select: none;
 }
 
 .navitem a:hover {
@@ -79,7 +80,7 @@ nav {
 
 :disabled {
     cursor: default;
-    color: #586e75;
+    color: #586e75 !important;
 }
 
 .subs.on button, #start {
