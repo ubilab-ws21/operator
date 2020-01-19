@@ -60,6 +60,9 @@
 </div>
 <div id="mosquitto" style="display: none">
     <textarea id="output" readonly></textarea>
+    <textarea id="topics" readonly style="display: none;">
+
+    </textarea>
     <footer>
         <div id="soff" class="subs off">
             <button onclick="toggle('1', this)">Group 1</button>
@@ -81,12 +84,13 @@
             <input id="send_message" type="text" placeholder="Message">
             <label><input id="send_retain" type="checkbox">Retain</label>
             <button type="button" onclick="send();">Send</button>
-            <span id="helpmark" onclick="toggleHelp(1)">?</span>
-            <input type="text" readonly id="help" style="display: none"
+            <span class="helpmark" onclick="toggleHelp(1)">?</span>
+            <input type="text" class="help" readonly id="help" style="display: none"
                    value='{"method":"TRIGGER","state":"on","data":"spam"}'>
-            <span id="helpmark2" onclick="toggleHelp(2)">?</span>
-            <input type="text" readonly id="help2" style="display: none"
+            <span class="helpmark" onclick="toggleHelp(2)">?</span>
+            <input type="text" class="help" readonly id="help2" style="display: none"
                    value='{"method":"STATUS","state":"active","data":"spam"}'>
+            <span class="helpmark" onclick="toggleTopics();">!</span>
         </form>
     </footer>
 </div>
@@ -110,7 +114,6 @@
         <button type="button" onclick="changeCamera()">Change Camera</button>
     </form>
 </div>
-<script>MQTTconnect();
-MQTTconnectControl();</script>
+<script>onLoad();</script>
 </body>
 </html>

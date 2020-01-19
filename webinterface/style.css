@@ -100,7 +100,7 @@ footer form {
     margin-bottom: 0;
 }
 
-#helpmark, #helpmark2 {
+.helpmark {
     border: 1px solid #93a1a1;
     color: #93a1a1;
     border-radius: 50%;
@@ -110,7 +110,7 @@ footer form {
     background-color: #002b36;
 }
 
-#helpmark:hover, #helpmark2:hover {
+.helpmark:hover {
     cursor: pointer;
 }
 

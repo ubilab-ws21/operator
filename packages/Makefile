@@ -11,6 +11,7 @@ build:
 	# copying the webinterface
 	mkdir -p $(TMP_DIR)/var/www/html/
 	cp -r ../webinterface/* $(TMP_DIR)/var/www/html/
+	cp ../MQTTTopics.md $(TMP_DIR)/var/www/html/
 	# copying the game logic
 	mkdir -p $(TMP_DIR)/opt/ue-operator/logic
 	cp -r ../logic/* $(TMP_DIR)/opt/ue-operator/logic

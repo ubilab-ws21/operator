@@ -23,7 +23,7 @@ function getID(id) {
 function onFailure(message) {
     console.log("Connection attempt for debug failed");
     console.log(message);
-    setTimeout(MQTTconnect, reconnectTimeout);
+    setTimeout(mqttConnect, reconnectTimeout);
 }
 
 /**
@@ -34,7 +34,7 @@ function onFailure(message) {
 function onFailureControl(message) {
     console.log("Connection attempt for control failed");
     console.log(message);
-    setTimeout(MQTTconnectControl, reconnectTimeout);
+    setTimeout(mqttConnectControl, reconnectTimeout);
 }
 
 /**
@@ -133,7 +133,7 @@ function onMessageArrivedControl(msg) {
  * Creates and connects the debug client
  * @constructor
  */
-function MQTTconnect() {
+function mqttConnect() {
     console.log("Connecting debug to " + host + ":" + port + "...");
     mqtt = new Paho.Client(host, port, "", "ws-client-d" + ~~(Date.now() / 1000));
     mqtt.onMessageArrived = onMessageArrived;
@@ -144,7 +144,7 @@ function MQTTconnect() {
  * Creates and connects the control client
  * @constructor
  */
-function MQTTconnectControl() {
+function mqttConnectControl() {
     console.log("Connecting control to " + host + ":" + port + "...");
     mqttControl = new Paho.Client(host, port, "", "ws-client-c" + ~~(Date.now() / 1000));
     mqttControl.onMessageArrived = onMessageArrivedControl;
@@ -203,6 +203,19 @@ function toggleHelp(n) {
 }
 
 /**
+ * Switches the textarea between the debug output and the topic table
+ */
+function toggleTopics() {
+    if (getID("topics").style.display === "none") {
+        getID("topics").style.display = "inline-block";
+        getID("output").style.display = "none";
+    } else {
+        getID("topics").style.display = "none";
+        getID("output").style.display = "inline-block";
+    }
+}
+
+/**
  * Sends a message to the camera control to change the active camera in fallback mode
  */
 function changeCamera() {
@@ -210,7 +223,7 @@ function changeCamera() {
     let number = getID("camera-selection").value;
 
     xhr.onload = function () {
-        console.log(this.statusText.concat(" (", this.status.toString(), ")"));
+        console.log(this.statusText + " (" + this.status.toString() + ")");
     };
 
     xhr.open("GET", "http://localhost:9000/".concat(number));
@@ -314,4 +327,24 @@ function validateNumbers(select) {
             num.max = 1;
             break;
     }
+}
+
+/**
+ * Triggers all functions started on load
+ */
+function onLoad() {
+    new mqttConnect();
+    new mqttConnectControl();
+
+    // Read topics into textarea
+    let client = new XMLHttpRequest();
+    client.open('GET', 'http://10.0.0.2/MQTTTopics.md');
+    client.onload = function() {
+        if(client.status === 200) {
+            getID("topics").innerText = client.responseText;
+        } else {
+            console.log("Error " + client.status.toString() + " reading MQTTTopics.md");
+        }
+    };
+    client.send();
 }
