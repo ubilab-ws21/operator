@@ -61,7 +61,7 @@ The base system controls the deployment of software and requirements. This is do
 - Plugin scripts of all groups
 
 ## UI Control Board
-The UI Control Board is implemented by multiple .html files served by a simple python HTTP server which is listening on port 8080. The main functions of the UI consist of:
+The UI Control Board is implemented by multiple .html files served by an Apache HTTP server which is listening on port 80. The main functions of the UI consist of:
 
 - Displaying and changing the current states of all puzzles and actors
 - Displaying the camera streams
@@ -134,7 +134,7 @@ The calls of the sequence diagram can be interprated as follows (refer to sectio
 
 For the sake of compatibility the slashes of the topic names in the sequence diagram are replaced by an underline *'\_'* and prefixed with an *'mqtt\_'*.
 
-For example the topic name *4/door/entry* is transformed into *mqtt_4_door_entrance*.
+For example the topic name *4/door/entrance* is transformed into *mqtt_4_door_entrance*. Please do not use this modified names as MQTT topics!
 
 ![Communication format example](doc/design/communication_format_example.svg)
 
