@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser
+from os.path import isfile
 import subprocess
 
 OPT = "/opt/ue-operator/"
@@ -54,6 +55,8 @@ if __name__ == "__main__":
         """
         if args.command == "start":
             for rep in REPOS:
+                if not isfile(OPT + "integration/" + rep + SCRIPTNAME):
+                    continue
                 pl.append(["python3", OPT + "integration/" + rep + SCRIPTNAME], stderr=subprocess.STDOUT)
             if args.fallback:
                 pl.append(["python3", "/usr/bin/ue-camera"])

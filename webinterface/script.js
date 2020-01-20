@@ -41,11 +41,11 @@ function onConnect() {
  */
 function onMessageArrived(msg) {
     if(topics.has(msg.destinationName.substr(0,1))) {
-        let op = getID("output");
-        op.value += "Topic " + msg.destinationName + "; time ";
-        if (!msg.payloadString.match(/\d{10}: .*/i)) op.value += ~~(Date.now() / 1000) + " ";
-        op.value += msg.payloadString + "\n";
-        op.scrollTop = op.scrollHeight;
+         let op = getID("output");
+         op.value += "Topic " + msg.destinationName + "; time ";
+         if (!msg.payloadString.match(/\d{10}: .*/i)) op.value += ~~(Date.now() / 1000) + " ";
+         op.value += msg.payloadString + "\n";
+         op.scrollTop = op.scrollHeight;
     }
 
     // Displays game time
@@ -95,12 +95,7 @@ function onMessageArrived(msg) {
             getID(dst_b64 + "_state").value = obj.state.toLowerCase();
             getID(dst_b64 + "_data").value = obj.data || "";
         }
-    } catch(error){
-        // Catch only JSON syntax error
-        if(!(error instanceof SyntaxError)) {
-            throw error;
-        }
-    }
+    } catch{}
 }
 
 /**
