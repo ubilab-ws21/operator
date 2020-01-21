@@ -26,9 +26,9 @@ class WorkflowDefinition:
                 ]),
                 SequenceWorkflow("Solve fusebox", [
                     ActivateLaserWorkflow("Laser_lab_room", "7/laser"),
-                    Workflow("Fusebox_laser_detection_lab_room",
-                             "7/fusebox/laserDetection"),
                     ParallelWorkflow("Solve fuse box", [
+                        Workflow("Fusebox_laser_detection_lab_room",
+                             "7/fusebox/laserDetection"),
                         Workflow("Fusebox_rewiring0_lab_room",
                                  "7/fusebox/rewiring0"),
                         Workflow("Fusebox_rewiring1_lab_room",
