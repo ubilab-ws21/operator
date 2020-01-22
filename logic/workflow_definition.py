@@ -8,7 +8,7 @@ from workflow import DoorTargetState as ds
 
 class WorkflowDefinition:
 
-    def get(self):
+    def create(self):
         return [
             # First puzzle
             Workflow("Keypad_code_entrance_door", "4/door/entrance/puzzle"),

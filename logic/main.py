@@ -38,8 +38,8 @@ if __name__ == "__main__":
 
     mqtt_url = "127.0.0.1"
 
-    workflowDefinition = loadWorkflow(workflow_module, workflow_class)
-    controller = WorkflowController(mqtt_url, workflowDefinition.get())
+    workflow_factory = loadWorkflow(workflow_module, workflow_class)
+    controller = WorkflowController(mqtt_url, workflow_factory)
     controller.connect()
     input("Press Enter to continue...\n")
     controller.disconnect()

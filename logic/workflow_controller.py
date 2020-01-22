@@ -16,7 +16,7 @@ class WorkflowController:
     the transitions between the registered workflows.
     """
 
-    def __init__(self, mqtt_url, workflows):
+    def __init__(self, mqtt_url, workflow_factory):
         """
         Initializes a new instance of this class.
 
@@ -25,15 +25,16 @@ class WorkflowController:
         mqtt_url : str
             The url of the MQTT server.
 
-        workflows : Workflow[]
-            An array of workflows defining the sequence of their execution.
+        workflow_factory : WorkflowFactory
+            A factory which creates the workflow structure defining
+            the sequence of their execution.
         """
         self.client = None
         self.mqtt_url = mqtt_url
         self.game_control_topic = "1/gameControl"
         self.game_timer_topic = "1/gameTime"
         self.game_state_topic = "1/gameState"
-        self.main_sequence = SequenceWorkflow("main", workflows)
+        self.workflow_factory = workflow_factory
         self.game_timer = GameTimer(mqtt_url, self.game_timer_topic)
         self.game_state = GameState.STOPPED
 
@@ -59,6 +60,8 @@ class WorkflowController:
         """
         if self.game_state != GameState.STARTED:
             if self.game_state == GameState.STOPPED:
+                self.main_sequence = SequenceWorkflow(
+                    "main", self.workflow_factory.create())
                 self.main_sequence.register_on_finished(
                     self.__on_workflow_solved)
                 self.main_sequence.execute(self.client)
@@ -75,6 +78,13 @@ class WorkflowController:
             self.main_sequence.dispose(self.client)
             self.game_state = GameState.STOPPED
             print("Main workflow stopped...")
+
+    def reset(self):
+        """
+        Resets the main workflow
+        """
+        self.stop()
+        self.start()
 
     def pause(self):
         """
@@ -120,5 +130,4 @@ class WorkflowController:
         print("===============================")
         print("Workflow finished successfully!")
         print("===============================")
-        self.stop()
-        print("Main workflow stopped...")
+        self.reset()
