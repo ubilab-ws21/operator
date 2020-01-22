@@ -4,6 +4,7 @@ import paho.mqtt.publish as publish
 
 messageSequence = [
     # Entry room
+    ['1/gameControl', 'start'],
     ['4/door/entrance/puzzle', '{"method": "status", "state": "solved"}'],
     ['4/door/entrance', '{"method": "STATUS", "state": "SOLVED"}'],
     ['4/puzzle', '{"method": "STATUS", "state": "SOLVED"}'],
