@@ -29,7 +29,7 @@ class Workflow:
         self.name = name
         self.settings = settings
         self._on_workflow_failed = None
-        self._on_workflow_solved = None
+        self._on_workflow_finished = None
 
         self.activated = False
         self.finished = False
@@ -99,7 +99,7 @@ class Workflow:
                 elif obj.state == State.ACTIVE:
                     self.on_received_status_active(obj.data)
                 elif obj.state == State.SOLVED:
-                    self.on_received_status_solved(obj.data)
+                    self.on_received_status_finished(obj.data)
                 elif obj.state == State.FAILED:
                     self.on_received_status_failed(obj.data)
                 else:
@@ -158,7 +158,7 @@ class Workflow:
         """
         self._on_workflow_failed = func
 
-    def register_on_solved(self, func):
+    def register_on_finished(self, func):
         """
         Register a new handler for handling the puzzle was solved.
 
@@ -167,7 +167,7 @@ class Workflow:
         func : Function
             Handler function: func()
         """
-        self._on_workflow_solved = func
+        self._on_workflow_finished = func
 
     def on_received_status_inactive(self, data):
         print("  ==> Nothing to do")
@@ -175,10 +175,10 @@ class Workflow:
     def on_received_status_active(self, data):
         print("  ==> Nothing to do")
 
-    def on_received_status_solved(self, data):
+    def on_received_status_finished(self, data):
         print("  ==> Puzzle solved successfully")
-        if self._on_workflow_solved:
-            self._on_workflow_solved(self.name)
+        if self._on_workflow_finished:
+            self._on_workflow_finished(self.name)
         self.finished = True
 
     def on_received_status_failed(self, data):
@@ -270,21 +270,17 @@ class SequenceWorkflow(Workflow):
             'workflows': stateJsons
         })
 
-    def on_received_status_solved(self, data):
-        # A workflow sequence is solved iff the last workflow is solved
-        pass
-
     def __on_workflow_failed(self, name, error):
         if self._on_workflow_failed:
             self._on_workflow_failed(error)
 
-    def __on_workflow_solved(self, name):
+    def __on_workflow_finished(self, name):
         self.__unsubscribeCurrentWorkflow(self.client)
         self.current_workflow += 1
         if self.current_workflow >= len(self.workflows):
             print("  ==> Workflow sequence '%s' finished..." % (self.name))
-            if self._on_workflow_solved:
-                self._on_workflow_solved(self.name)
+            if self._on_workflow_finished:
+                self._on_workflow_finished(self.name)
             self.finished = True
         else:
             self.__subscribeCurrentWorkflow(self.client)
@@ -292,13 +288,11 @@ class SequenceWorkflow(Workflow):
     def __subscribeCurrentWorkflow(self, client):
         workflow = self.workflows[self.current_workflow]
         workflow.register_on_failed(self.__on_workflow_failed)
-        workflow.register_on_solved(self.__on_workflow_solved)
+        workflow.register_on_finished(self.__on_workflow_finished)
         workflow.execute(client)
 
     def __unsubscribeCurrentWorkflow(self, client):
         workflow = self.workflows[self.current_workflow]
-        # workflow.register_on_failed(None)
-        # workflow.register_on_solved(None)
         workflow.dispose(client)
 
 
@@ -324,11 +318,11 @@ class ParallelWorkflow(Workflow):
         """
         super().__init__(name, None)
         self.workflows = workflows
-        self.workflow_solved = {}
+        self.workflow_finished = {}
         for workflow in self.workflows:
-            self.workflow_solved[workflow.name] = False
+            self.workflow_finished[workflow.name] = False
             workflow.register_on_failed(self.__on_workflow_failed)
-            workflow.register_on_solved(self.__on_workflow_solved)
+            workflow.register_on_finished(self.__on_workflow_finished)
 
     def execute(self, client):
         """
@@ -386,19 +380,15 @@ class ParallelWorkflow(Workflow):
             'workflows': stateJsons
         })
 
-    def on_received_status_solved(self, data):
-        # A parallel workflow is solved iff all wrapped workflows are solved
-        pass
-
     def __on_workflow_failed(self, name, error):
         if self._on_workflow_failed:
             self._on_workflow_failed(error)
 
-    def __on_workflow_solved(self, name):
-        self.workflow_solved[name] = True
-        if all(list(self.workflow_solved.values())):
-            if self._on_workflow_solved:
-                self._on_workflow_solved(name)
+    def __on_workflow_finished(self, name):
+        self.workflow_finished[name] = True
+        if all(list(self.workflow_finished.values())):
+            if self._on_workflow_finished:
+                self._on_workflow_finished(name)
             self.finished = True
 
 
@@ -431,8 +421,8 @@ class DoorWorkflow(Workflow):
         """
         if data.lower() == self.target_state.name.lower():
             print("  ==> Door %s" % data.lower())
-            if self._on_workflow_solved:
-                self._on_workflow_solved(self.name)
+            if self._on_workflow_finished:
+                self._on_workflow_finished(self.name)
             self.finished = True
         else:
             super.on_received_status_inactive(data)
@@ -454,17 +444,6 @@ class ActivateLaserWorkflow(Workflow):
         print("[%s] Started..." % (self.name))
 
         print("[%s] Laser is activated..." % (self.name))
-        if self._on_workflow_solved:
-            self._on_workflow_solved(self.name)
+        if self._on_workflow_finished:
+            self._on_workflow_finished(self.name)
         self.finished = True
-
-    def dispose(self, client):
-        """
-        Disposes this workflow.
-
-        Parameters
-        ----------
-        client : Client
-            MQTT client
-        """
-        pass
