@@ -32,6 +32,7 @@ class WorkflowController:
         self.mqtt_url = mqtt_url
         self.game_control_topic = "1/gameControl"
         self.game_timer_topic = "1/gameTime"
+        self.game_state_topic = "1/gameState"
         self.main_sequence = SequenceWorkflow("main", workflows)
         self.game_timer = GameTimer(mqtt_url, self.game_timer_topic)
         self.game_state = GameState.STOPPED
@@ -107,6 +108,13 @@ class WorkflowController:
                       % (str(message)))
         else:
             self.main_sequence.on_message(msg)
+            # Publish game state to MQTT
+            self.client.publish(
+                self.game_state_topic,
+                self.main_sequence.toJSON(),
+                0,
+                True
+            )
 
     def __on_workflow_solved(self, name):
         print("===============================")

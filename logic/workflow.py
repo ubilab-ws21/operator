@@ -31,6 +31,10 @@ class Workflow:
         self._on_workflow_failed = None
         self._on_workflow_solved = None
 
+        self.activated = False
+        self.finished = False
+        self.type = self.__class__.__name__
+
     def execute(self, client):
         """
         Executes this workflow.
@@ -46,6 +50,7 @@ class Workflow:
         print("[%s] Started..." % (self.name))
         client.subscribe(self.topic)
         print("[%s] Subscribed to topic '%s'..." % (self.name, self.topic))
+        self.activated = True
 
     def dispose(self, client):
         """
@@ -58,6 +63,7 @@ class Workflow:
         """
         client.unsubscribe(self.topic)
         print("[%s] Unsubscribed from topic '%s'..." % (self.name, self.topic))
+        self.activated = False
 
     def getData(self, settings):
         data = None
@@ -130,6 +136,17 @@ class Workflow:
                     self.name,
                     "[%s] No valid JSON: %s" % (self.name, str(e)))
 
+    def toJSON(self):
+        """
+        Generates a JSON of the current state of the workflow.
+        """
+        return json.dumps({
+            'name': self.name,
+            'type': self.type,
+            'activated': self.activated,
+            'finished': self.finished
+        })
+
     def register_on_failed(self, func):
         """
         Register a new handler for handling errors.
@@ -162,6 +179,7 @@ class Workflow:
         print("  ==> Puzzle solved successfully")
         if self._on_workflow_solved:
             self._on_workflow_solved(self.name)
+        self.finished = True
 
     def on_received_status_failed(self, data):
         print("  ==> An error occured: %s" % (data))
@@ -209,6 +227,7 @@ class SequenceWorkflow(Workflow):
         """
         self.client = client
         self.__subscribeCurrentWorkflow(self.client)
+        self.activated = True
 
     def dispose(self, client):
         """
@@ -220,6 +239,7 @@ class SequenceWorkflow(Workflow):
             MQTT client
         """
         self.current_workflow = 0
+        self.activated = False
 
     def on_message(self, msg):
         """
@@ -233,6 +253,22 @@ class SequenceWorkflow(Workflow):
         if (self.current_workflow < len(self.workflows)):
             workflow = self.workflows[self.current_workflow]
             workflow.on_message(msg)
+
+    def toJSON(self):
+        """
+        Generates a JSON of the current state of the workflow.
+        """
+        stateJsons = []
+        for workflow in self.workflows:
+            stateJsons += [json.loads(workflow.toJSON())]
+
+        return json.dumps({
+            'name': self.name,
+            'type': self.type,
+            'activated': self.activated,
+            'finished': self.finished,
+            'workflows': stateJsons
+        })
 
     def on_received_status_solved(self, data):
         # A workflow sequence is solved iff the last workflow is solved
@@ -249,6 +285,7 @@ class SequenceWorkflow(Workflow):
             print("  ==> Workflow sequence '%s' finished..." % (self.name))
             if self._on_workflow_solved:
                 self._on_workflow_solved(self.name)
+            self.finished = True
         else:
             self.__subscribeCurrentWorkflow(self.client)
 
@@ -306,6 +343,7 @@ class ParallelWorkflow(Workflow):
         print("[%s] Starting in parallel..." % (", ".join(names)))
         for workflow in self.workflows:
             workflow.execute(client)
+        self.activated = True
 
     def dispose(self, client):
         """
@@ -318,6 +356,7 @@ class ParallelWorkflow(Workflow):
         """
         for workflow in self.workflows:
             workflow.dispose(client)
+        self.activated = False
 
     def on_message(self, msg):
         """
@@ -330,6 +369,22 @@ class ParallelWorkflow(Workflow):
         """
         for workflow in self.workflows:
             workflow.on_message(msg)
+
+    def toJSON(self):
+        """
+        Generates a JSON of the current state of the workflow.
+        """
+        stateJsons = []
+        for workflow in self.workflows:
+            stateJsons += [json.loads(workflow.toJSON())]
+
+        return json.dumps({
+            'name': self.name,
+            'type': self.type,
+            'activated': self.activated,
+            'finished': self.finished,
+            'workflows': stateJsons
+        })
 
     def on_received_status_solved(self, data):
         # A parallel workflow is solved iff all wrapped workflows are solved
@@ -344,6 +399,7 @@ class ParallelWorkflow(Workflow):
         if all(list(self.workflow_solved.values())):
             if self._on_workflow_solved:
                 self._on_workflow_solved(name)
+            self.finished = True
 
 
 class DoorTargetState(Enum):
@@ -377,6 +433,7 @@ class DoorWorkflow(Workflow):
             print("  ==> Door %s" % data.lower())
             if self._on_workflow_solved:
                 self._on_workflow_solved(self.name)
+            self.finished = True
         else:
             super.on_received_status_inactive(data)
 
@@ -399,6 +456,7 @@ class ActivateLaserWorkflow(Workflow):
         print("[%s] Laser is activated..." % (self.name))
         if self._on_workflow_solved:
             self._on_workflow_solved(self.name)
+        self.finished = True
 
     def dispose(self, client):
         """

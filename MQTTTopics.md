@@ -1,6 +1,6 @@
 | Group No. | Group Name                     | Topic Names                                                                                                                                                    |
 | :-------- | :----------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1         | Operator Room                  | 1/gameTime_in_sec, 1/gameTime_formatted, 1/gameControl                                                                                                         |
+| 1         | Operator Room                  | 1/gameTime_in_sec, 1/gameTime_formatted, 1/gameControl, 1/gameState                                                                                            |
 | 2         | Environment & AI               | 2/ledstrip/timer, 2/ledstrip/serverroom, 2/ledstrip/doorserverroom, 2/ledstrip/labroom/south, 2/ledstrip/labroom/middle, 2/ledstrip/labroom/north, 2/gyrophare |
 | 3         | Mission Briefing               |                                                                                                                                                                |
 | 4         | Both Doors & First Door Puzzle | 4/door/entrance, 4/door/entrance/puzzle, 4/door/serverRoom, 4/puzzle                                                                                           |
