@@ -1,0 +1,143 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <title>Test</title>
+    <script src="cytoscape.umd.js"></script>
+
+</head>
+
+<style>
+    #cy {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+    }
+</style>
+
+<body>
+<div id="cy"></div>
+<script>
+    let json = `{
+ "nodes": [{
+   "data": {
+    "id": "a",
+    "name": "A",
+    "parent": "b"
+   }
+  },
+  {
+   "data": {
+    "id": "b",
+    "name": "B"
+   }
+  },
+  {
+   "data": {
+    "id": "c",
+    "name": "C",
+    "parent": "b"
+   }
+  }, {
+   "data": {
+    "id": "d",
+    "name": "D"
+   }
+  },
+  {
+   "data": {
+    "id": "e",
+    "name": "E"
+   }
+  },
+  {
+   "data": {
+    "id": "f",
+    "name": "F",
+    "parent": "e"
+   }
+  }
+ ],
+ "edges": [{
+   "data": {
+    "id": "ad",
+    "source": "a",
+    "target": "d"
+   }
+  },
+  {
+   "data": {
+    "id": "eb",
+    "source": "e",
+    "target": "b"
+   }
+  }
+ ]
+}`;
+    let data = JSON.parse(json);
+    let cy = window.cy = cytoscape({
+        container: document.getElementById('cy'),
+        style: [
+            {
+                selector: 'node',
+                css: {
+                    'content': 'data(name)',
+                    'text-valign': 'center',
+                    'text-halign': 'center'
+                }
+            },
+            {
+                selector: 'node[parent="b"]',
+                css: {
+                    'background-color': 'red'
+                }
+            },
+            {
+                selector: ':parent',
+                css: {
+                    'text-valign': 'top',
+                    'text-halign': 'center',
+                }
+            },
+            {
+                selector: 'edge',
+                css: {
+                    'curve-style': 'bezier',
+                    'target-arrow-shape': 'triangle'
+                }
+            }
+        ],
+        elements: {
+            nodes: data.nodes,
+            edges: data.edges
+        },
+        layout: {
+            name: 'breadthfirst',
+            fit: true,
+            directed: true,
+            circle: true, // put depths in concentric circles if true, put depths top down if false
+            grid: true, // whether to create an even grid into which the DAG is placed (circle:false only)
+            spacingFactor: 0, // positive spacing factor, larger => more space between nodes (N.B. n/a if causes overlap)
+            boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+            avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+            nodeDimensionsIncludeLabels: false, // Excludes the label when calculating node bounding boxes for the layout algorithm
+            roots: undefined, // the roots of the trees
+            maximal: false, // whether to shift nodes down their natural BFS depths in order to avoid upwards edges (DAGS only)
+        },
+        // interaction options:
+        zoomingEnabled: false,
+        userZoomingEnabled: false,
+        panningEnabled: false,
+        userPanningEnabled: false,
+        boxSelectionEnabled: false,
+        selectionType: 'single',
+        autolock: false,
+        autoungrabify: true,
+        autounselectify: false,
+    });
+</script>
+</body>
+</html>
