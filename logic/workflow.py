@@ -221,7 +221,7 @@ class Workflow(BaseWorkflow):
         if self.topic is not None:
             data = self.getSettings()
             message = Message(Method.TRIGGER, State.ON, data)
-            client.publish(self.topic, message.toJSON())
+            client.publish(self.topic, message.toJSON(), 2)
             print("[%s] Started..." % (self.name))
 
     def _subscripeToTopic(self, client):
