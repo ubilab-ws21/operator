@@ -3,6 +3,12 @@ from message import Message, Method, State, fromJSON
 from enum import Enum
 
 
+class WorkflowState(Enum):
+    INACTIVE = 0
+    ACTIVE = 1
+    FINISHED = 2
+
+
 class BaseWorkflow:
     """
     This class provides the basic structure and functionality for workflows.
@@ -24,9 +30,7 @@ class BaseWorkflow:
         self.settings = settings
         self._on_workflow_failed = None
         self._on_workflow_finished = None
-
-        self.activated = False
-        self.finished = False
+        self.state = WorkflowState.INACTIVE
         self.type = self.__class__.__name__
 
     def execute(self, client):
@@ -38,7 +42,7 @@ class BaseWorkflow:
         client : Client
             MQTT client
         """
-        self.activated = True
+        self.state = WorkflowState.ACTIVE
 
     def dispose(self, client):
         """
@@ -49,7 +53,8 @@ class BaseWorkflow:
         client : Client
             MQTT client
         """
-        self.activated = False
+        if self.state is not WorkflowState.FINISHED:
+            self.state = WorkflowState.INACTIVE
 
     def on_message(self, msg):
         pass
@@ -85,23 +90,62 @@ class BaseWorkflow:
         """
         self._on_workflow_finished = func
 
-    def toJSON(self):
+    def get_graph_config(self):
         """
-        Generates a JSON of the current state of the workflow.
+        Generates a JSON configuration for a cyptoscape graph.
         """
-        stateDict = {
-            'name': self.name,
-            'type': self.type,
-            'activated': self.activated,
-            'finished': self.finished
+        graph = self.get_graph()
+
+        graphConfig = {
+            'nodes': graph[0],
+            'edges': graph[1]
         }
 
-        self._addState(stateDict)
+        return json.dumps(graphConfig)
 
-        return json.dumps(stateDict)
+    def get_graph(self, predecessors=None, parent=None):
+        """
+        Generates a graph from the workflow and returns a tuple:
+        (nodes, edges, final_states)
 
-    def _addState(self, stateDict):
-        pass
+        Parameters
+        ----------
+        predecessors : str[]
+            The IDs of the predecessor states.
+
+        parent : str
+            The ID of the parent state (group).
+
+        Return
+        ------
+        (nodes, edges, final_state_ids) : Tuple
+            Graph as a tuple.
+        """
+        nodeData = {
+            'id': self.name,
+            'status': self.state.name,
+            'type': self.type
+        }
+
+        if parent is not None:
+            nodeData['parent'] = parent
+
+        node = {
+            'data': nodeData
+        }
+
+        edges = []
+        if predecessors:
+            for predecessor in predecessors:
+                edges.append({
+                    'data': {
+                        'id': predecessor + '->' + self.name,
+                        'source': predecessor,
+                        'target': self.name
+                    }
+                })
+
+        return ([node], edges, [self.name])
 
 
 class Workflow(BaseWorkflow):
@@ -245,7 +289,7 @@ class Workflow(BaseWorkflow):
         print("  ==> Puzzle solved successfully")
         if self._on_workflow_finished:
             self._on_workflow_finished(self.name)
-        self.finished = True
+        self.state = WorkflowState.FINISHED
 
     def _on_received_status_failed(self, data):
         print("  ==> An error occured: %s" % (data))
@@ -323,15 +367,37 @@ class SequenceWorkflow(BaseWorkflow):
             workflow.on_message(msg)
         super().on_message(msg)
 
-    def _addState(self, stateDict):
+    def get_graph(self, predecessors=None, parent=None):
         """
-        Generates a JSON of the current state of the workflow.
+        Generates a graph from the workflow and returns a tuple:
+        (nodes, edges, final_states)
+
+        Parameters
+        ----------
+        predecessors : str[]
+            The IDs of the predecessor states.
+
+        parent : str
+            The ID of the parent state (group).
+
+        Return
+        ------
+        (nodes, edges, final_state_ids) : Tuple
+            Graph as a tuple.
         """
-        stateJsons = []
+        graph = super().get_graph(None, parent)
+        nodes = graph[0]
+        edges = graph[1]
+        print(nodes, edges)
+
+        last_final_state_ids = predecessors
         for workflow in self.workflows:
-            stateJsons += [json.loads(workflow.toJSON())]
-        stateDict['workflows'] = stateJsons
-        super()._addState(stateDict)
+            graph = workflow.get_graph(last_final_state_ids, self.name)
+            nodes.extend(graph[0])
+            edges.extend(graph[1])
+            last_final_state_ids = graph[2]
+
+        return (nodes, edges, last_final_state_ids)
 
     def __subscribeCurrentWorkflow(self, client):
         workflow = self.workflows[self.current_workflow]
@@ -354,7 +420,7 @@ class SequenceWorkflow(BaseWorkflow):
             print("  ==> Workflow sequence '%s' finished..." % (self.name))
             if self._on_workflow_finished:
                 self._on_workflow_finished(self.name)
-            self.finished = True
+            self.state = WorkflowState.FINISHED
         else:
             self.__subscribeCurrentWorkflow(self.client)
 
@@ -430,15 +496,36 @@ class ParallelWorkflow(BaseWorkflow):
             workflow.on_message(msg)
         super().on_message(msg)
 
-    def _addState(self, stateDict):
+    def get_graph(self, predecessors=None, parent=None):
         """
-        Generates a JSON of the current state of the workflow.
+        Generates a graph from the workflow and returns a tuple:
+        (nodes, edges, final_states)
+
+        Parameters
+        ----------
+        predecessors : str[]
+            The IDs of the predecessor states.
+
+        parent : str
+            The ID of the parent state (group).
+
+        Return
+        ------
+        (nodes, edges, final_state_ids) : Tuple
+            Graph as a tuple.
         """
-        stateJsons = []
+        graph = super().get_graph(None, parent)
+        nodes = graph[0]
+        edges = graph[1]
+        
+        final_state_ids = []
         for workflow in self.workflows:
-            stateJsons += [json.loads(workflow.toJSON())]
-        stateDict['workflows'] = stateJsons
-        super()._addState(stateDict)
+            graph = workflow.get_graph(predecessors, self.name)
+            nodes.extend(graph[0])
+            edges.extend(graph[1])
+            final_state_ids.extend(graph[2])
+
+        return (nodes, edges, final_state_ids)
 
     def __on_workflow_failed(self, name, error):
         if self._on_workflow_failed:
@@ -449,7 +536,7 @@ class ParallelWorkflow(BaseWorkflow):
         if all(list(self.workflow_finished.values())):
             if self._on_workflow_finished:
                 self._on_workflow_finished(name)
-            self.finished = True
+            self.state = WorkflowState.FINISHED
 
 
 class DoorTargetState(Enum):
@@ -483,7 +570,7 @@ class DoorWorkflow(Workflow):
             print("  ==> Door %s" % data.lower())
             if self._on_workflow_finished:
                 self._on_workflow_finished(self.name)
-            self.finished = True
+            self.state = WorkflowState.FINISHED
         else:
             super.on_received_status_inactive(data)
 
@@ -503,4 +590,4 @@ class ActivateLaserWorkflow(Workflow):
 
         if self._on_workflow_finished:
             self._on_workflow_finished(self.name)
-        self.finished = True
+        self.state = WorkflowState.FINISHED
