@@ -123,6 +123,7 @@ class BaseWorkflow:
         """
         nodeData = {
             'id': self.name,
+            'name': self.name,
             'status': self.state.name,
             'type': self.type
         }
@@ -134,19 +135,38 @@ class BaseWorkflow:
             'data': nodeData
         }
 
+        edges = self._createEdges(self.name, predecessors)
+
+        return ([node], edges, [self.name])
+
+    def _createEdges(self, target, predecessors):
+        """
+        Generates the edges from a target and it's predecessors.  
+
+        Parameters
+        ----------
+        target: str
+            The ID of the target node.
+
+        predecessors : str[]
+            The IDs of the predecessor states.
+
+        Return
+        ------
+        edges : Edge[]
+            Created edges as array.
+        """
         edges = []
         if predecessors:
             for predecessor in predecessors:
                 edges.append({
                     'data': {
-                        'id': predecessor + '->' + self.name,
+                        'id': predecessor + '->' + target,
                         'source': predecessor,
-                        'target': self.name
+                        'target': target
                     }
                 })
-
-        return ([node], edges, [self.name])
-
+        return edges
 
 class Workflow(BaseWorkflow):
     """
@@ -525,7 +545,18 @@ class ParallelWorkflow(BaseWorkflow):
             edges.extend(graph[1])
             final_state_ids.extend(graph[2])
 
-        return (nodes, edges, final_state_ids)
+        final_state_id = "Final: " + self.name
+        nodes.append({
+            'data': {
+                'id': final_state_id,
+                'parent': self.name
+            } 
+        })
+        
+        edges_to_final_state = self._createEdges(final_state_id, final_state_ids)
+        edges.extend(edges_to_final_state)
+
+        return (nodes, edges, [final_state_id])
 
     def __on_workflow_failed(self, name, error):
         if self._on_workflow_failed:
