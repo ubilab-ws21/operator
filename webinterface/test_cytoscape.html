@@ -21,62 +21,7 @@
 <body>
 <div id="cy"></div>
 <script>
-    let json = `{
- "nodes": [{
-   "data": {
-    "id": "a",
-    "name": "A",
-    "parent": "b"
-   }
-  },
-  {
-   "data": {
-    "id": "b",
-    "name": "B"
-   }
-  },
-  {
-   "data": {
-    "id": "c",
-    "name": "C",
-    "parent": "b"
-   }
-  }, {
-   "data": {
-    "id": "d",
-    "name": "D"
-   }
-  },
-  {
-   "data": {
-    "id": "e",
-    "name": "E"
-   }
-  },
-  {
-   "data": {
-    "id": "f",
-    "name": "F",
-    "parent": "e"
-   }
-  }
- ],
- "edges": [{
-   "data": {
-    "id": "ad",
-    "source": "a",
-    "target": "d"
-   }
-  },
-  {
-   "data": {
-    "id": "eb",
-    "source": "e",
-    "target": "b"
-   }
-  }
- ]
-}`;
+    let json = `{"nodes": [{"data": {"id": "main", "name": "main", "status": "ACTIVE", "type": "SequenceWorkflow"}}, {"data": {"id": "Keypad_code_entrance_door", "name": "Keypad_code_entrance_door", "status": "ACTIVE", "type": "Workflow", "parent": "main"}}, {"data": {"id": "Entrance_door_opening", "name": "Entrance_door_opening", "status": "INACTIVE", "type": "DoorWorkflow", "parent": "main"}}, {"data": {"id": "Closing_entrance_door_globes", "name": "Closing_entrance_door_globes", "status": "INACTIVE", "type": "Workflow", "parent": "main"}}, {"data": {"id": "Lab room", "name": "Lab room", "status": "INACTIVE", "type": "ParallelWorkflow", "parent": "main"}}, {"data": {"id": "Solve safe", "name": "Solve safe", "status": "INACTIVE", "type": "SequenceWorkflow", "parent": "Lab room"}}, {"data": {"id": "Activate_safe_lab_room", "name": "Activate_safe_lab_room", "status": "INACTIVE", "type": "Workflow", "parent": "Solve safe"}}, {"data": {"id": "Open_safe_lab_room", "name": "Open_safe_lab_room", "status": "INACTIVE", "type": "Workflow", "parent": "Solve safe"}}, {"data": {"id": "Solve fusebox", "name": "Solve fusebox", "status": "INACTIVE", "type": "SequenceWorkflow", "parent": "Lab room"}}, {"data": {"id": "Laser_lab_room", "name": "Laser_lab_room", "status": "INACTIVE", "type": "ActivateLaserWorkflow", "parent": "Solve fusebox"}}, {"data": {"id": "Solve fuse box", "name": "Solve fuse box", "status": "INACTIVE", "type": "ParallelWorkflow", "parent": "Solve fusebox"}}, {"data": {"id": "Fusebox_laser_detection_lab_room", "name": "Fusebox_laser_detection_lab_room", "status": "INACTIVE", "type": "Workflow", "parent": "Solve fuse box"}}, {"data": {"id": "Fusebox_rewiring0_lab_room", "name": "Fusebox_rewiring0_lab_room", "status": "INACTIVE", "type": "Workflow", "parent": "Solve fuse box"}}, {"data": {"id": "Fusebox_rewiring1_lab_room", "name": "Fusebox_rewiring1_lab_room", "status": "INACTIVE", "type": "Workflow", "parent": "Solve fuse box"}}, {"data": {"id": "Fusebox_potentiometer_lab_room", "name": "Fusebox_potentiometer_lab_room", "status": "INACTIVE", "type": "Workflow", "parent": "Solve fuse box"}}, {"data": {"id": "Final: Solve fuse box", "parent": "Solve fuse box"}}, {"data": {"id": "Robot_lab_room", "name": "Robot_lab_room", "status": "INACTIVE", "type": "Workflow", "parent": "Solve fusebox"}}, {"data": {"id": "Final: Lab room", "parent": "Lab room"}}, {"data": {"id": "Server room", "name": "Server room", "status": "INACTIVE", "type": "ParallelWorkflow", "parent": "main"}}, {"data": {"id": "Floppy_disk_server_room", "name": "Floppy_disk_server_room", "status": "INACTIVE", "type": "Workflow", "parent": "Server room"}}, {"data": {"id": "Maze_server_room", "name": "Maze_server_room", "status": "INACTIVE", "type": "Workflow", "parent": "Server room"}}, {"data": {"id": "Simon_server_room", "name": "Simon_server_room", "status": "INACTIVE", "type": "Workflow", "parent": "Server room"}}, {"data": {"id": "Final: Server room", "parent": "Server room"}}], "edges": [{"data": {"id": "Keypad_code_entrance_door->Entrance_door_opening", "source": "Keypad_code_entrance_door", "target": "Entrance_door_opening"}}, {"data": {"id": "Entrance_door_opening->Closing_entrance_door_globes", "source": "Entrance_door_opening", "target": "Closing_entrance_door_globes"}}, {"data": {"id": "Closing_entrance_door_globes->Lab room", "source": "Closing_entrance_door_globes", "target": "Lab room"}}, {"data": {"id": "Activate_safe_lab_room->Open_safe_lab_room", "source": "Activate_safe_lab_room", "target": "Open_safe_lab_room"}}, {"data": {"id": "Laser_lab_room->Solve fuse box", "source": "Laser_lab_room", "target": "Solve fuse box"}}, {"data": {"id": "Fusebox_laser_detection_lab_room->Final: Solve fuse box", "source": "Fusebox_laser_detection_lab_room", "target": "Final: Solve fuse box"}}, {"data": {"id": "Fusebox_rewiring0_lab_room->Final: Solve fuse box", "source": "Fusebox_rewiring0_lab_room", "target": "Final: Solve fuse box"}}, {"data": {"id": "Fusebox_rewiring1_lab_room->Final: Solve fuse box", "source": "Fusebox_rewiring1_lab_room", "target": "Final: Solve fuse box"}}, {"data": {"id": "Fusebox_potentiometer_lab_room->Final: Solve fuse box", "source": "Fusebox_potentiometer_lab_room", "target": "Final: Solve fuse box"}}, {"data": {"id": "Final: Solve fuse box->Robot_lab_room", "source": "Final: Solve fuse box", "target": "Robot_lab_room"}}, {"data": {"id": "Open_safe_lab_room->Final: Lab room", "source": "Open_safe_lab_room", "target": "Final: Lab room"}}, {"data": {"id": "Robot_lab_room->Final: Lab room", "source": "Robot_lab_room", "target": "Final: Lab room"}}, {"data": {"id": "Final: Lab room->Server room", "source": "Final: Lab room", "target": "Server room"}}, {"data": {"id": "Floppy_disk_server_room->Final: Server room", "source": "Floppy_disk_server_room", "target": "Final: Server room"}}, {"data": {"id": "Maze_server_room->Final: Server room", "source": "Maze_server_room", "target": "Final: Server room"}}, {"data": {"id": "Simon_server_room->Final: Server room", "source": "Simon_server_room", "target": "Final: Server room"}}]}`;
     let data = JSON.parse(json);
     let cy = window.cy = cytoscape({
         container: document.getElementById('cy'),
@@ -118,7 +63,7 @@
             name: 'breadthfirst',
             fit: true,
             directed: true,
-            circle: true, // put depths in concentric circles if true, put depths top down if false
+            circle: false, // put depths in concentric circles if true, put depths top down if false
             grid: true, // whether to create an even grid into which the DAG is placed (circle:false only)
             spacingFactor: 0, // positive spacing factor, larger => more space between nodes (N.B. n/a if causes overlap)
             boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
