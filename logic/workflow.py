@@ -141,7 +141,7 @@ class BaseWorkflow:
 
     def _createEdges(self, target, predecessors):
         """
-        Generates the edges from a target and it's predecessors.  
+        Generates the edges from a target and it's predecessors.
 
         Parameters
         ----------
@@ -167,6 +167,7 @@ class BaseWorkflow:
                     }
                 })
         return edges
+
 
 class Workflow(BaseWorkflow):
     """
@@ -534,29 +535,19 @@ class ParallelWorkflow(BaseWorkflow):
         (nodes, edges, final_state_ids) : Tuple
             Graph as a tuple.
         """
-        graph = super().get_graph(None, parent)
+        graph = super().get_graph(predecessors, parent)
         nodes = graph[0]
         edges = graph[1]
-        
+        final_states = graph[2]
+
         final_state_ids = []
         for workflow in self.workflows:
-            graph = workflow.get_graph(predecessors, self.name)
+            graph = workflow.get_graph(None, self.name)
             nodes.extend(graph[0])
             edges.extend(graph[1])
             final_state_ids.extend(graph[2])
 
-        final_state_id = "Final: " + self.name
-        nodes.append({
-            'data': {
-                'id': final_state_id,
-                'parent': self.name
-            } 
-        })
-        
-        edges_to_final_state = self._createEdges(final_state_id, final_state_ids)
-        edges.extend(edges_to_final_state)
-
-        return (nodes, edges, [final_state_id])
+        return (nodes, edges, final_states)
 
     def __on_workflow_failed(self, name, error):
         if self._on_workflow_failed:
