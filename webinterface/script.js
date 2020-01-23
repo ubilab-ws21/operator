@@ -40,12 +40,12 @@ function onConnect() {
  * @param msg
  */
 function onMessageArrived(msg) {
-    if(topics.has(msg.destinationName.substr(0,1))) {
-         let op = getID("output");
-         op.value += "Topic " + msg.destinationName + "; time ";
-         if (!msg.payloadString.match(/\d{10}: .*/i)) op.value += ~~(Date.now() / 1000) + " ";
-         op.value += msg.payloadString + "\n";
-         op.scrollTop = op.scrollHeight;
+    if (topics.has(msg.destinationName.substr(0, 1))) {
+        let op = getID("output");
+        op.value += "Topic " + msg.destinationName + "; time ";
+        if (!msg.payloadString.match(/\d{10}: .*/i)) op.value += ~~(Date.now() / 1000) + " ";
+        op.value += msg.payloadString + "\n";
+        op.scrollTop = op.scrollHeight;
     }
 
     // Displays game time
@@ -95,7 +95,8 @@ function onMessageArrived(msg) {
             getID(dst_b64 + "_state").value = obj.state.toLowerCase();
             getID(dst_b64 + "_data").value = obj.data || "";
         }
-    } catch{}
+    } catch {
+    }
 }
 
 /**
@@ -116,15 +117,15 @@ function mqttConnect() {
  */
 function toggle(topic, button) {
     if (button.parentElement.id === "soff") {
-        if(topic.startsWith("$")) {
+        if (topic.startsWith("$")) {
             mqtt.subscribe(topic + "/#");
         }
-        topics.add(topic.substr(0,1));
+        topics.add(topic.substr(0, 1));
     } else {
-        if(topic.startsWith("$")) {
+        if (topic.startsWith("$")) {
             mqtt.unsubscribe(topic + "/#");
         }
-        topics.delete(topic.substr(0,1));
+        topics.delete(topic.substr(0, 1));
     }
     getID(button.parentElement.id === "soff" ? "son" : "soff").appendChild(button);
 }
@@ -192,6 +193,7 @@ function changeCamera() {
 
     xhr.open("GET", "http://localhost:9000/".concat(number));
     xhr.send();
+    getID("cameras-fallback").firstChild.src = "http://10.0.0.2:8080/stream?random="+new Date().getTime().toString();
 }
 
 /**
@@ -252,7 +254,7 @@ function validateCommands(select) {
         case "2/gyrophare":
             for (let child of cmd.children) {
                 child.disabled = child.value !== "power:";
-                if(child.value === "power:") {
+                if (child.value === "power:") {
                     child.selected = true;
                     getID("env-number1").disabled = false;
                     getID("env-number1").max = 1;
@@ -296,18 +298,96 @@ function validateNumbers(select) {
 /**
  * Triggers all functions started on load
  */
-function onLoad() {
+async function onLoad() {
     new mqttConnect();
 
     // Read topics into textarea
     let client = new XMLHttpRequest();
     client.open('GET', 'MQTTTopics.md');
-    client.onload = function() {
-        if(client.status === 200) {
+    client.onload = function () {
+        if (client.status === 200) {
             getID("topics").innerText = client.responseText;
         } else {
             console.log("Error " + client.status.toString() + " reading MQTTTopics.md");
         }
     };
     client.send();
+    // TODO: Move to onMessageArrived when real data comes in
+    displayGraph(json);
+    // TODO: redraw after resize
+    window.addEventListener("resize", function(event) { let i=1 });
+}
+
+function displayGraph(jsonData) {
+    let data = JSON.parse(jsonData);
+    let cy = window.cy = cytoscape({
+        container: document.getElementById('cy'),
+        style: [
+            {
+                selector: 'node',
+                css: {
+                    'content': 'data(name)',
+                    "color": "#000000",
+                    "font-family": "Verdana, Geneva, sans-serif",
+                    'text-valign': 'center',
+                    'text-halign': 'center',
+                    "background-color": "#93a1a1"
+                }
+            },
+            {
+                selector: 'node[parent="b"]',
+                css: {
+                    'background-color': '#cb4b16'
+                }
+            },
+            {
+                selector: ':parent',
+                css: {
+                    'text-valign': 'top',
+                    'text-halign': 'center',
+                    "background-color": "#002b36"
+                }
+            },
+            {
+                selector: 'edge',
+                css: {
+                    'curve-style': 'bezier',
+                    'target-arrow-shape': 'triangle'
+                }
+            },
+            {
+                selector: "core",
+                css: {
+                    "active-bg-size": 0
+                }
+            }
+        ],
+        elements: {
+            nodes: data.nodes,
+            edges: data.edges
+        },
+        layout: {
+            name: 'breadthfirst',
+            fit: true,
+            directed: true,
+            circle: true, // put depths in concentric circles if true, put depths top down if false
+            grid: true, // whether to create an even grid into which the DAG is placed (circle:false only)
+            spacingFactor: 0, // positive spacing factor, larger => more space between nodes (N.B. n/a if causes overlap)
+            boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+            avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
+            nodeDimensionsIncludeLabels: false, // Excludes the label when calculating node bounding boxes for the layout algorithm
+            roots: undefined, // the roots of the trees
+            maximal: false, // whether to shift nodes down their natural BFS depths in order to avoid upwards edges (DAGS only)
+        },
+        // interaction options:
+        zoomingEnabled: false,
+        userZoomingEnabled: false,
+        panningEnabled: false,
+        userPanningEnabled: false,
+        boxSelectionEnabled: false,
+        selectionType: 'single',
+        autolock: false,
+        autoungrabify: true,
+        autounselectify: true,
+    });
 }

@@ -4,7 +4,7 @@ body, textarea, pre {
     font-family: Verdana, Geneva, sans-serif;
 }
 
-textarea, #control-groups, #topics {
+textarea, #control-main, #topics {
     border: 5px solid #002b36;
     padding-left: 0.5em;
     border-top: 0;
@@ -63,8 +63,8 @@ nav {
     display: inline-block;
     resize: both;
     transform: rotate(180deg);
-	min-width: 20em;
-	min-height: 20em;
+    min-width: 20em;
+    min-height: 20em;
 }
 
 .subs {
@@ -125,7 +125,7 @@ footer form {
     padding: 5px;
     border-radius: 5px;
     margin: 5px;
-	background-color: #002b36;
+    background-color: #002b36;
     float: left;
 }
 
@@ -152,4 +152,20 @@ footer form {
 
 #env-number1, #env-number2, #env-number3 {
     width: 4em;
+}
+
+#cy, #control-groups {
+    float: left;
+    width: calc(50% - 3px);
+    height: 100%;
+    display: inline-block;
+    overflow: auto;
+}
+
+#control-groups {
+    border-right: 5px solid #002b36;
+}
+
+#control-main {
+    padding: 0;
 }

@@ -5,7 +5,7 @@
 <head>
     <title>Test</title>
     <script src="cytoscape.umd.js"></script>
-
+    <script src="example.json.js"></script>
 </head>
 
 <style>
@@ -21,62 +21,7 @@
 <body>
 <div id="cy"></div>
 <script>
-    let json = `{
- "nodes": [{
-   "data": {
-    "id": "a",
-    "name": "A",
-    "parent": "b"
-   }
-  },
-  {
-   "data": {
-    "id": "b",
-    "name": "B"
-   }
-  },
-  {
-   "data": {
-    "id": "c",
-    "name": "C",
-    "parent": "b"
-   }
-  }, {
-   "data": {
-    "id": "d",
-    "name": "D"
-   }
-  },
-  {
-   "data": {
-    "id": "e",
-    "name": "E"
-   }
-  },
-  {
-   "data": {
-    "id": "f",
-    "name": "F",
-    "parent": "e"
-   }
-  }
- ],
- "edges": [{
-   "data": {
-    "id": "ad",
-    "source": "a",
-    "target": "d"
-   }
-  },
-  {
-   "data": {
-    "id": "eb",
-    "source": "e",
-    "target": "b"
-   }
-  }
- ]
-}`;
+
     let data = JSON.parse(json);
     let cy = window.cy = cytoscape({
         container: document.getElementById('cy'),
