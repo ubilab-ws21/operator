@@ -21,6 +21,7 @@ input, button, select {
     border: 3px solid #002b36;
     padding: 2px 6px;
     border-radius: 8px;
+    margin: 0;
 }
 
 button {
@@ -162,7 +163,7 @@ footer form {
     text-align: center;
 }
 
-#env-number1, #env-number2, #env-number3 {
+input[type=number] {
     width: 4em;
 }
 

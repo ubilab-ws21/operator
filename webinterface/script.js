@@ -154,9 +154,10 @@ function send() {
         alert("Topic is required");
         return;
     }
-    mqtt.publish(getID("send_topic").value, getID("send_message").value, 0, getID("send_retain").checked);
+    mqtt.publish(getID("send_topic").value, getID("send_message").value, getID("send_qos").value, getID("send_retain").checked);
     getID("send_topic").value = "";
     getID("send_message").value = "";
+    getID("send_qos").value = 0
     getID("send_retain").checked = false;
 }
 

@@ -88,7 +88,8 @@
         <form>
             <input id="send_topic" type="text" placeholder="Topic">
             <input id="send_message" type="text" placeholder="Message">
-            <label><input id="send_retain" type="checkbox">Retain</label>
+            <label>Retain:<input id="send_retain" type="checkbox"></label>
+            <label>QoS:<input id="send_qos" type="number" min="0" max="2"></label>
             <button type="button" onclick="send();">Send</button>
             <span class="helpmark" onclick="toggleHelp(1)">?</span>
             <input type="text" class="help" readonly id="help" style="display: none"
