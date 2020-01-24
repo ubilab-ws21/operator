@@ -133,8 +133,20 @@ footer form {
     margin: 0;
 }
 
-.control input, .control button, .control select {
-    width: 10em;
+.control input {
+    width: 10.5em;
+}
+
+.control button {
+    width: 5em;
+}
+
+.control div:first-child {
+    float: left;
+}
+
+.control div:last-child {
+    float: right;
 }
 
 .control b {

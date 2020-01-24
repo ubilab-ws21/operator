@@ -3,6 +3,8 @@ let reconnectTimeout = 2000;
 let host = "10.0.0.2";
 let port = 9001;
 let topics = new Set();
+let states_on = new Set();
+let states_off = new Set();
 
 /**
  * Short version of getElementById
@@ -82,18 +84,22 @@ function onMessageArrived(msg) {
             // Create the status box if it doesn't exist yet
             if (getID(dst_b64) == null) {
                 getID("c" + dst.charAt(0)).innerHTML += `<div id="${dst_b64}" class="control"><b>${dst}</b><form>
-                    <select id="${dst_b64}_state">
-                        <option value="inactive">inactive</option>
-                        <option value="active">active</option>
-                        <option value="solved">solved</option>
-                        <option value="failed">failed</option>
-                    </select><br><input type="text" id="${dst_b64}_data" readonly=""><br>
-                    <button type="button" onclick="changeState('${dst_b64}');">Change</button></form></div>`;
+                    <input type="text" id="${dst_b64}_state" readonly=""><br>
+                    <input type="text" id="${dst_b64}_data" readonly=""><br><div>
+                    <button type="button" id="${dst_b64}_on" onclick="changeState('${dst_b64}', 'on');">On</button>
+                    <button type="button" id="${dst_b64}_off"  onclick="changeState('${dst_b64}', 'off');">Off</button>
+                    </div></form></div>`;
             }
 
             // Change the state of the status box
             getID(dst_b64 + "_state").value = obj.state.toLowerCase();
             getID(dst_b64 + "_data").value = obj.data || "";
+            if(states_on.has(obj.state.toLowerCase())) {
+                getID(dst_b64 + "_on").disabled = true;
+            }
+            if(states_off.has(obj.state.toLowerCase())) {
+                getID(dst_b64 + "_off").disabled = true;
+            }
         }
     } catch {
     }
@@ -200,11 +206,8 @@ function changeCamera() {
  * Changes the state of a puzzle displayed in the control section
  * @param dst_b64
  */
-function changeState(dst_b64) {
-    let dst = atob(dst_b64);
-    let state = getID(dst_b64 + "_state").value;
-    let json_obj = JSON.stringify({method: "trigger", state: "on", data: state});
-    mqtt.send(dst, json_obj, 2);
+function changeState(dst_b64, state) {
+    mqtt.send(atob(dst_b64), JSON.stringify({method: "trigger", state: state}), 2);
 }
 
 /**
