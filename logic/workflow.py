@@ -240,7 +240,7 @@ class SequenceWorkflow(Workflow):
 
     def __on_workflow_failed(self, name, error):
         if self._on_workflow_failed:
-            self._on_workflow_failed(error)
+            self._on_workflow_failed(name, error)
 
     def __on_workflow_solved(self, name):
         self.__unsubscribeCurrentWorkflow(self.client)
@@ -337,7 +337,7 @@ class ParallelWorkflow(Workflow):
 
     def __on_workflow_failed(self, name, error):
         if self._on_workflow_failed:
-            self._on_workflow_failed(error)
+            self._on_workflow_failed(name, error)
 
     def __on_workflow_solved(self, name):
         self.workflow_solved[name] = True
