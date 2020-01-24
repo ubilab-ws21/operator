@@ -339,7 +339,13 @@ function displayGraph(jsonData) {
                 }
             },
             {
-                selector: 'node[parent="b"]',
+                selector: 'node[status="ACTIVE"]',
+                css: {
+                    'background-color': '#859900'
+                }
+            },
+            {
+                selector: 'node[status="INACTIVE"]',
                 css: {
                     'background-color': '#cb4b16'
                 }
@@ -371,19 +377,16 @@ function displayGraph(jsonData) {
             edges: data.edges
         },
         layout: {
-            name: 'breadthfirst',
-            fit: true,
-            directed: true,
-            circle: true, // put depths in concentric circles if true, put depths top down if false
-            grid: true, // whether to create an even grid into which the DAG is placed (circle:false only)
-            spacingFactor: 0, // positive spacing factor, larger => more space between nodes (N.B. n/a if causes overlap)
-            boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
-            avoidOverlap: true, // prevents node overlap, may overflow boundingBox if not enough space
-            nodeDimensionsIncludeLabels: false, // Excludes the label when calculating node bounding boxes for the layout algorithm
-            roots: undefined, // the roots of the trees
-            maximal: false, // whether to shift nodes down their natural BFS depths in order to avoid upwards edges (DAGS only)
+            name: 'fcose',
+            randomize: false,
+            animate: false,
+            nodeDimensionsIncludeLabels: true,
+            /*klay: {
+                direction: "DOWN"
+            }*/
         },
         // interaction options:
+        zoom: 0.8,
         zoomingEnabled: false,
         userZoomingEnabled: false,
         panningEnabled: false,
@@ -391,7 +394,7 @@ function displayGraph(jsonData) {
         boxSelectionEnabled: false,
         selectionType: 'single',
         autolock: false,
-        autoungrabify: true,
-        autounselectify: true,
+        autoungrabify: false,
+        autounselectify: false,
     });
 }
