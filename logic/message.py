@@ -56,8 +56,8 @@ def fromJSON(text):
         method = Method[methodStr]
         state = State[stateStr]
         data = obj.get("data")
-    except ValueError:
-        print("Message is no JSON.")
+    except ValueError as error:
+        print("Message is no valid JSON: %s" % (error))
         method = Method.MESSAGE
         state = None
         data = text

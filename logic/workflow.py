@@ -275,10 +275,10 @@ class Workflow(BaseWorkflow):
                         "[%s] Method '%s' is not supported"
                         % (self.name, obj.method))
         except Exception as e:
+            error_msg = "[%s] No valid JSON: %s" % (self.name, str(e))
+            print(error_msg)
             if self._on_workflow_failed:
-                self._on_workflow_failed(
-                    self.name,
-                    "[%s] No valid JSON: %s" % (self.name, str(e)))
+                self._on_workflow_failed(self.name, error_msg)
 
         super().on_message(msg)
 
