@@ -425,10 +425,8 @@ async function displayGraph(data) {
             {
                 fillColor: 'rgba(200, 200, 200, 0.75)',
                 content: 'Skip',
-                contentStyle: {}, // css key:value pairs to set the command's css in js if you want
                 select: function (ele) {
-                    alert("Skipping " + ele.id());
-                    // TODO: real skipping here
+                    mqtt.send("1/gameControl","SKIP " + ele.id(),2,false);
                 },
                 enabled: true
             }
