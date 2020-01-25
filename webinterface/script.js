@@ -334,10 +334,6 @@ async function onLoad() {
     client.send();
     // TODO: Move to onMessageArrived when real data comes in
     displayGraph(json);
-    // TODO: redraw after resize
-    window.addEventListener("resize", function (event) {
-        let i = 1
-    });
 }
 
 function displayGraph(jsonData) {
@@ -395,24 +391,23 @@ function displayGraph(jsonData) {
             edges: data.edges
         },
         layout: {
-            name: 'fcose',
+            name: 'dagre',
             randomize: false,
             animate: false,
             nodeDimensionsIncludeLabels: true,
-            /*klay: {
-                direction: "DOWN"
-            }*/
+            rankDir: "LR",
         },
         // interaction options:
-        zoom: 0.8,
-        zoomingEnabled: false,
-        userZoomingEnabled: false,
-        panningEnabled: false,
-        userPanningEnabled: false,
+        zoom: 0.5,
+        zoomingEnabled: true,
+        userZoomingEnabled: true,
+        panningEnabled: true,
+        userPanningEnabled: true,
         boxSelectionEnabled: false,
         selectionType: 'single',
         autolock: false,
-        autoungrabify: false,
-        autounselectify: false,
+        autoungrabify: true,
+        autounselectify: true,
+        wheelSensitivity: 0.05,
     });
 }
