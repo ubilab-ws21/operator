@@ -339,11 +339,9 @@ async function onLoad() {
         }
     };
     client.send();
-    // TODO: Move to onMessageArrived when real data comes in
-    // displayGraph(JSON.parse(json));
 }
 
-function displayGraph(data) {
+async function displayGraph(data) {
     let cy = window.cy = cytoscape({
         container: document.getElementById('cy'),
         style: [
@@ -413,7 +411,7 @@ function displayGraph(data) {
         selectionType: 'single',
         autolock: false,
         autoungrabify: true,
-        autounselectify: true,
+        autounselectify: false,
         wheelSensitivity: 0.05,
     });
     cy.cxtmenu({
