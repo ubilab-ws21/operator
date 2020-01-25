@@ -77,7 +77,8 @@ function onMessageArrived(msg) {
     else if (msg.destinationName === "1/gameState") {
         try {
             displayGraph(JSON.parse(msg.payloadString));
-        } catch {}
+        } catch {
+        }
     }
     // Parse JSON and display puzzle status
     try {
@@ -245,7 +246,7 @@ function command(content) {
  * Sends a environment control command
  */
 function envSet() {
-    let command = {method: "TRIGGER",state: getID("env-command").value,data:null};
+    let command = {method: "TRIGGER", state: getID("env-command").value, data: null};
     switch (command.state) {
         case "0":
             return false;
@@ -255,12 +256,14 @@ function envSet() {
             break;
         case "rgb":
             let hex = getID("env-rgb").value;
-            command.data = hex.match(/[A-Za-z0-9]{2}/g).map(function(v) { return parseInt(v, 16) }).join(",");
+            command.data = hex.match(/[A-Za-z0-9]{2}/g).map(function (v) {
+                return parseInt(v, 16)
+            }).join(",");
             break;
         default:
-            command.data = getID("env-"+command.state).value;
+            command.data = getID("env-" + command.state).value;
     }
-    mqtt.send(getID("env-target").value,JSON.stringify(command),2,false);
+    mqtt.send(getID("env-target").value, JSON.stringify(command), 2, false);
     getID("env-target").value = 0;
     validateCommands(getID("env-target"));
 }
@@ -315,7 +318,7 @@ function validateValues(cmd) {
             getID("env-button").disabled = true;
             break;
         default:
-            getID("env-"+cmd.value).disabled = false;
+            getID("env-" + cmd.value).disabled = false;
     }
 }
 
@@ -411,11 +414,25 @@ async function displayGraph(data) {
         selectionType: 'single',
         autolock: false,
         autoungrabify: true,
-        autounselectify: false,
+        autounselectify: true,
         wheelSensitivity: 0.05,
     });
     cy.cxtmenu({
-        menuRadius: 100,
-        selector: "node",
-        atMouse: true});
+        menuRadius: 70,
+        selector: "node[name!='main']",
+        atMouse: true,
+        commands: [
+            {
+                fillColor: 'rgba(200, 200, 200, 0.75)',
+                content: 'Skip',
+                contentStyle: {}, // css key:value pairs to set the command's css in js if you want
+                select: function (ele) {
+                    alert("Skipping " + ele.id());
+                    // TODO: real skipping here
+                },
+                enabled: true
+            }
+        ],
+
+    });
 }
