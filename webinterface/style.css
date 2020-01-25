@@ -142,13 +142,13 @@ footer form {
     width: 5em;
 }
 
-.control div:first-child {
+/*.control div:first-child {
     float: left;
 }
 
 .control div:last-child {
     float: right;
-}
+}*/
 
 .control b {
     text-align: center;

@@ -73,6 +73,12 @@ function onMessageArrived(msg) {
                 break;
         }
     }
+    // Draw graph from gameState
+    else if (msg.destinationName === "1/gameState") {
+        try {
+            displayGraph(JSON.parse(msg.payloadString));
+        } catch {}
+    }
     // Parse JSON and display puzzle status
     try {
         let obj = JSON.parse(msg.payloadString);
@@ -147,10 +153,10 @@ function send() {
         alert("Topic is required");
         return;
     }
-    mqtt.publish(getID("send_topic").value, getID("send_message").value, getID("send_qos").value, getID("send_retain").checked);
+    mqtt.publish(getID("send_topic").value, getID("send_message").value, parseInt(getID("send_qos").value), getID("send_retain").checked);
     getID("send_topic").value = "";
     getID("send_message").value = "";
-    getID("send_qos").value = 0
+    getID("send_qos").value = 0;
     getID("send_retain").checked = false;
 }
 
@@ -200,6 +206,7 @@ function changeCamera() {
 /**
  * Changes the state of a puzzle displayed in the control section
  * @param dst_b64
+ * @param state
  */
 function changeState(dst_b64, state) {
     mqtt.send(atob(dst_b64), JSON.stringify({method: "trigger", state: state}), 2);
@@ -333,11 +340,10 @@ async function onLoad() {
     };
     client.send();
     // TODO: Move to onMessageArrived when real data comes in
-    displayGraph(json);
+    // displayGraph(JSON.parse(json));
 }
 
-function displayGraph(jsonData) {
-    let data = JSON.parse(jsonData);
+function displayGraph(data) {
     let cy = window.cy = cytoscape({
         container: document.getElementById('cy'),
         style: [
@@ -353,7 +359,7 @@ function displayGraph(jsonData) {
                 }
             },
             {
-                selector: 'node[status="ACTIVE"]',
+                selector: 'node[status="FINISHED"]',
                 css: {
                     'background-color': '#859900'
                 }
@@ -410,4 +416,8 @@ function displayGraph(jsonData) {
         autounselectify: true,
         wheelSensitivity: 0.05,
     });
+    cy.cxtmenu({
+        menuRadius: 100,
+        selector: "node",
+        atMouse: true});
 }
