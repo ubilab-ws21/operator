@@ -94,10 +94,10 @@ function onMessageArrived(msg) {
             // Change the state of the status box
             getID(dst_b64 + "_state").value = obj.state.toLowerCase();
             getID(dst_b64 + "_data").value = obj.data || "";
-            if(states_on.has(obj.state.toLowerCase())) {
+            if (states_on.has(obj.state.toLowerCase())) {
                 getID(dst_b64 + "_on").disabled = true;
             }
-            if(states_off.has(obj.state.toLowerCase())) {
+            if (states_off.has(obj.state.toLowerCase())) {
                 getID(dst_b64 + "_off").disabled = true;
             }
         }
@@ -200,7 +200,8 @@ function changeCamera() {
 
     xhr.open("GET", "http://localhost:9000/".concat(number));
     xhr.send();
-    getID("cameras-fallback").firstChild.src = "http://10.0.0.2:8080/stream?random="+new Date().getTime().toString();
+    getID("cameras-fallback").firstChild.src = "http://10.0.0.2:8080/stream?random=" + new Date().getTime().toString();
+    // location.reload();
 }
 
 /**
@@ -216,15 +217,21 @@ function changeState(dst_b64, state) {
  * @param target
  */
 function changeTab(target) {
-    for (name of ["control", "cameras", "cameras-fallback", "mosquitto"]) {
-        if (name !== target) {
-            getID(name).style.display = "none";
-            getID("b-" + name).parentElement.className = "navitem";
-        } else {
-            getID(name).style.display = "block";
-            getID("b-" + name).parentElement.className = "navitem selected";
+    let tabs = new Set(["control", "cameras", "cameras-fallback", "mosquitto"]);
+    let url = window.location.href.split("?")[0];
+    if (tabs.has(target)) {
+        for (name of tabs) {
+            if (name !== target) {
+                getID(name).style.display = "none";
+                getID("b-" + name).parentElement.className = "navitem";
+            } else {
+                getID(name).style.display = "block";
+                getID("b-" + name).parentElement.className = "navitem selected";
+            }
         }
+        url += "?" + target;
     }
+    window.history.replaceState({}, document.title, url);
 }
 
 /**
@@ -304,6 +311,9 @@ function validateNumbers(select) {
  */
 async function onLoad() {
     new mqttConnect();
+    if (window.location.href.includes("?")) {
+        changeTab(window.location.href.split("?")[1])
+    }
 
     // Read topics into textarea
     let client = new XMLHttpRequest();
@@ -319,7 +329,9 @@ async function onLoad() {
     // TODO: Move to onMessageArrived when real data comes in
     displayGraph(json);
     // TODO: redraw after resize
-    window.addEventListener("resize", function(event) { let i=1 });
+    window.addEventListener("resize", function (event) {
+        let i = 1
+    });
 }
 
 function displayGraph(jsonData) {
