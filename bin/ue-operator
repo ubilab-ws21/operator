@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
+from paho import mqtt
 from argparse import ArgumentParser
 from os.path import isfile
 import subprocess
+import json
 
 OPT = "/opt/ue-operator/"
 REPOS = ["ai-server/", "environment/", "first-door/", "indoorloc/", "mission-briefing/", "prototype/", "safe/",
@@ -26,6 +28,23 @@ class ProcessList(list):
         except subprocess.CalledProcessError as e:
             print(str(e))
             self.wait()
+
+
+def on_scale(client, userdata, message):
+    try:
+        data = json.loads(message.payload.lower())
+        if data["method"] and data["method"] == "status" and data["state"]:
+            if data["state"] == "active":
+                gyro = "on"
+            elif data["state"] == "inactive":
+                gyro = "off"
+            else:
+                return
+            # TODO: add t-t-s "Put the prototype back" and maybe lights?
+            msgs = [("2/gyrophare", json.dumps({"method": "TRIGGER", "state": "power", "data": gyro}))]
+            mqtt.publish.multiple(msgs, hostname="10.0.0.2")
+    except json.JSONDecodeError:
+        pass
 
 
 if __name__ == "__main__":
@@ -71,6 +90,7 @@ if __name__ == "__main__":
             pl.append(logic_command)
             pl.append("mosquitto_sub -h localhost -t \\# -v | ts '%s' >" +
                       "/var/log/mosquitto/message_log_$(date +%Y-%m-%d_%H%M%S).txt")
+            mqtt.subscribe.callback(on_scale, "6/puzzle/scale", hostname="10.0.0.2")
             pl.wait()
 
         """
