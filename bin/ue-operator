@@ -13,7 +13,18 @@ SCRIPTNAME = "server.py"
 
 
 class ProcessList(list):
+    """
+    List to manage created processes
+    """
     def append(self, cmd, cwd=None, stderr=None):
+        """
+        Creates a new process and adds it to the list
+
+        :param cmd: The command to execute
+        :param cwd: An optional working directory
+        :param stderr: An optional stderr redirection
+        :return: None
+        """
         if isinstance(cmd, str) or isinstance(cmd, list):
             process = subprocess.Popen(cmd, shell=isinstance(cmd, str), cwd=cwd, stderr=stderr)
         else:
@@ -22,6 +33,11 @@ class ProcessList(list):
         super().append(process)
 
     def wait(self):
+        """
+        Waits for all processes in list to finish -> locks process
+
+        :return:
+        """
         try:
             for process in self:
                 process.wait()
@@ -31,6 +47,14 @@ class ProcessList(list):
 
 
 def on_scale(client, userdata, message):
+    """
+    Listener for new messages in the scale mqtt topic
+
+    :param client: The mqtt client
+    :param userdata: User information
+    :param message: The received message (message.payload / message.topic)
+    :return: None
+    """
     try:
         data = json.loads(message.payload.lower())
         if data["method"] and data["method"] == "status" and data["state"]:
