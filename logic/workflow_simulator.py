@@ -19,10 +19,13 @@ messageSequence = [
     ['7/fusebox/rewiring1', '{"method": "STATUS", "state": "SOLVED"}'],
     ['7/fusebox/potentiometer', '{"method": "STATUS", "state": "SOLVED"}'],
     ['5/safe/control', '{"method": "STATUS", "state": "SOLVED"}'],
+    ['6/puzzle/scale', '{"method": "STATUS", "state": "ACTIVE"}'],
     ['7/robot', '{"method": "STATUS", "state": "SOLVED"}'],
+    ['6/puzzle/scale', '{"method": "STATUS", "state": "INACTIVE"}'],
     # Server room
     ['6/puzzle/floppy', '{"method": "STATUS", "state": "SOLVED"}'],
     ['8/puzzle/maze', '{"method": "STATUS", "state": "SOLVED"}'],
+    ['6/puzzle/terminal', '{"method": "STATUS", "state": "SOLVED"}'],
     ['8/puzzle/simon', '{"method": "STATUS", "state": "SOLVED"}']
 ]
 
