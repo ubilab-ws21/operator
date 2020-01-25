@@ -409,7 +409,6 @@ class SequenceWorkflow(BaseWorkflow):
         graph = super().get_graph(None, parent)
         nodes = graph[0]
         edges = graph[1]
-        print(nodes, edges)
 
         last_final_state_ids = predecessors
         for workflow in self.workflows:
@@ -584,7 +583,7 @@ class DoorWorkflow(Workflow):
         self.target_state = target_state
         super().__init__(name, topic)
 
-    def on_received_status_inactive(self, data):
+    def _on_received_status_inactive(self, data):
         """
         OVERRIDDEN: Door doesn't confirm the state solved.
         """
@@ -594,7 +593,7 @@ class DoorWorkflow(Workflow):
                 self._on_workflow_finished(self.name)
             self.state = WorkflowState.FINISHED
         else:
-            super.on_received_status_inactive(data)
+            super._on_received_status_inactive(data)
 
 
 class ActivateLaserWorkflow(Workflow):
@@ -613,3 +612,35 @@ class ActivateLaserWorkflow(Workflow):
         if self._on_workflow_finished:
             self._on_workflow_finished(self.name)
         self.state = WorkflowState.FINISHED
+
+
+class ScaleWorkflow(Workflow):
+
+    def __init__(self, name, topic, settings=None):
+        """
+        Initializes a new instance of this class.
+
+        Parameters
+        ----------
+        name : str
+            Display name of the workflow.
+
+        topic : str
+            Name of the MQTT topic.
+
+        settings: keywords
+            An dictionary of global settings.
+        """
+        super().__init__(name, topic, settings)
+        self.scale_status = State.INACTIVE
+
+    def _on_received_status_inactive(self, data):
+        if self.scale_status == State.ACTIVE:
+            if self._on_workflow_finished:
+                self._on_workflow_finished(self.name)
+            self.state = WorkflowState.FINISHED
+        else:
+            self.scale_status = State.INACTIVE
+
+    def _on_received_status_active(self, data):
+        self.scale_status = State.ACTIVE

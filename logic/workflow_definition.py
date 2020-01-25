@@ -3,6 +3,7 @@ from workflow import ParallelWorkflow
 from workflow import DoorWorkflow
 from workflow import SequenceWorkflow
 from workflow import ActivateLaserWorkflow
+from workflow import ScaleWorkflow
 from workflow import DoorTargetState as ds
 
 
@@ -22,7 +23,8 @@ class WorkflowDefinition:
             ParallelWorkflow("Lab room", [
                 SequenceWorkflow("Solve safe", [
                     Workflow("Activate_safe_lab_room", "5/safe/activate"),
-                    Workflow("Open_safe_lab_room", "5/safe/control")
+                    Workflow("Open_safe_lab_room", "5/safe/control"),
+                    ScaleWorkflow("Scale_puzzle_lab_room", "6/puzzle/scale")
                 ]),
                 SequenceWorkflow("Solve fusebox", [
                     ActivateLaserWorkflow("Laser_lab_room", "7/laser"),
@@ -42,7 +44,7 @@ class WorkflowDefinition:
             # Allow multiple riddles in server room
             ParallelWorkflow("Server room", [
                 Workflow("Floppy_disk_server_room", "6/puzzle/floppy"),
-                # Workflow("Terminal_server_room", "6/puzzle/terminal"),
+                Workflow("Terminal_server_room", "6/puzzle/terminal"),
                 Workflow("Maze_server_room", "8/puzzle/maze"),
                 Workflow("Simon_server_room", "8/puzzle/simon")
             ])

@@ -120,7 +120,6 @@ class WorkflowController:
             self.main_sequence.on_message(msg)
             # Publish game state to MQTT
             config = self.main_sequence.get_graph_config()
-            print(config)
             self.client.publish(self.game_state_topic, config, 0, True)
 
     def __on_workflow_solved(self, name):
