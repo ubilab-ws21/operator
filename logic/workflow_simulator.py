@@ -6,7 +6,8 @@ messageSequence = [
     # Entry room
     ['1/gameControl', 'start'],
     ['4/door/entrance/puzzle', '{"method": "status", "state": "solved"}'],
-    ['4/door/entrance', '{"method": "STATUS", "state": "INACTIVE", "data": "opened"}'],
+    ['4/door/entrance',
+     '{"method": "STATUS", "state": "INACTIVE", "data": "opened"}'],
     ['4/puzzle', '{"method": "STATUS", "state": "Invalid}'],
     ['4/puzzle', '{"method": "STATUS", "state": "UNSOLVED"}'],
     ['4/puzzle', '{"method": "STATUS", "state": "SOLVED"}'],
