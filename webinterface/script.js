@@ -3,8 +3,7 @@ let reconnectTimeout = 2000;
 let host = "10.0.0.2";
 let port = 9001;
 let topics = new Set();
-let states_on = new Set();
-let states_off = new Set();
+let tabs = new Set(["control", "cameras", "cameras-fallback", "mosquitto"]);
 
 /**
  * Short version of getElementById
@@ -94,12 +93,6 @@ function onMessageArrived(msg) {
             // Change the state of the status box
             getID(dst_b64 + "_state").value = obj.state.toLowerCase();
             getID(dst_b64 + "_data").value = obj.data || "";
-            if (states_on.has(obj.state.toLowerCase())) {
-                getID(dst_b64 + "_on").disabled = true;
-            }
-            if (states_off.has(obj.state.toLowerCase())) {
-                getID(dst_b64 + "_off").disabled = true;
-            }
         }
     } catch {
     }
@@ -217,7 +210,6 @@ function changeState(dst_b64, state) {
  * @param target
  */
 function changeTab(target) {
-    let tabs = new Set(["control", "cameras", "cameras-fallback", "mosquitto"]);
     let url = window.location.href.split("?")[0];
     if (tabs.has(target)) {
         for (name of tabs) {
@@ -246,63 +238,77 @@ function command(content) {
  * Sends a environment control command
  */
 function envSet() {
-    mqtt.send(getID("env-target").value, getID("env-command").value + getID("env-number1").value);
+    let command = {method: "TRIGGER",state: getID("env-command").value,data:null};
+    switch (command.state) {
+        case "0":
+            return false;
+        case "brightnessAdjust":
+        case "patternAdjust":
+            command.data = getID("env-adjust").value;
+            break;
+        case "rgb":
+            let hex = getID("env-rgb").value;
+            command.data = hex.match(/[A-Za-z0-9]{2}/g).map(function(v) { return parseInt(v, 16) }).join(",");
+            break;
+        default:
+            command.data = getID("env-"+command.state).value;
+    }
+    mqtt.send(getID("env-target").value,JSON.stringify(command),2,false);
+    getID("env-target").value = 0;
+    validateCommands(getID("env-target"));
 }
 
 /**
  * En-/disables valid environment commands upon selection of topic
- * @param select
+ * @param target
  */
-function validateCommands(select) {
+function validateCommands(target) {
     let cmd = getID("env-command");
     cmd.disabled = false;
-    switch (select.value) {
+    switch (target.value) {
         case "0":
             cmd.disabled = true;
-            getID("env-number1").disabled = true;
-            getID("env-button").disabled = true;
+            cmd.value = 0;
+            validateValues(cmd);
             break;
         case "2/gyrophare":
             for (let child of cmd.children) {
-                child.disabled = child.value !== "power:";
-                if (child.value === "power:") {
+                child.disabled = child.value !== "power";
+                if (child.value === "power") {
                     child.selected = true;
-                    getID("env-number1").disabled = false;
-                    getID("env-number1").max = 1;
-                    getID("env-button").disabled = false;
                 }
             }
+            cmd.value = "power";
+            validateValues(cmd);
             break;
         default:
             for (let child of cmd.children) {
                 child.disabled = false;
             }
-            break;
     }
 }
 
 /**
  * En-/disables valid environment command values upon selection of command
- * @param select
+ * @param cmd
  */
-function validateNumbers(select) {
-    let num = getID("env-number1");
-    num.disabled = false;
+function validateValues(cmd) {
+    getID("env-power").disabled = true;
+    getID("env-pattern").disabled = true;
+    getID("env-brightness").disabled = true;
+    getID("env-adjust").disabled = true;
+    getID("env-rgb").disabled = true;
     getID("env-button").disabled = false;
-    switch (select.value) {
+    switch (cmd.value) {
+        case "brightnessAdjust":
+        case "patternAdjust":
+            getID("env-adjust").disabled = false;
+            break;
         case "0":
-            num.disabled = true;
             getID("env-button").disabled = true;
             break;
-        case "pattern:":
-            num.max = 11;
-            break;
-        case "brightness:":
-            num.max = 255;
-            break;
         default:
-            num.max = 1;
-            break;
+            getID("env-"+cmd.value).disabled = false;
     }
 }
 

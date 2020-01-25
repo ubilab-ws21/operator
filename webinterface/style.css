@@ -167,6 +167,11 @@ input[type=number] {
     width: 4em;
 }
 
+input[type=color] {
+	height: 2em;
+	vertical-align: bottom;
+}
+
 #cy, #control-groups {
     float: left;
     width: calc(50% - 3px);
@@ -181,4 +186,8 @@ input[type=number] {
 
 #control-main {
     padding: 0;
+}
+
+#env-container label span {
+	display: none;
 }

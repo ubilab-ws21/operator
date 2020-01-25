@@ -38,7 +38,9 @@
         <div id="cy"></div>
     </div>
     <footer>
-        <div id="env-container">
+    <div id="env-container">
+        <label>
+            <span>Target:</span>
             <select id="env-target" onchange="validateCommands(this)">
                 <option value="0" selected>&larr;select&rarr;</option>
                 <option value="2/ledstrip/timer">ledstrip/timer</option>
@@ -49,19 +51,59 @@
                 <option value="2/ledstrip/doorserverroom">ledstrip/doorserverroom</option>
                 <option value="2/gyrophare">gyrophare</option>
             </select>
-            <select id="env-command" onchange="validateNumbers(this)" disabled>
+        </label>
+        <label>
+            <span>Command:</span>
+            <select id="env-command" onchange="validateValues(this)" disabled>
                 <option value="0" selected>&larr;select&rarr;</option>
-                <option value="power:">power</option>
-                <option value="pattern:">pattern</option>
-                <option value="brightness:">brightness</option>
-                <option value="brightnessAdjust:">brightnessAdjust</option>
-                <option value="patternAdjust:">patternAdjust</option>
+                <option>power</option>
+                <option>rgb</option>
+                <option>pattern</option>
+                <option>brightness</option>
+                <option>brightnessAdjust</option>
+                <option>patternAdjust</option>
             </select>
-            <input type="number" id="env-number1" value="0" min="0" disabled>
-            <input type="number" id="env-number2" value="0" style="display: none">
-            <input type="number" id="env-number3" value="0" style="display: none">
-            <button id="env-button" type="button" onclick="envSet();" disabled>Set</button>
-        </div>
+        </label>
+        <label>
+            <span>Power:</span>
+            <select id="env-power" disabled>
+                <option>on</option>
+                <option>off</option>
+            </select>
+        </label>
+        <label>
+            <span>RGB:</span>
+            <input type="color" id="env-rgb" disabled>
+        </label>
+        <label>
+            <span>Pattern:</span>
+            <select id="env-pattern" disabled>
+                <option>colorwaves</option>
+                <option>palettetest</option>
+                <option>pride</option>
+                <option>rainbow</option>
+                <option>rainbowWithGlitter</option>
+                <option>confetti</option>
+                <option>sinelon</option>
+                <option>juggle</option>
+                <option>bpm</option>
+                <option>fire</option>
+                <option>timerprint</option>
+            </select>
+        </label>
+        <label>
+            <span>Brightness:</span>
+            <input type="number" value="0" min="0" max="255" id="env-brightness" disabled>
+        </label>
+        <label>
+            <span>Adjust:</span>
+            <select id="env-adjust" disabled>
+                <option>+1</option>
+                <option>-1</option>
+            </select>
+        </label>
+        <button id="env-button" type="button" onclick="return envSet();" disabled>Set</button>
+    </div>
         <div id="time-container">Time: <span id="time"></span></div>
         <div id="command-container">
             <button type="button" id="start" onclick="command('start');">Start</button>
