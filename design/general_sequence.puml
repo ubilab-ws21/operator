@@ -8,35 +8,23 @@ participant μC
 ...
 
 == Start μC functionality ==
-Actor -> mqtt: trigger: on [new_state]
-mqtt -> μC: trigger: on [new_state]
+Actor -> mqtt: trigger: on
+mqtt -> μC: trigger: on
 
+μC -> mqtt: status: active [state_json]
 
-alt new_state != null
-    μC -> μC: setState(new_state)
-
-    alt status change successful
-        μC -> mqtt: status: new_state [state_json]
-    else status change failed
-        μC -> mqtt: status: failed [error_json]
+loop μC functionality in progress
+    ...
+    group On state change
+        μC -> mqtt: status: active [state_json]
     end
+    ...
+end
 
-else
-    μC -> mqtt: status: active [state_json]
-
-    loop μC functionality in progress
-        ...
-        group On state change
-            μC -> mqtt: status: active [state_json]
-        end
-        ...
-    end
-
-    alt task successfully executed and solved
-        μC -> mqtt: status: solved [final_state_json]
-    else task failed
-        μC -> mqtt: status: failed [error_json]
-    end
+alt task successfully executed and solved
+    μC -> mqtt: status: solved [final_state_json]
+else task failed
+    μC -> mqtt: status: failed [error_json]
 end
 
 == Stop μC functionality ==

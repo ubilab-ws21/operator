@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import sys
+import signal
 import argparse
 from workflow_controller import WorkflowController
 
@@ -26,6 +28,11 @@ def parseArgs():
     return parser.parse_args()
 
 
+def shutdown(controller):
+    controller.disconnect()
+    sys.exit(0)
+
+
 if __name__ == "__main__":
     args = parseArgs()
 
@@ -41,5 +48,6 @@ if __name__ == "__main__":
     workflow_factory = loadWorkflow(workflow_module, workflow_class)
     controller = WorkflowController(mqtt_url, workflow_factory)
     controller.connect()
-    input("Press Enter to continue...\n")
-    controller.disconnect()
+    signal.signal(signal.SIGINT, lambda sig, frame: shutdown(controller))
+    print('Press Ctrl+C to exit...')
+    signal.pause()
