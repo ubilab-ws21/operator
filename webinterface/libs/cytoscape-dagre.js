@@ -1,10 +1,10 @@
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("dagre"));
+		module.exports = factory(require("webinterface/libs/dagre"));
 	else if(typeof define === 'function' && define.amd)
-		define(["dagre"], factory);
+		define(["webinterface/libs/dagre"], factory);
 	else if(typeof exports === 'object')
-		exports["cytoscapeDagre"] = factory(require("dagre"));
+		exports["cytoscapeDagre"] = factory(require("webinterface/libs/dagre"));
 	else
 		root["cytoscapeDagre"] = factory(root["dagre"]);
 })(this, function(__WEBPACK_EXTERNAL_MODULE_4__) {

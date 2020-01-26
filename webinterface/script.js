@@ -2,7 +2,8 @@ let mqtt;
 let reconnectTimeout = 2000;
 let host = "10.0.0.2";
 let port = 9001;
-let topics = new Set();
+let topicsUser = new Set();
+let topicsUI = new Set(["1/gameTime_formatted", "1/gameControl", "1/gameState", "4/door/entrance", "4/door/serverRoom"]);
 let tabs = new Set(["control", "cameras", "cameras-fallback", "mosquitto"]);
 
 /**
@@ -30,8 +31,8 @@ function onFailure(message) {
  */
 function onConnect() {
     console.log("Connected debug");
-    for (let i = 1; i < 9; i++) {
-        mqtt.subscribe(i.toString() + "/#");
+    for (let topic of topicsUI) {
+        mqtt.subscribe(topic);
     }
 }
 
@@ -41,7 +42,7 @@ function onConnect() {
  * @param msg
  */
 function onMessageArrived(msg) {
-    if (topics.has(msg.destinationName.substr(0, 1))) {
+    if (topicsUser.has(msg.destinationName.substr(0, 1))) {
         let op = getID("output");
         op.value += "Topic " + msg.destinationName + "; time ";
         if (!msg.payloadString.match(/\d{10}: .*/i)) op.value += ~~(Date.now() / 1000) + " ";
@@ -77,31 +78,17 @@ function onMessageArrived(msg) {
     else if (msg.destinationName === "1/gameState") {
         try {
             displayGraph(JSON.parse(msg.payloadString));
-        } catch {
-        }
+        } catch {}
     }
-    // Parse JSON and display puzzle status
-    try {
-        let obj = JSON.parse(msg.payloadString);
-        if (obj.method.toLowerCase() === "status") {
-            let dst = msg.destinationName;
-            let dst_b64 = btoa(dst);
-
-            // Create the status box if it doesn't exist yet
-            if (getID(dst_b64) == null) {
-                getID("c" + dst.charAt(0)).innerHTML += `<div id="${dst_b64}" class="control"><b>${dst}</b><form>
-                    <input type="text" id="${dst_b64}_state" readonly=""><br>
-                    <input type="text" id="${dst_b64}_data" readonly=""><br><div>
-                    <button type="button" id="${dst_b64}_on" onclick="changeState('${dst_b64}', 'on');">On</button>
-                    <button type="button" id="${dst_b64}_off"  onclick="changeState('${dst_b64}', 'off');">Off</button>
-                    </div></form></div>`;
+    // Change the state of the status box
+    else if (msg.destinationName === "4/door/entrance" || msg.destinationName === "4/door/serverRoom") {
+        try {
+            let obj = JSON.parse(msg.payloadString.toLowerCase());
+            if ("method" in obj && obj.method === "status" && "state" in obj) {
+                getID(btoa(msg.destinationName) + "_state").value = obj.state;
+                getID(btoa(msg.destinationName) + "_data").value = obj.data || "";
             }
-
-            // Change the state of the status box
-            getID(dst_b64 + "_state").value = obj.state.toLowerCase();
-            getID(dst_b64 + "_data").value = obj.data || "";
-        }
-    } catch {
+        } catch {}
     }
 }
 
@@ -123,15 +110,16 @@ function mqttConnect() {
  */
 function toggle(topic, button) {
     if (button.parentElement.id === "soff") {
-        if (topic.startsWith("$")) {
-            mqtt.subscribe(topic + "/#");
-        }
-        topics.add(topic.substr(0, 1));
+        mqtt.subscribe(topic + "/#");
+        topicsUser.add(topic.substr(0, 1));
     } else {
-        if (topic.startsWith("$")) {
-            mqtt.unsubscribe(topic + "/#");
+        mqtt.unsubscribe(topic + "/#");
+        topicsUser.delete(topic.substr(0, 1));
+        for(let tUI of topicsUI) {
+            if(tUI.startsWith(topic)) {
+                mqtt.subscribe(tUI);
+            }
         }
-        topics.delete(topic.substr(0, 1));
     }
     getID(button.parentElement.id === "soff" ? "son" : "soff").appendChild(button);
 }
@@ -426,7 +414,7 @@ async function displayGraph(data) {
                 fillColor: 'rgba(200, 200, 200, 0.75)',
                 content: 'Skip',
                 select: function (ele) {
-                    mqtt.send("1/gameControl","SKIP " + ele.id(),2,false);
+                    mqtt.send("1/gameControl", "SKIP " + ele.id(), 2, false);
                 },
                 enabled: true
             }

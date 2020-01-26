@@ -130,10 +130,6 @@ footer form {
     float: left;
 }
 
-.control form {
-    margin: 0;
-}
-
 .control input {
     width: 10.5em;
 }
@@ -141,14 +137,6 @@ footer form {
 .control button {
     width: 5em;
 }
-
-/*.control div:first-child {
-    float: left;
-}
-
-.control div:last-child {
-    float: right;
-}*/
 
 .control b {
     text-align: center;
@@ -174,14 +162,18 @@ input[type=color] {
 
 #cy, #control-groups {
     float: left;
-    width: calc(50% - 3px);
     height: 100%;
     display: inline-block;
     overflow: auto;
 }
 
+#cy {
+    width: calc(100% - 12em);
+}
+
 #control-groups {
     border-right: 5px solid #002b36;
+    width: 11em;
 }
 
 #control-main {
