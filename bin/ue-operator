@@ -2,14 +2,10 @@
 
 from paho import mqtt
 from argparse import ArgumentParser
-from os.path import isfile
 import subprocess
 import json
 
 OPT = "/opt/ue-operator/"
-REPOS = ["ai-server/", "environment/", "first-door/", "indoorloc/", "mission-briefing/", "prototype/", "safe/",
-         "second-door/"]
-SCRIPTNAME = "server.py"
 
 
 class ProcessList(list):
@@ -64,8 +60,9 @@ def on_scale(client, userdata, message):
                 gyro = "off"
             else:
                 return
-            # TODO: add t-t-s "Put the prototype back" and maybe lights?
-            msgs = [("2/gyrophare", json.dumps({"method": "TRIGGER", "state": "power", "data": gyro}))]
+            msgs = [("2/textToSpeech", json.dumps({"method": "MESSAGE", "data": "Put the prototype back!", "kwargs": {
+                "VoiceId": "Joanna", "LanguageCode": "en-US"
+            }})), ("2/gyrophare", json.dumps({"method": "TRIGGER", "state": "power", "data": gyro}))]
             mqtt.publish.multiple(msgs, hostname="10.0.0.2")
     except json.JSONDecodeError:
         pass
@@ -86,8 +83,10 @@ if __name__ == "__main__":
             Initializing the network and stuff
         """
         if args.command == "init":
-            pl.append(["git", "clone", "--recurse-submodules", "https://github.com/ubilab-escape/integration",
-                       OPT + "integration"])
+            pl.append(["git", "clone", "https://github.com/ubilab-escape/environment",
+                       OPT + "environment"])
+            pl.append(["python3", "-m", "pip", "install", "-r", "requirements.txt"],
+                      cwd=OPT + "environment/text_to_speech")
             pl.append(["git", "clone", "--recurse-submodules", "https://github.com/OliverF/mjpeg-relay.git",
                        "/opt/mjpeg-relay"])
             pl.append(["python", "-m", "pip", "install", "-r", "requirements.txt"], cwd="/opt/mjpeg-relay/")
@@ -97,10 +96,7 @@ if __name__ == "__main__":
             Starting all services and scripts
         """
         if args.command == "start":
-            for rep in REPOS:
-                if not isfile(OPT + "integration/" + rep + SCRIPTNAME):
-                    continue
-                pl.append(["python3", OPT + "integration/" + rep + SCRIPTNAME], stderr=subprocess.STDOUT)
+            pl.append(["python3", OPT + "environment/text_to_speech/main.py"], stderr=subprocess.STDOUT)
             if args.fallback:
                 pl.append(["python3", "/usr/bin/ue-camera"])
             else:
