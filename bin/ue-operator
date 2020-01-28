@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
 
+from paho import mqtt
 from argparse import ArgumentParser
-from os.path import isfile
 import subprocess
+import json
 
 OPT = "/opt/ue-operator/"
-REPOS = ["ai-server/", "environment/", "first-door/", "indoorloc/", "mission-briefing/", "prototype/", "safe/",
-         "second-door/"]
-SCRIPTNAME = "server.py"
 
 
 class ProcessList(list):
+    """
+    List to manage created processes
+    """
     def append(self, cmd, cwd=None, stderr=None):
+        """
+        Creates a new process and adds it to the list
+
+        :param cmd: The command to execute
+        :param cwd: An optional working directory
+        :param stderr: An optional stderr redirection
+        :return: None
+        """
         if isinstance(cmd, str) or isinstance(cmd, list):
             process = subprocess.Popen(cmd, shell=isinstance(cmd, str), cwd=cwd, stderr=stderr)
         else:
@@ -20,6 +29,11 @@ class ProcessList(list):
         super().append(process)
 
     def wait(self):
+        """
+        Waits for all processes in list to finish -> locks process
+
+        :return:
+        """
         try:
             for process in self:
                 process.wait()
@@ -28,9 +42,35 @@ class ProcessList(list):
             self.wait()
 
 
+def on_scale(client, userdata, message):
+    """
+    Listener for new messages in the scale mqtt topic
+
+    :param client: The mqtt client
+    :param userdata: User information
+    :param message: The received message (message.payload / message.topic)
+    :return: None
+    """
+    try:
+        data = json.loads(message.payload.lower())
+        if data["method"] and data["method"] == "status" and data["state"]:
+            if data["state"] == "active":
+                gyro = "on"
+            elif data["state"] == "inactive":
+                gyro = "off"
+            else:
+                return
+            msgs = [("2/textToSpeech", json.dumps({"method": "MESSAGE", "data": "Put the prototype back!", "kwargs": {
+                "VoiceId": "Joanna", "LanguageCode": "en-US"
+            }})), ("2/gyrophare", json.dumps({"method": "TRIGGER", "state": "power", "data": gyro}))]
+            mqtt.publish.multiple(msgs, hostname="10.0.0.2")
+    except json.JSONDecodeError:
+        pass
+
+
 if __name__ == "__main__":
     parser = ArgumentParser(description='Command-line interface for the ubilab-escape operator')
-    parser.add_argument('command', metavar='CMD', type=str, choices=["init", "start", "help"], nargs="?",
+    parser.add_argument('command', metavar='CMD', type=str, choices=["init", "start", "update", "help"], nargs="?",
                         help='the command to execute\n(init, start)', default="help")
     parser.add_argument("-f", "--fallback", action="store_true", default=False, help="use the fallback camera control")
     help_text = "definition of the workflow.\nFormat: module:class\nwith get method returning an array of Workflows."
@@ -43,21 +83,28 @@ if __name__ == "__main__":
             Initializing the network and stuff
         """
         if args.command == "init":
-            pl.append(["git", "clone", "--recurse-submodules", "https://github.com/ubilab-escape/integration",
-                       OPT + "integration"])
+            pl.append(["git", "clone", "https://github.com/ubilab-escape/environment",
+                       OPT + "environment"])
+            pl.append(["python3", "-m", "pip", "install", "-r", "requirements.txt"],
+                      cwd=OPT + "environment/text_to_speech")
             pl.append(["git", "clone", "--recurse-submodules", "https://github.com/OliverF/mjpeg-relay.git",
                        "/opt/mjpeg-relay"])
             pl.append(["python", "-m", "pip", "install", "-r", "requirements.txt"], cwd="/opt/mjpeg-relay/")
             pl.wait()
 
         """
+            Initializing the network and stuff
+        """
+        if args.command == "update":
+            pl.append(["git", "pull"], cwd=OPT + "environment")
+            pl.append(["git", "pull"], cwd="/opt/mjpeg-relay")
+            pl.wait()
+
+        """
             Starting all services and scripts
         """
         if args.command == "start":
-            for rep in REPOS:
-                if not isfile(OPT + "integration/" + rep + SCRIPTNAME):
-                    continue
-                pl.append(["python3", OPT + "integration/" + rep + SCRIPTNAME], stderr=subprocess.STDOUT)
+            pl.append(["python3", OPT + "environment/text_to_speech/main.py"], stderr=subprocess.STDOUT)
             if args.fallback:
                 pl.append(["python3", "/usr/bin/ue-camera"])
             else:
@@ -71,6 +118,7 @@ if __name__ == "__main__":
             pl.append(logic_command)
             pl.append("mosquitto_sub -h localhost -t \\# -v | ts '%s' >" +
                       "/var/log/mosquitto/message_log_$(date +%Y-%m-%d_%H%M%S).txt")
+            mqtt.subscribe.callback(on_scale, "6/puzzle/scale", hostname="10.0.0.2")
             pl.wait()
 
         """
@@ -88,3 +136,4 @@ if __name__ == "__main__":
                 pass
         print("Operator ended by user")
         exit(0)
+
