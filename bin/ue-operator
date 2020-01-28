@@ -107,7 +107,8 @@ if __name__ == "__main__":
             Starting all services and scripts
         """
         if args.command == "start":
-            pl.append(["python3", OPT + "environment/text_to_speech/main.py"], stderr=subprocess.STDOUT)
+            pl.append(["python3", OPT + "environment/text_to_speech/main.py", "-c",
+                       "/home/alexa/text_to_speech/text_to_speech.cfg"], stderr=subprocess.STDOUT)
             if args.fallback:
                 pl.append(["python3", "/usr/bin/ue-camera"])
             else:
