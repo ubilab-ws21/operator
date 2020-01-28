@@ -70,7 +70,7 @@ def on_scale(client, userdata, message):
 
 if __name__ == "__main__":
     parser = ArgumentParser(description='Command-line interface for the ubilab-escape operator')
-    parser.add_argument('command', metavar='CMD', type=str, choices=["init", "start", "help"], nargs="?",
+    parser.add_argument('command', metavar='CMD', type=str, choices=["init", "start", "update", "help"], nargs="?",
                         help='the command to execute\n(init, start)', default="help")
     parser.add_argument("-f", "--fallback", action="store_true", default=False, help="use the fallback camera control")
     help_text = "definition of the workflow.\nFormat: module:class\nwith get method returning an array of Workflows."
@@ -90,6 +90,14 @@ if __name__ == "__main__":
             pl.append(["git", "clone", "--recurse-submodules", "https://github.com/OliverF/mjpeg-relay.git",
                        "/opt/mjpeg-relay"])
             pl.append(["python", "-m", "pip", "install", "-r", "requirements.txt"], cwd="/opt/mjpeg-relay/")
+            pl.wait()
+
+        """
+            Initializing the network and stuff
+        """
+        if args.command == "update":
+            pl.append(["git", "pull"], cwd=OPT + "environment")
+            pl.append(["git", "pull"], cwd="/opt/mjpeg-relay")
             pl.wait()
 
         """
