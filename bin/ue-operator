@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-from paho import mqtt
+from paho.mqtt import subscribe, publish
 from argparse import ArgumentParser
+from time import sleep
 import subprocess
 import json
 
@@ -63,7 +64,7 @@ def on_scale(client, userdata, message):
             msgs = [("2/textToSpeech", json.dumps({"method": "MESSAGE", "data": "Put the prototype back!", "kwargs": {
                 "VoiceId": "Joanna", "LanguageCode": "en-US"
             }})), ("2/gyrophare", json.dumps({"method": "TRIGGER", "state": "power", "data": gyro}))]
-            mqtt.publish.multiple(msgs, hostname="10.0.0.2")
+            publish.multiple(msgs, hostname="10.0.0.2")
     except json.JSONDecodeError:
         pass
 
@@ -85,10 +86,12 @@ if __name__ == "__main__":
         if args.command == "init":
             pl.append(["git", "clone", "https://github.com/ubilab-escape/environment",
                        OPT + "environment"])
+            sleep(10)
             pl.append(["python3", "-m", "pip", "install", "-r", "requirements.txt"],
                       cwd=OPT + "environment/text_to_speech")
             pl.append(["git", "clone", "--recurse-submodules", "https://github.com/OliverF/mjpeg-relay.git",
                        "/opt/mjpeg-relay"])
+            sleep(10)
             pl.append(["python", "-m", "pip", "install", "-r", "requirements.txt"], cwd="/opt/mjpeg-relay/")
             pl.wait()
 
@@ -118,7 +121,7 @@ if __name__ == "__main__":
             pl.append(logic_command)
             pl.append("mosquitto_sub -h localhost -t \\# -v | ts '%s' >" +
                       "/var/log/mosquitto/message_log_$(date +%Y-%m-%d_%H%M%S).txt")
-            mqtt.subscribe.callback(on_scale, "6/puzzle/scale", hostname="10.0.0.2")
+            subscribe.callback(on_scale, "6/puzzle/scale", hostname="10.0.0.2")
             pl.wait()
 
         """
