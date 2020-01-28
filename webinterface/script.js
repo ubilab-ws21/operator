@@ -67,6 +67,8 @@ function onMessageArrived(msg) {
                 getID("pause").disabled = true;
                 getID("stop").disabled = false;
                 break;
+            case "":
+            case null:
             case "stop":
                 getID("start").disabled = false;
                 getID("pause").disabled = true;
