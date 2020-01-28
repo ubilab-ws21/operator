@@ -126,4 +126,5 @@ class WorkflowController:
         print("===============================")
         print("Workflow finished successfully!")
         print("===============================")
-        self.reset()
+        self.client.publish(self.game_control_topic, None, 2, True)
+        self.stop()
