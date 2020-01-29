@@ -61,6 +61,7 @@ function onMessageArrived(msg) {
                 getID("start").disabled = true;
                 getID("pause").disabled = false;
                 getID("stop").disabled = false;
+                getID("playercount").disabled = true;
                 break;
             case "pause":
                 getID("start").disabled = false;
@@ -74,6 +75,7 @@ function onMessageArrived(msg) {
                 getID("pause").disabled = true;
                 getID("stop").disabled = true;
                 getID("time").innerText = "";
+                getID("playercount").disabled = false;
                 break;
         }
     }
@@ -100,7 +102,7 @@ function onMessageArrived(msg) {
  * @constructor
  */
 function mqttConnect() {
-    console.log("Connecting debug to " + host + ":" + port + "...");
+    console.log("Connecting mqtt client to " + host + ":" + port + "...");
     mqtt = new Paho.Client(host, port, "", "ws-client-d" + ~~(Date.now() / 1000));
     mqtt.onMessageArrived = onMessageArrived;
     mqtt.connect({timeout: 3, onSuccess: onConnect, onFailure: onFailure});
@@ -231,6 +233,10 @@ function changeTab(target) {
  */
 function command(content) {
     mqtt.send("1/gameControl", content, 2, true);
+    let options = {
+        participants: getID("playercount").value
+    };
+    mqtt.send("1/gameOptions", JSON.stringify(options), 2, true);
 }
 
 /**
