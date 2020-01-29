@@ -5,6 +5,7 @@ let port = 9001;
 let topicsUser = new Set();
 let topicsUI = new Set(["1/gameTime_formatted", "1/gameControl", "1/gameState", "4/door/entrance", "4/door/serverRoom"]);
 let tabs = new Set(["control", "cameras", "cameras-fallback", "mosquitto"]);
+let printTime = false;
 
 /**
  * Short version of getElementById
@@ -42,20 +43,21 @@ function onConnect() {
  * @param msg
  */
 function onMessageArrived(msg) {
-    if (topicsUser.has(msg.destinationName.substr(0, 1))) {
+    let topic = msg.destinationName
+    if (topicsUser.has(topic.substr(0, 1)) && (!topic.startsWith("1/gameTime") || printTime)) {
         let op = getID("output");
-        op.value += "Topic " + msg.destinationName + "; time ";
+        op.value += "Topic " + topic + "; time ";
         if (!msg.payloadString.match(/\d{10}: .*/i)) op.value += ~~(Date.now() / 1000) + " ";
         op.value += msg.payloadString + "\n";
         op.scrollTop = op.scrollHeight;
     }
 
     // Displays game time
-    if (msg.destinationName === "1/gameTime_formatted") {
+    if (topic === "1/gameTime_formatted") {
         getID("time").innerText = msg.payloadString;
     }
     // Dis-/enables game controls
-    else if (msg.destinationName === "1/gameControl") {
+    else if (topic === "1/gameControl") {
         switch (msg.payloadString) {
             case "start":
                 getID("start").disabled = true;
@@ -80,18 +82,18 @@ function onMessageArrived(msg) {
         }
     }
     // Draw graph from gameState
-    else if (msg.destinationName === "1/gameState") {
+    else if (topic === "1/gameState") {
         try {
             displayGraph(JSON.parse(msg.payloadString));
         } catch {}
     }
     // Change the state of the status box
-    else if (msg.destinationName === "4/door/entrance" || msg.destinationName === "4/door/serverRoom") {
+    else if (topic === "4/door/entrance" || topic === "4/door/serverRoom") {
         try {
             let obj = JSON.parse(msg.payloadString.toLowerCase());
             if ("method" in obj && obj.method === "status" && "state" in obj) {
-                getID(btoa(msg.destinationName) + "_state").value = obj.state;
-                getID(btoa(msg.destinationName) + "_data").value = obj.data || "";
+                getID(btoa(topic) + "_state").value = obj.state;
+                getID(btoa(topic) + "_data").value = obj.data || "";
             }
         } catch {}
     }
