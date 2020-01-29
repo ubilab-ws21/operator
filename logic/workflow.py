@@ -7,6 +7,7 @@ class WorkflowState(Enum):
     INACTIVE = 0
     ACTIVE = 1
     FINISHED = 2
+    SKIPPED = 3
 
 
 class BaseWorkflow:
@@ -42,6 +43,20 @@ class BaseWorkflow:
         client : Client
             MQTT client
         """
+        if self.state is WorkflowState.SKIPPED:
+            self.on_finished(self.name)
+        else:
+            self._execute(client)
+
+    def _execute(self, client):
+        """
+        Executes this workflow.
+
+        Parameters
+        ----------
+        client : Client
+            MQTT client
+        """
         self.state = WorkflowState.ACTIVE
 
     def dispose(self, client):
@@ -53,13 +68,50 @@ class BaseWorkflow:
         client : Client
             MQTT client
         """
-        if self.state is not WorkflowState.FINISHED:
+        if self.state is not WorkflowState.SKIPPED:
+            self._dispose(client)
+
+    def _dispose(self, client):
+        """
+        Disposes this workflow.
+
+        Parameters
+        ----------
+        client : Client
+            MQTT client
+        """
+        if self.state is WorkflowState.ACTIVE:
             self.state = WorkflowState.INACTIVE
 
+    def skip(self, name):
+        if self.state is not WorkflowState.SKIPPED:
+            if name.upper() == self.name.upper():
+                if self.state is WorkflowState.ACTIVE:
+                    self.on_finished(self.name)
+                self.state = WorkflowState.SKIPPED
+
     def on_message(self, msg):
+        """
+        Processes the message sended by the MQTT server.
+
+        Parameters
+        ----------
+        msg : Message
+            Message from the MQTT topic.
+        """
         pass
 
-    def getSettings(self):
+    def on_error(self, name, error):
+        if self._on_workflow_failed:
+            self._on_workflow_failed(name, error)
+
+    def on_finished(self, name):
+        if self._on_workflow_finished:
+            self._on_workflow_finished(name)
+        if self.state is not WorkflowState.SKIPPED:
+            self.state = WorkflowState.FINISHED
+
+    def get_settings(self):
         data = None
         if self.settings:
             if len(self.settings) == 1:
@@ -135,11 +187,11 @@ class BaseWorkflow:
             'data': nodeData
         }
 
-        edges = self._createEdges(self.name, predecessors)
+        edges = self._create_edges(self.name, predecessors)
 
         return ([node], edges, [self.name])
 
-    def _createEdges(self, target, predecessors):
+    def _create_edges(self, target, predecessors):
         """
         Generates the edges from a target and it's predecessors.
 
@@ -194,7 +246,7 @@ class Workflow(BaseWorkflow):
         super().__init__(name, settings)
         self.topic = topic
 
-    def execute(self, client):
+    def _execute(self, client):
         """
         Executes this workflow.
 
@@ -203,11 +255,12 @@ class Workflow(BaseWorkflow):
         client : Client
             MQTT client
         """
-        self._publishTriggerOn(client)
+        self.client = client
+        self._publishTrigger(client, State.ON)
         self._subscripeToTopic(client)
-        super().execute(client)
+        super()._execute(client)
 
-    def dispose(self, client):
+    def _dispose(self, client):
         """
         Disposes this workflow.
 
@@ -217,7 +270,7 @@ class Workflow(BaseWorkflow):
             MQTT client
         """
         self._unsubscripeFromTopic(client)
-        super().dispose(client)
+        super()._dispose(client)
 
     def on_message(self, msg):
         """
@@ -247,11 +300,10 @@ class Workflow(BaseWorkflow):
                 elif obj.state == State.FAILED:
                     self._on_received_status_failed(obj.data)
                 else:
-                    if self._on_workflow_failed:
-                        self._on_workflow_failed(
-                            self.name,
-                            "[%s] State '%s' is not supported"
-                            % (self.name, obj.state))
+                    self.on_error(
+                        self.name,
+                        "[%s] State '%s' is not supported"
+                        % (self.name, obj.state))
             elif obj.method == Method.TRIGGER:
                 print("[%s] Requested trigger '%s'"
                       % (self.name, obj.state.name))
@@ -260,34 +312,35 @@ class Workflow(BaseWorkflow):
                 elif obj.state == State.OFF:
                     self._on_received_trigger_off(obj.data)
                 else:
-                    if self._on_workflow_failed:
-                        self._on_workflow_failed(
-                            self.name,
-                            "[%s] Trigger state '%s' is not supported"
-                            % (self.name, obj.state))
+                    self.on_error(
+                        self.name,
+                        "[%s] Trigger state '%s' is not supported"
+                        % (self.name, obj.state))
             elif obj.method == Method.MESSAGE:
                 print("[%s] Received message with method 'MESSAGE'. "
                       "Nothing to do..." % (self.name))
             else:
-                if self._on_workflow_failed:
-                    self._on_workflow_failed(
-                        self.name,
-                        "[%s] Method '%s' is not supported"
-                        % (self.name, obj.method))
+                self.on_error(
+                    self.name,
+                    "[%s] Method '%s' is not supported"
+                    % (self.name, obj.method))
         except Exception as e:
             error_msg = "[%s] No valid JSON: %s" % (self.name, str(e))
             print(error_msg)
-            if self._on_workflow_failed:
-                self._on_workflow_failed(self.name, error_msg)
+            self.on_error(self.name, error_msg)
 
         super().on_message(msg)
 
-    def _publishTriggerOn(self, client):
+    def on_finished(self, name):
+        self._publishTrigger(self.client, State.OFF)
+        super().on_finished(name)
+
+    def _publishTrigger(self, client, state):
         if self.topic is not None:
-            data = self.getSettings()
-            message = Message(Method.TRIGGER, State.ON, data)
+            data = self.get_settings()
+            message = Message(Method.TRIGGER, state, data)
             client.publish(self.topic, message.toJSON(), 2)
-            print("[%s] Started..." % (self.name))
+            print("[%s] Trigger state '%s'..." % (self.name, state.name))
 
     def _subscripeToTopic(self, client):
         if self.topic is not None:
@@ -308,14 +361,11 @@ class Workflow(BaseWorkflow):
 
     def _on_received_status_finished(self, data):
         print("  ==> Puzzle solved successfully")
-        if self._on_workflow_finished:
-            self._on_workflow_finished(self.name)
-        self.state = WorkflowState.FINISHED
+        self.on_finished(self.name)
 
     def _on_received_status_failed(self, data):
         print("  ==> An error occured: %s" % (data))
-        if self._on_workflow_failed:
-            self._on_workflow_failed(self.name, data)
+        self.on_error(self.name, data)
 
     def _on_received_trigger_on(self, data):
         print("  ==> Nothing to do")
@@ -349,7 +399,7 @@ class SequenceWorkflow(BaseWorkflow):
         self.client = None
         self.current_workflow = 0
 
-    def execute(self, client):
+    def _execute(self, client):
         """
         Executes this workflow.
 
@@ -359,10 +409,10 @@ class SequenceWorkflow(BaseWorkflow):
             MQTT client
         """
         self.client = client
-        self.__subscribeCurrentWorkflow(self.client)
-        super().execute(client)
+        self.__subscribe_current_workflow(self.client)
+        super()._execute(client)
 
-    def dispose(self, client):
+    def _dispose(self, client):
         """
         Disposes this workflow.
 
@@ -372,7 +422,15 @@ class SequenceWorkflow(BaseWorkflow):
             MQTT client
         """
         self.current_workflow = 0
-        super().dispose(client)
+        super()._dispose(client)
+
+    def skip(self, name):
+        super().skip(name)
+        for workflow in self.workflows:
+            if self.state == WorkflowState.SKIPPED:
+                workflow.skip(workflow.name)
+            else:
+                workflow.skip(name)
 
     def on_message(self, msg):
         """
@@ -419,30 +477,27 @@ class SequenceWorkflow(BaseWorkflow):
 
         return (nodes, edges, last_final_state_ids)
 
-    def __subscribeCurrentWorkflow(self, client):
-        workflow = self.workflows[self.current_workflow]
-        workflow.register_on_failed(self.__on_workflow_failed)
-        workflow.register_on_finished(self.__on_workflow_finished)
-        workflow.execute(client)
+    def on_finished(self, name):
+        if name == self.name:
+            super().on_finished(self.name)
 
-    def __unsubscribeCurrentWorkflow(self, client):
-        workflow = self.workflows[self.current_workflow]
-        workflow.dispose(client)
-
-    def __on_workflow_failed(self, name, error):
-        if self._on_workflow_failed:
-            self._on_workflow_failed(name, error)
-
-    def __on_workflow_finished(self, name):
-        self.__unsubscribeCurrentWorkflow(self.client)
+        self.__unsubscribe_current_workflow(self.client)
         self.current_workflow += 1
         if self.current_workflow >= len(self.workflows):
             print("  ==> Workflow sequence '%s' finished..." % (self.name))
-            if self._on_workflow_finished:
-                self._on_workflow_finished(self.name)
-            self.state = WorkflowState.FINISHED
+            super().on_finished(self.name)
         else:
-            self.__subscribeCurrentWorkflow(self.client)
+            self.__subscribe_current_workflow(self.client)
+
+    def __subscribe_current_workflow(self, client):
+        workflow = self.workflows[self.current_workflow]
+        workflow.register_on_failed(self.on_error)
+        workflow.register_on_finished(self.on_finished)
+        workflow.execute(client)
+
+    def __unsubscribe_current_workflow(self, client):
+        workflow = self.workflows[self.current_workflow]
+        workflow.dispose(client)
 
 
 class ParallelWorkflow(BaseWorkflow):
@@ -472,10 +527,10 @@ class ParallelWorkflow(BaseWorkflow):
         self.workflow_finished = {}
         for workflow in self.workflows:
             self.workflow_finished[workflow.name] = False
-            workflow.register_on_failed(self.__on_workflow_failed)
-            workflow.register_on_finished(self.__on_workflow_finished)
+            workflow.register_on_failed(self.on_error)
+            workflow.register_on_finished(self.on_finished)
 
-    def execute(self, client):
+    def _execute(self, client):
         """
         Executes this workflow.
 
@@ -488,9 +543,9 @@ class ParallelWorkflow(BaseWorkflow):
         print("[%s] Starting in parallel..." % (", ".join(names)))
         for workflow in self.workflows:
             workflow.execute(client)
-        super().execute(client)
+        super()._execute(client)
 
-    def dispose(self, client):
+    def _dispose(self, client):
         """
         Disposes this workflow.
 
@@ -501,7 +556,15 @@ class ParallelWorkflow(BaseWorkflow):
         """
         for workflow in self.workflows:
             workflow.dispose(client)
-        super().dispose(client)
+        super()._dispose(client)
+
+    def skip(self, name):
+        super().skip(name)
+        for workflow in self.workflows:
+            if self.state is WorkflowState.SKIPPED:
+                workflow.skip(workflow.name)
+            else:
+                workflow.skip(name)
 
     def on_message(self, msg):
         """
@@ -548,16 +611,15 @@ class ParallelWorkflow(BaseWorkflow):
 
         return (nodes, edges, final_states)
 
-    def __on_workflow_failed(self, name, error):
-        if self._on_workflow_failed:
-            self._on_workflow_failed(name, error)
+    def on_finished(self, name):
+        if name == self.name:
+            super().on_finished(self.name)
 
-    def __on_workflow_finished(self, name):
         self.workflow_finished[name] = True
         if all(list(self.workflow_finished.values())):
-            if self._on_workflow_finished:
-                self._on_workflow_finished(name)
-            self.state = WorkflowState.FINISHED
+            print("  ==> Parallel workflow sequence '%s' finished..."
+                  % (self.name))
+            super().on_finished(self.name)
 
 
 class DoorTargetState(Enum):
@@ -589,16 +651,14 @@ class DoorWorkflow(Workflow):
         """
         if data.lower() == self.target_state.name.lower():
             print("  ==> Door %s" % data.lower())
-            if self._on_workflow_finished:
-                self._on_workflow_finished(self.name)
-            self.state = WorkflowState.FINISHED
+            self.on_finished(self.name)
         else:
-            super._on_received_status_inactive(data)
+            super()._on_received_status_inactive(data)
 
 
 class ActivateLaserWorkflow(Workflow):
 
-    def execute(self, client):
+    def _execute(self, client):
         """
         Executes this workflow.
 
@@ -606,12 +666,14 @@ class ActivateLaserWorkflow(Workflow):
         ----------
         client : Client
             MQTT client
-        """
-        super().execute(client)
 
-        if self._on_workflow_finished:
-            self._on_workflow_finished(self.name)
-        self.state = WorkflowState.FINISHED
+        Returns
+        -------
+        is_started : boolean
+            Information if the workflow started.
+        """
+        super()._execute(client)
+        self.on_finished(self.name)
 
 
 class ScaleWorkflow(Workflow):
@@ -636,9 +698,7 @@ class ScaleWorkflow(Workflow):
 
     def _on_received_status_inactive(self, data):
         if self.scale_status == State.ACTIVE:
-            if self._on_workflow_finished:
-                self._on_workflow_finished(self.name)
-            self.state = WorkflowState.FINISHED
+            self.on_finished(self.name)
         else:
             self.scale_status = State.INACTIVE
 

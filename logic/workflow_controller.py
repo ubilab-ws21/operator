@@ -95,6 +95,12 @@ class WorkflowController:
             self.game_state = GameState.PAUSED
             print("Main workflow paused...")
 
+    def skip(self, workflow_name):
+        """
+        Skip the workflow with a given name.
+        """
+        self.main_sequence.skip(workflow_name)
+
     def __on_connect(self, client, userdata, flags, rc):
         """
         Subscribing in on_connect() means that if we lose the connection and
@@ -113,6 +119,11 @@ class WorkflowController:
                 self.stop()
             elif message == "PAUSE":
                 self.pause()
+            elif message.startswith("SKIP "):
+                workflow_name = message[5:].strip()
+                self.skip(workflow_name)
+            elif message == '':
+                pass
             else:
                 print("The game command '%s' is not supported."
                       % (str(message)))
