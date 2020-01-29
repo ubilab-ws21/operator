@@ -243,7 +243,7 @@ function command(content) {
  * Sends a environment control command
  */
 function envSet() {
-    let command = {method: "TRIGGER", state: getID("env-command").value, data: null};
+    let command = {method: "trigger", state: getID("env-command").value, data: null};
     switch (command.state) {
         case "0":
             return false;
