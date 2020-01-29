@@ -12,12 +12,11 @@ class WorkflowDefinition:
     def create(self):
         return [
             # First puzzle
-            Workflow("Input keypad code", "4/door/entrance/puzzle"),
+            Workflow("Input keypad code", "4/puzzle"),
             # Open door after successfully solved previous puzzle
             DoorWorkflow("Open door", "4/door/entrance", State.ON),
             # Second puzzle for closing lab door
-            Workflow("Globes riddle",
-                     "4/puzzle", {'data': 4}),
+            Workflow("Globes riddle", "4/globes", {'data': 4}),
             # Allow multiple riddles in lab room
             ParallelWorkflow("Lab room", [
                 SequenceWorkflow("Solve safe", [
@@ -37,12 +36,12 @@ class WorkflowDefinition:
                         Workflow("Set potentiometer of fusebox",
                                  "7/fusebox/potentiometer")
                     ]),
-                    Workflow("Control robot", "7/robot")
+                    Workflow("Control robot", "7/robot"),
+                    DoorWorkflow("Open door", "4/door/server", State.ON)
                 ])
             ]),
             # Allow multiple riddles in server room
             ParallelWorkflow("Server room", [
-                Workflow("Floppy disk riddle", "6/puzzle/floppy"),
                 Workflow("Terminal riddle", "6/puzzle/terminal"),
                 Workflow("Maze riddle", "8/puzzle/maze"),
                 Workflow("Simon riddle", "8/puzzle/simon")
