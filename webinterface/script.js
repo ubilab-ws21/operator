@@ -342,9 +342,9 @@ async function displayGraph(data) {
                 selector: 'node',
                 css: {
                     'content': 'data(name)',
-                    "color": "#000000",
+                    "color": "#ffffff",
                     "font-family": "Verdana, Geneva, sans-serif",
-                    'text-valign': 'center',
+                    'text-valign': 'bottom',
                     'text-halign': 'center',
                     "background-color": "#93a1a1"
                 }
@@ -356,9 +356,15 @@ async function displayGraph(data) {
                 }
             },
             {
-                selector: 'node[status="INACTIVE"]',
+                selector: 'node[status="ACTIVE"]',
                 css: {
                     'background-color': '#cb4b16'
+                }
+            },
+            {
+                selector: 'node[status="SKIPPED"]',
+                css: {
+                    'background-color': '#000000'
                 }
             },
             {
