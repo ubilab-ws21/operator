@@ -4,7 +4,7 @@ from workflow import DoorWorkflow
 from workflow import SequenceWorkflow
 from workflow import ActivateLaserWorkflow
 from workflow import ScaleWorkflow
-from workflow import DoorTargetState as ds
+from message import State
 
 
 class WorkflowDefinition:
@@ -14,8 +14,7 @@ class WorkflowDefinition:
             # First puzzle
             Workflow("Input keypad code", "4/door/entrance/puzzle"),
             # Open door after successfully solved previous puzzle
-            DoorWorkflow("Open door",
-                         "4/door/entrance", ds.OPENED),
+            DoorWorkflow("Open door", "4/door/entrance", State.ON),
             # Second puzzle for closing lab door
             Workflow("Globes riddle",
                      "4/puzzle", {'data': 4}),
