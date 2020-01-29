@@ -71,8 +71,8 @@ Process:
 
 1. On dev client: `cd %REPO/packages && make VERSION=X.Y-Z`
 2. On server:
-  * first install: `wget https://github.com/ubilab-escape/operator/releases/latest/download/ue-operator.deb && sudo apt install ./ue-operator.deb`
-  * update: `ue-operator update`
+   * first install: `wget https://github.com/ubilab-escape/operator/releases/latest/download/ue-operator.deb && sudo apt install ./ue-operator.deb`
+   * update: `ue-operator update`
 
 ## UI Control Board
 The UI Control Board is implemented by multiple .html files served by an Apache HTTP server which is listening on port 80. The main functions of the UI consist of:
