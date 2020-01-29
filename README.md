@@ -60,6 +60,19 @@ The base system controls the deployment of software and requirements. This is do
 - Mosquitto message broker
 - Plugin scripts of all groups
 
+### Deployment process
+Requirements (for Ubuntu 18.04 LTS, others may differ):
+
+- `build-essential`
+- `hub`
+
+Process:
+
+1. On dev client: `cd %REPO/packages && make VERSION=X.Y-Z`
+2. On server:
+  - first install: `wget https://github.com/ubilab-escape/operator/releases/latest/download/ue-operator.deb && sudo apt install ./ue-operator.deb`
+  - update: `ue-operator update`
+
 ## UI Control Board
 The UI Control Board is implemented by multiple .html files served by an Apache HTTP server which is listening on port 80. The main functions of the UI consist of:
 
