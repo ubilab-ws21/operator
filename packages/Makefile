@@ -26,7 +26,9 @@ build:
 	sudo chmod +x $(TMP_DIR)/usr/bin/ue-operator
 	sudo chmod +x $(TMP_DIR)/usr/bin/ue-camera
 	# Write version and build
-	sed -i 's/%VERSION%/$(VERSION)/g' $(TMP_DIR)/DEBIAN/control 
+	sed -i 's/%VERSION%/$(VERSION)/g' $(TMP_DIR)/DEBIAN/control
+	sudo sed -i 's/%VERSION%/$(VERSION)/g' $(TMP_DIR)/usr/bin/ue-operator
 	dpkg-deb --build $(TMP_DIR)
 	sudo rm -rf $(TMP_DIR)
 	hub release create -a $(TMP_DIR).deb -m "Version $(VERSION)" v$(VERSION)
+	rm $(TMP_DIR).deb

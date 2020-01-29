@@ -2,7 +2,7 @@
 
 from paho.mqtt import subscribe, publish
 from argparse import ArgumentParser
-from time import sleep
+from os import remove
 import subprocess
 import json
 
@@ -81,6 +81,7 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--fallback", action="store_true", default=False, help="use the fallback camera control")
     help_text = "definition of the workflow.\nFormat: module:class\nwith get method returning an array of Workflows."
     parser.add_argument("--workflow_def", "-d", help=help_text)
+    parser.add_argument("-v", "--version", action="version", version="%(prog)s %VERSION%")
     args = parser.parse_args()
     pl = ProcessList()
 
@@ -110,6 +111,8 @@ if __name__ == "__main__":
             pl.wait()
             pl.append(["sudo", "apt", "install", "./ue-operator.deb", "-y"])
             pl.wait()
+            remove("ue-operator.deb")
+
 
         """
             Starting all services and scripts
