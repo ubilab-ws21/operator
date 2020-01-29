@@ -2,12 +2,13 @@
 
 ifndef VERSION 
 $(error Please use 'make VERSION=x.x-x')
-endif 
-TMP_DIR = ue-operator_$(VERSION)
+endif
+SOURCE_DIR = ue-operator_skeleton
+TMP_DIR = ue-operator
 
 build:
     # creating work directory
-	cp -r ue-operator $(TMP_DIR)
+	cp -r $(SOURCE_DIR) $(TMP_DIR)
 	# copying the webinterface
 	mkdir -p $(TMP_DIR)/var/www/html/
 	cp -r ../webinterface/* $(TMP_DIR)/var/www/html/
@@ -28,3 +29,4 @@ build:
 	sed -i 's/%VERSION%/$(VERSION)/g' $(TMP_DIR)/DEBIAN/control 
 	dpkg-deb --build $(TMP_DIR)
 	sudo rm -rf $(TMP_DIR)
+	hub release create -a $(TMP_DIR).deb -m "Version $(VERSION)" v$(VERSION)

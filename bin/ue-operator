@@ -91,12 +91,12 @@ if __name__ == "__main__":
         if args.command == "init":
             pl.append(["git", "clone", "https://github.com/ubilab-escape/environment",
                        OPT + "environment"])
-            sleep(10)
+            pl.wait()
             pl.append(["python3", "-m", "pip", "install", "-r", "requirements.txt"],
                       cwd=OPT + "environment/text_to_speech")
             pl.append(["git", "clone", "--recurse-submodules", "https://github.com/OliverF/mjpeg-relay.git",
                        "/opt/mjpeg-relay"])
-            sleep(10)
+            pl.wait()
             pl.append(["python", "-m", "pip", "install", "-r", "requirements.txt"], cwd="/opt/mjpeg-relay/")
             pl.wait()
 
@@ -106,6 +106,9 @@ if __name__ == "__main__":
         if args.command == "update":
             pl.append(["git", "pull"], cwd=OPT + "environment")
             pl.append(["git", "pull"], cwd="/opt/mjpeg-relay")
+            pl.append(["wget", "https://github.com/ubilab-escape/operator/releases/latest/download/ue-operator.deb"])
+            pl.wait()
+            pl.append(["sudo", "apt", "install", "./ue-operator.deb", "-y"])
             pl.wait()
 
         """
