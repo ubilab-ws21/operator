@@ -335,7 +335,7 @@ async function onLoad() {
     client.open('GET', 'MQTTTopics.md');
     client.onload = function () {
         if (client.status === 200) {
-            getID("topics").innerText = client.responseText;
+            getID("topics").innerHTML = window.markdownit().render(client.responseText);
         } else {
             console.log("Error " + client.status.toString() + " reading MQTTTopics.md");
         }
