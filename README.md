@@ -115,9 +115,9 @@ All messages are sended to the **main server** should JSON schema:
 
 | Method  | State                            | Description                                                                                |
 | :------ | :------------------------------- | :----------------------------------------------------------------------------------------- |
-| MESSAGE |                                  | Ignored by the server. For m2m communication.                                              |
-| STATUS  | inactive, active, solved, failed | The transmitted status of the client. The \<data> of status messages is printed in the UI.  All messages using this method **must** set the retained flag if the MQTT protocol! |
-| TRIGGER | on, off                          | Triggers a state change of an other module (ex. lamp on/off).                              |
+| message |                                  | Ignored by the server. For m2m communication.                                              |
+| status  | inactive, active, solved, failed | The transmitted status of the client. The \<data> of status messages is printed in the UI.  All messages using this method **must** set the retained flag if the MQTT protocol! |
+| trigger | on, off                          | Triggers a state change of an other module (ex. lamp on/off).                              |
 
 ### Communication protocol
 The definition of the message protocol and the communication format is not sufficient for understanding the semantic and chronology of the messages shared between the participants. The semantic of these messages depends on the particular use case. For example the transmittion data of a finger print sensor (binary) is completely different from the data to turn on a light (boolean). The chronology of the messages is crucial to ensure the correct overall process workflow.
