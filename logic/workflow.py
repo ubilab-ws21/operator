@@ -622,12 +622,7 @@ class ParallelWorkflow(BaseWorkflow):
             super().on_finished(self.name)
 
 
-class DoorTargetState(Enum):
-    OPENED = 0
-    CLOSED = 1
-
-
-class DoorWorkflow(Workflow):
+class DoorWorkflow(BaseWorkflow):
 
     def __init__(self, name, topic, target_state):
         """
@@ -640,23 +635,11 @@ class DoorWorkflow(Workflow):
         topic : str
             Name of the MQTT topic.
         target_state: DoorState
-            Target state of the doot (opened/closed)
+            Target state of the door (opened/closed)
         """
         self.target_state = target_state
-        super().__init__(name, topic)
-
-    def _on_received_status_inactive(self, data):
-        """
-        OVERRIDDEN: Door doesn't confirm the state solved.
-        """
-        if data.lower() == self.target_state.name.lower():
-            print("  ==> Door %s" % data.lower())
-            self.on_finished(self.name)
-        else:
-            super()._on_received_status_inactive(data)
-
-
-class ActivateLaserWorkflow(Workflow):
+        self.topic = topic
+        super().__init__(name)
 
     def _execute(self, client):
         """
@@ -673,7 +656,60 @@ class ActivateLaserWorkflow(Workflow):
             Information if the workflow started.
         """
         super()._execute(client)
+        self._publishTrigger(client, self.target_state)
         self.on_finished(self.name)
+
+    def _publishTrigger(self, client, state):
+        if self.topic is not None:
+            message = Message(Method.TRIGGER, state)
+            client.publish(self.topic, message.toJSON(), 2)
+            door_state = ""
+            if state is State.ON:
+                door_state = "opens"
+            elif state is State.OFF:
+                door_state = "closes"
+            print("[%s] Door %s..." % (self.name, door_state))
+
+
+class ActivateLaserWorkflow(BaseWorkflow):
+
+    def __init__(self, name, topic):
+        """
+        Initializes a new instance of this class.
+
+        Parameters
+        ----------
+        name : str
+            Display name of the workflow.
+        topic : str
+            Name of the MQTT topic.
+        """
+        self.topic = topic
+        super().__init__(name)
+
+    def _execute(self, client):
+        """
+        Executes this workflow.
+
+        Parameters
+        ----------
+        client : Client
+            MQTT client
+
+        Returns
+        -------
+        is_started : boolean
+            Information if the workflow started.
+        """
+        super()._execute(client)
+        self._publishTrigger(client)
+        self.on_finished(self.name)
+
+    def _publishTrigger(self, client):
+        if self.topic is not None:
+            message = Message(Method.TRIGGER, State.ON)
+            client.publish(self.topic, message.toJSON(), 2)
+            print("[%s] Laser activated..." % (self.name))
 
 
 class ScaleWorkflow(Workflow):
