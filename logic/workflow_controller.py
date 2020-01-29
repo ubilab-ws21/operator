@@ -16,7 +16,7 @@ class WorkflowController:
     the transitions between the registered workflows.
     """
 
-    def __init__(self, mqtt_url, workflows):
+    def __init__(self, mqtt_url, workflow_factory):
         """
         Initializes a new instance of this class.
 
@@ -25,14 +25,16 @@ class WorkflowController:
         mqtt_url : str
             The url of the MQTT server.
 
-        workflows : Workflow[]
-            An array of workflows defining the sequence of their execution.
+        workflow_factory : WorkflowFactory
+            A factory which creates the workflow structure defining
+            the sequence of their execution.
         """
         self.client = None
         self.mqtt_url = mqtt_url
         self.game_control_topic = "1/gameControl"
         self.game_timer_topic = "1/gameTime"
-        self.main_sequence = SequenceWorkflow("main", workflows)
+        self.game_state_topic = "1/gameState"
+        self.workflow_factory = workflow_factory
         self.game_timer = GameTimer(mqtt_url, self.game_timer_topic)
         self.game_state = GameState.STOPPED
 
@@ -58,7 +60,9 @@ class WorkflowController:
         """
         if self.game_state != GameState.STARTED:
             if self.game_state == GameState.STOPPED:
-                self.main_sequence.register_on_solved(
+                self.main_sequence = SequenceWorkflow(
+                    "main", self.workflow_factory.create())
+                self.main_sequence.register_on_finished(
                     self.__on_workflow_solved)
                 self.main_sequence.execute(self.client)
             self.game_timer.start()
@@ -75,6 +79,13 @@ class WorkflowController:
             self.game_state = GameState.STOPPED
             print("Main workflow stopped...")
 
+    def reset(self):
+        """
+        Resets the main workflow
+        """
+        self.stop()
+        self.start()
+
     def pause(self):
         """
         Pauses the main workflow.
@@ -83,6 +94,12 @@ class WorkflowController:
             self.game_timer.pause()
             self.game_state = GameState.PAUSED
             print("Main workflow paused...")
+
+    def skip(self, workflow_name):
+        """
+        Skip the workflow with a given name.
+        """
+        self.main_sequence.skip(workflow_name)
 
     def __on_connect(self, client, userdata, flags, rc):
         """
@@ -102,15 +119,23 @@ class WorkflowController:
                 self.stop()
             elif message == "PAUSE":
                 self.pause()
+            elif message.startswith("SKIP "):
+                workflow_name = message[5:].strip()
+                self.skip(workflow_name)
+            elif message == '':
+                pass
             else:
                 print("The game command '%s' is not supported."
                       % (str(message)))
         else:
             self.main_sequence.on_message(msg)
+            # Publish game state to MQTT
+            config = self.main_sequence.get_graph_config()
+            self.client.publish(self.game_state_topic, config, 0, True)
 
     def __on_workflow_solved(self, name):
         print("===============================")
         print("Workflow finished successfully!")
         print("===============================")
+        self.client.publish(self.game_control_topic, None, 2, True)
         self.stop()
-        print("Main workflow stopped...")

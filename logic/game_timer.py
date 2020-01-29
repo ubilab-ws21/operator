@@ -15,7 +15,7 @@ class GameTimer:
     The game timer periodicaly updates the game time of a given topic.
     """
 
-    def __init__(self, mqtt_url, topic, interval=5.0):
+    def __init__(self, mqtt_url, topic, interval=1.0):
         """
         Initializes a new instance of this class.
 

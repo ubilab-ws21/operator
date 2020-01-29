@@ -2,7 +2,9 @@ let mqtt;
 let reconnectTimeout = 2000;
 let host = "10.0.0.2";
 let port = 9001;
-let topics = new Set();
+let topicsUser = new Set();
+let topicsUI = new Set(["1/gameTime_formatted", "1/gameControl", "1/gameState", "4/door/entrance", "4/door/serverRoom"]);
+let tabs = new Set(["control", "cameras", "cameras-fallback", "mosquitto"]);
 
 /**
  * Short version of getElementById
@@ -29,8 +31,8 @@ function onFailure(message) {
  */
 function onConnect() {
     console.log("Connected debug");
-    for (let i = 1; i < 9; i++) {
-        mqtt.subscribe(i.toString() + "/#");
+    for (let topic of topicsUI) {
+        mqtt.subscribe(topic);
     }
 }
 
@@ -40,12 +42,12 @@ function onConnect() {
  * @param msg
  */
 function onMessageArrived(msg) {
-    if(topics.has(msg.destinationName.substr(0,1))) {
-         let op = getID("output");
-         op.value += "Topic " + msg.destinationName + "; time ";
-         if (!msg.payloadString.match(/\d{10}: .*/i)) op.value += ~~(Date.now() / 1000) + " ";
-         op.value += msg.payloadString + "\n";
-         op.scrollTop = op.scrollHeight;
+    if (topicsUser.has(msg.destinationName.substr(0, 1))) {
+        let op = getID("output");
+        op.value += "Topic " + msg.destinationName + "; time ";
+        if (!msg.payloadString.match(/\d{10}: .*/i)) op.value += ~~(Date.now() / 1000) + " ";
+        op.value += msg.payloadString + "\n";
+        op.scrollTop = op.scrollHeight;
     }
 
     // Displays game time
@@ -65,6 +67,8 @@ function onMessageArrived(msg) {
                 getID("pause").disabled = true;
                 getID("stop").disabled = false;
                 break;
+            case "":
+            case null:
             case "stop":
                 getID("start").disabled = false;
                 getID("pause").disabled = true;
@@ -72,30 +76,22 @@ function onMessageArrived(msg) {
                 break;
         }
     }
-    // Parse JSON and display puzzle status
-    try {
-        let obj = JSON.parse(msg.payloadString);
-        if (obj.method.toLowerCase() === "status") {
-            let dst = msg.destinationName;
-            let dst_b64 = btoa(dst);
-
-            // Create the status box if it doesn't exist yet
-            if (getID(dst_b64) == null) {
-                getID("c" + dst.charAt(0)).innerHTML += `<div id="${dst_b64}" class="control"><b>${dst}</b><form>
-                    <select id="${dst_b64}_state">
-                        <option value="inactive">inactive</option>
-                        <option value="active">active</option>
-                        <option value="solved">solved</option>
-                        <option value="failed">failed</option>
-                    </select><br><input type="text" id="${dst_b64}_data" readonly=""><br>
-                    <button type="button" onclick="changeState('${dst_b64}');">Change</button></form></div>`;
+    // Draw graph from gameState
+    else if (msg.destinationName === "1/gameState") {
+        try {
+            displayGraph(JSON.parse(msg.payloadString));
+        } catch {}
+    }
+    // Change the state of the status box
+    else if (msg.destinationName === "4/door/entrance" || msg.destinationName === "4/door/serverRoom") {
+        try {
+            let obj = JSON.parse(msg.payloadString.toLowerCase());
+            if ("method" in obj && obj.method === "status" && "state" in obj) {
+                getID(btoa(msg.destinationName) + "_state").value = obj.state;
+                getID(btoa(msg.destinationName) + "_data").value = obj.data || "";
             }
-
-            // Change the state of the status box
-            getID(dst_b64 + "_state").value = obj.state.toLowerCase();
-            getID(dst_b64 + "_data").value = obj.data || "";
-        }
-    } catch{}
+        } catch {}
+    }
 }
 
 /**
@@ -116,15 +112,16 @@ function mqttConnect() {
  */
 function toggle(topic, button) {
     if (button.parentElement.id === "soff") {
-        if(topic.startsWith("$")) {
-            mqtt.subscribe(topic + "/#");
-        }
-        topics.add(topic.substr(0,1));
+        mqtt.subscribe(topic + "/#");
+        topicsUser.add(topic.substr(0, 1));
     } else {
-        if(topic.startsWith("$")) {
-            mqtt.unsubscribe(topic + "/#");
+        mqtt.unsubscribe(topic + "/#");
+        topicsUser.delete(topic.substr(0, 1));
+        for(let tUI of topicsUI) {
+            if(tUI.startsWith(topic)) {
+                mqtt.subscribe(tUI);
+            }
         }
-        topics.delete(topic.substr(0,1));
     }
     getID(button.parentElement.id === "soff" ? "son" : "soff").appendChild(button);
 }
@@ -147,9 +144,10 @@ function send() {
         alert("Topic is required");
         return;
     }
-    mqtt.publish(getID("send_topic").value, getID("send_message").value, 0, getID("send_retain").checked);
+    mqtt.publish(getID("send_topic").value, getID("send_message").value, parseInt(getID("send_qos").value), getID("send_retain").checked);
     getID("send_topic").value = "";
     getID("send_message").value = "";
+    getID("send_qos").value = 0;
     getID("send_retain").checked = false;
 }
 
@@ -192,17 +190,17 @@ function changeCamera() {
 
     xhr.open("GET", "http://localhost:9000/".concat(number));
     xhr.send();
+    getID("cameras-fallback").firstChild.src = "http://10.0.0.2:8080/stream?random=" + new Date().getTime().toString();
+    // location.reload();
 }
 
 /**
  * Changes the state of a puzzle displayed in the control section
  * @param dst_b64
+ * @param state
  */
-function changeState(dst_b64) {
-    let dst = atob(dst_b64);
-    let state = getID(dst_b64 + "_state").value;
-    let json_obj = JSON.stringify({method: "trigger", state: "on", data: state});
-    mqtt.send(dst, json_obj, 2);
+function changeState(dst_b64, state) {
+    mqtt.send(atob(dst_b64), JSON.stringify({method: "trigger", state: state}), 2);
 }
 
 /**
@@ -210,15 +208,20 @@ function changeState(dst_b64) {
  * @param target
  */
 function changeTab(target) {
-    for (name of ["control", "cameras", "cameras-fallback", "mosquitto"]) {
-        if (name !== target) {
-            getID(name).style.display = "none";
-            getID("b-" + name).parentElement.className = "navitem";
-        } else {
-            getID(name).style.display = "block";
-            getID("b-" + name).parentElement.className = "navitem selected";
+    let url = window.location.href.split("?")[0];
+    if (tabs.has(target)) {
+        for (name of tabs) {
+            if (name !== target) {
+                getID(name).style.display = "none";
+                getID("b-" + name).parentElement.className = "navitem";
+            } else {
+                getID(name).style.display = "block";
+                getID("b-" + name).parentElement.className = "navitem selected";
+            }
         }
+        url += "?" + target;
     }
+    window.history.replaceState({}, document.title, url);
 }
 
 /**
@@ -233,81 +236,197 @@ function command(content) {
  * Sends a environment control command
  */
 function envSet() {
-    mqtt.send(getID("env-target").value, getID("env-command").value + getID("env-number1").value);
+    let command = {method: "TRIGGER", state: getID("env-command").value, data: null};
+    switch (command.state) {
+        case "0":
+            return false;
+        case "brightnessAdjust":
+        case "patternAdjust":
+            command.data = getID("env-adjust").value;
+            break;
+        case "rgb":
+            let hex = getID("env-rgb").value;
+            command.data = hex.match(/[A-Za-z0-9]{2}/g).map(function (v) {
+                return parseInt(v, 16)
+            }).join(",");
+            break;
+        default:
+            command.data = getID("env-" + command.state).value;
+    }
+    mqtt.send(getID("env-target").value, JSON.stringify(command), 2, false);
+    getID("env-target").value = 0;
+    validateCommands(getID("env-target"));
 }
 
 /**
  * En-/disables valid environment commands upon selection of topic
- * @param select
+ * @param target
  */
-function validateCommands(select) {
+function validateCommands(target) {
     let cmd = getID("env-command");
     cmd.disabled = false;
-    switch (select.value) {
+    switch (target.value) {
         case "0":
             cmd.disabled = true;
-            getID("env-number1").disabled = true;
-            getID("env-button").disabled = true;
+            cmd.value = 0;
+            validateValues(cmd);
             break;
         case "2/gyrophare":
             for (let child of cmd.children) {
-                child.disabled = child.value !== "power:";
-                if(child.value === "power:") {
+                child.disabled = child.value !== "power";
+                if (child.value === "power") {
                     child.selected = true;
-                    getID("env-number1").disabled = false;
-                    getID("env-number1").max = 1;
-                    getID("env-button").disabled = false;
                 }
             }
+            cmd.value = "power";
+            validateValues(cmd);
             break;
         default:
             for (let child of cmd.children) {
                 child.disabled = false;
             }
-            break;
     }
 }
 
 /**
  * En-/disables valid environment command values upon selection of command
- * @param select
+ * @param cmd
  */
-function validateNumbers(select) {
-    let num = getID("env-number1");
-    num.disabled = false;
+function validateValues(cmd) {
+    getID("env-power").disabled = true;
+    getID("env-pattern").disabled = true;
+    getID("env-brightness").disabled = true;
+    getID("env-adjust").disabled = true;
+    getID("env-rgb").disabled = true;
     getID("env-button").disabled = false;
-    switch (select.value) {
+    switch (cmd.value) {
+        case "brightnessAdjust":
+        case "patternAdjust":
+            getID("env-adjust").disabled = false;
+            break;
         case "0":
-            num.disabled = true;
             getID("env-button").disabled = true;
             break;
-        case "pattern:":
-            num.max = 11;
-            break;
-        case "brightness:":
-            num.max = 255;
-            break;
         default:
-            num.max = 1;
-            break;
+            getID("env-" + cmd.value).disabled = false;
     }
 }
 
 /**
  * Triggers all functions started on load
  */
-function onLoad() {
+async function onLoad() {
     new mqttConnect();
+    if (window.location.href.includes("?")) {
+        changeTab(window.location.href.split("?")[1])
+    }
 
     // Read topics into textarea
     let client = new XMLHttpRequest();
     client.open('GET', 'MQTTTopics.md');
-    client.onload = function() {
-        if(client.status === 200) {
+    client.onload = function () {
+        if (client.status === 200) {
             getID("topics").innerText = client.responseText;
         } else {
             console.log("Error " + client.status.toString() + " reading MQTTTopics.md");
         }
     };
     client.send();
+}
+
+async function displayGraph(data) {
+    let cy = window.cy = cytoscape({
+        container: document.getElementById('cy'),
+        style: [
+            {
+                selector: 'node',
+                css: {
+                    'content': 'data(name)',
+                    "color": "#ffffff",
+                    "font-family": "Verdana, Geneva, sans-serif",
+                    'text-valign': 'bottom',
+                    'text-halign': 'center',
+                    "background-color": "#93a1a1"
+                }
+            },
+            {
+                selector: 'node[status="FINISHED"]',
+                css: {
+                    'background-color': '#859900'
+                }
+            },
+            {
+                selector: 'node[status="ACTIVE"]',
+                css: {
+                    'background-color': '#cb4b16'
+                }
+            },
+            {
+                selector: 'node[status="SKIPPED"]',
+                css: {
+                    'background-color': '#000000'
+                }
+            },
+            {
+                selector: ':parent',
+                css: {
+                    'text-valign': 'top',
+                    'text-halign': 'center',
+                    "background-color": "#002b36"
+                }
+            },
+            {
+                selector: 'edge',
+                css: {
+                    'curve-style': 'bezier',
+                    'target-arrow-shape': 'triangle'
+                }
+            },
+            {
+                selector: "core",
+                css: {
+                    "active-bg-size": 0
+                }
+            }
+        ],
+        elements: {
+            nodes: data.nodes,
+            edges: data.edges
+        },
+        layout: {
+            name: 'dagre',
+            randomize: false,
+            animate: false,
+            nodeDimensionsIncludeLabels: true,
+            rankDir: "LR",
+        },
+        // interaction options:
+        zoom: 0.5,
+        zoomingEnabled: true,
+        userZoomingEnabled: true,
+        panningEnabled: true,
+        userPanningEnabled: true,
+        boxSelectionEnabled: false,
+        selectionType: 'single',
+        autolock: false,
+        autoungrabify: true,
+        autounselectify: true,
+        wheelSensitivity: 0.05,
+    });
+    cy.cxtmenu({
+        menuRadius: 70,
+        selector: "node[name!='main']",
+        atMouse: true,
+        commands: [
+            {
+                fillColor: 'rgba(200, 200, 200, 0.75)',
+                content: 'Skip',
+                select: function (ele) {
+                    mqtt.send("1/gameControl", "SKIP " + ele.id(), 2, false);
+                },
+                enabled: true
+            }
+        ],
+
+    });
 }
