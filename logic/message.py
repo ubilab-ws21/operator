@@ -98,14 +98,14 @@ class Message:
 
         >>> m = Message(Method.STATUS, State.ACTIVE)
         >>> m.toJSON()
-        '{"method": "STATUS", "state": "ACTIVE", "data": null}'
+        '{"method": "status", "state": "active", "data": null}'
         >>> m = Message(Method.TRIGGER, State.ON)
         >>> m.toJSON()
-        '{"method": "TRIGGER", "state": "ON", "data": null}'
+        '{"method": "trigger", "state": "on", "data": null}'
         """
         result = json.dumps({
-            "method": self.method.name,
-            "state": self.state.name,
+            "method": self.method.name.lower(),
+            "state": self.state.name.lower(),
             "data": self.data
         })
         return result

@@ -18,7 +18,7 @@ class WorkflowDefinition:
                          "4/door/entrance", ds.OPENED),
             # Second puzzle for closing lab door
             Workflow("Globes riddle",
-                     "4/puzzle", {'participants': 4}),
+                     "4/puzzle", {'data': 4}),
             # Allow multiple riddles in lab room
             ParallelWorkflow("Lab room", [
                 SequenceWorkflow("Solve safe", [
