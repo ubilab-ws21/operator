@@ -10,6 +10,7 @@
     - [Game logic](#game-logic)
   - [General architecture](#general-architecture)
   - [Base system](#base-system)
+    - [Deployment process](#deployment-process)
   - [UI Control Board](#ui-control-board)
   - [MC Communication](#mc-communication)
     - [Network](#network)
