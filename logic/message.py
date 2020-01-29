@@ -104,8 +104,8 @@ class Message:
         '{"method": "TRIGGER", "state": "ON", "data": null}'
         """
         result = json.dumps({
-            "method": self.method.name,
-            "state": self.state.name,
+            "method": self.method.name.lower(),
+            "state": self.state.name.lower(),
             "data": self.data
         })
         return result
