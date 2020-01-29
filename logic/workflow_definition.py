@@ -36,7 +36,8 @@ class WorkflowDefinition:
                         Workflow("Set potentiometer of fusebox",
                                  "7/fusebox/potentiometer")
                     ]),
-                    Workflow("Control robot", "7/robot")
+                    Workflow("Control robot", "7/robot"),
+                    DoorWorkflow("Open door", "4/door/server", State.ON)
                 ])
             ]),
             # Allow multiple riddles in server room
