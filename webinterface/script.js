@@ -73,6 +73,7 @@ function onMessageArrived(msg) {
                 getID("start").disabled = false;
                 getID("pause").disabled = true;
                 getID("stop").disabled = true;
+                getID("time").innerText = "";
                 break;
         }
     }
