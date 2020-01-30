@@ -1,4 +1,5 @@
 import paho.mqtt.client as mqtt
+import subprocess
 from workflow import SequenceWorkflow
 from game_timer import GameTimer
 from enum import Enum
@@ -59,6 +60,7 @@ class WorkflowController:
         Starts the main workflow.
         """
         if self.game_state != GameState.STARTED:
+            self.purge_all_topics()
             if self.game_state == GameState.STOPPED:
                 self.main_sequence = SequenceWorkflow(
                     "main", self.workflow_factory.create())
@@ -77,6 +79,7 @@ class WorkflowController:
             self.game_timer.stop()
             self.main_sequence.dispose(self.client)
             self.game_state = GameState.STOPPED
+            self.purge_all_topics()
             print("Main workflow stopped...")
 
     def reset(self):
@@ -139,3 +142,11 @@ class WorkflowController:
         print("===============================")
         self.client.publish(self.game_control_topic, None, 2, True)
         self.stop()
+
+    def purge_all_topics(self):
+        print("=== Purges all topics ===")
+        subprocess.CompletedProcess([
+            "/snap/bin/mosquitto_sub",
+            "-t", "#",
+            "--remove-retained",
+            "--retained-only"], returncode=0)
