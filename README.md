@@ -56,7 +56,7 @@ Moreover the diagramm specifies the communication protocols between the componen
 ## Base system
 The base system controls the deployment of software and requirements. This is done with a .deb package which contains the whole operator server. Furthermore, the package adds a script which is able to start the server and initialize settings. Currently, the script should start the following components:
 
-- Webserver for the UI
+- Web server for the UI
 - Main game logic
 - Mosquitto message broker
 - Plugin scripts of all groups
@@ -66,6 +66,7 @@ Requirements (for Ubuntu 18.04 LTS, others may differ):
 
 - `build-essential`
 - `hub`
+- `gpg` with a valid key configured in `git`
 
 Process:
 
@@ -119,7 +120,7 @@ JSON is a very simple and compact data format to exchange data (more information
 
 All messages are sended to the **main server** should JSON schema: 
 
-```javascript
+```json
 {
   "method": "<method>",
   "state": "<state>",
