@@ -114,10 +114,7 @@ class BaseWorkflow:
     def get_settings(self):
         data = None
         if self.settings:
-            if len(self.settings) == 1:
-                data = next(iter(self.settings.values()))
-            else:
-                data = json.dumps(self.settings)
+            data = json.dumps(self.settings)
         return data
 
     def register_on_failed(self, func):
@@ -340,7 +337,10 @@ class Workflow(BaseWorkflow):
             data = self.get_settings()
             message = Message(Method.TRIGGER, state, data)
             client.publish(self.topic, message.toJSON(), 2)
-            print("[%s] Trigger state '%s'..." % (self.name, state.name))
+            msg = "[%s] Trigger state '%s'" % (self.name, state.name)
+            if data:
+                msg += " with settings '%s'" % (data)
+            print(msg + "...")
 
     def _subscripeToTopic(self, client):
         if self.topic is not None:
