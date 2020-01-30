@@ -422,6 +422,8 @@ class SequenceWorkflow(BaseWorkflow):
             MQTT client
         """
         self.current_workflow = 0
+        if self.state is WorkflowState.ACTIVE:
+            self.__unsubscribe_current_workflow(self.client)
         super()._dispose(client)
 
     def skip(self, name):
@@ -478,7 +480,7 @@ class SequenceWorkflow(BaseWorkflow):
         return (nodes, edges, last_final_state_ids)
 
     def on_finished(self, name):
-        if name == self.name:
+        if self.state is WorkflowState.SKIPPED:
             super().on_finished(self.name)
 
         self.__unsubscribe_current_workflow(self.client)
@@ -554,8 +556,9 @@ class ParallelWorkflow(BaseWorkflow):
         client : Client
             MQTT client
         """
-        for workflow in self.workflows:
-            workflow.dispose(client)
+        if self.state is WorkflowState.ACTIVE:
+            for workflow in self.workflows:
+                workflow.dispose(client)
         super()._dispose(client)
 
     def skip(self, name):
@@ -612,7 +615,7 @@ class ParallelWorkflow(BaseWorkflow):
         return (nodes, edges, final_states)
 
     def on_finished(self, name):
-        if name == self.name:
+        if self.state is WorkflowState.SKIPPED:
             super().on_finished(self.name)
 
         self.workflow_finished[name] = True
