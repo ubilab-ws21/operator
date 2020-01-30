@@ -9,14 +9,18 @@ from message import State
 
 class WorkflowDefinition:
 
-    def create(self):
+    def create(self, settings):
+        participants = 4
+        if settings:
+            participants = settings['participants']
+
         return [
             # First puzzle
             Workflow("Input keypad code", "4/puzzle"),
             # Open door after successfully solved previous puzzle
-            DoorWorkflow("Open door", "4/door/entrance", State.ON),
+            DoorWorkflow("Open lab room door", "4/door/entrance", State.ON),
             # Second puzzle for closing lab door
-            Workflow("Globes riddle", "4/globes", {'data': 4}),
+            Workflow("Globes riddle", "4/globes", {'data': participants}),
             # Allow multiple riddles in lab room
             ParallelWorkflow("Lab room", [
                 SequenceWorkflow("Solve safe", [
@@ -37,7 +41,8 @@ class WorkflowDefinition:
                                  "7/fusebox/potentiometer")
                     ]),
                     Workflow("Control robot", "7/robot"),
-                    DoorWorkflow("Open door", "4/door/server", State.ON)
+                    DoorWorkflow("Open server room door",
+                                 "4/door/server", State.ON)
                 ])
             ]),
             # Allow multiple riddles in server room

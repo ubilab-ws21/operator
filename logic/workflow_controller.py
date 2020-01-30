@@ -1,4 +1,6 @@
 import paho.mqtt.client as mqtt
+import subprocess
+import json
 from workflow import SequenceWorkflow
 from game_timer import GameTimer
 from enum import Enum
@@ -34,6 +36,8 @@ class WorkflowController:
         self.game_control_topic = "1/gameControl"
         self.game_timer_topic = "1/gameTime"
         self.game_state_topic = "1/gameState"
+        self.game_option_topic = "1/gameOptions"
+        self.options = None
         self.workflow_factory = workflow_factory
         self.game_timer = GameTimer(mqtt_url, self.game_timer_topic)
         self.game_state = GameState.STOPPED
@@ -59,9 +63,10 @@ class WorkflowController:
         Starts the main workflow.
         """
         if self.game_state != GameState.STARTED:
+            self.__purge_all_topics()
             if self.game_state == GameState.STOPPED:
-                self.main_sequence = SequenceWorkflow(
-                    "main", self.workflow_factory.create())
+                workflow = self.workflow_factory.create(self.options)
+                self.main_sequence = SequenceWorkflow("main", workflow)
                 self.main_sequence.register_on_finished(
                     self.__on_workflow_solved)
                 self.main_sequence.execute(self.client)
@@ -77,6 +82,7 @@ class WorkflowController:
             self.game_timer.stop()
             self.main_sequence.dispose(self.client)
             self.game_state = GameState.STOPPED
+            self.__purge_all_topics()
             print("Main workflow stopped...")
 
     def reset(self):
@@ -107,31 +113,40 @@ class WorkflowController:
         reconnect then subscriptions will be renewed.
         """
         client.subscribe(self.game_control_topic)
+        client.subscribe(self.game_option_topic)
         print("Main workflow connected...")
         print("Waiting for game control commands...")
 
     def __on_message(self, client, userdata, msg):
         if msg.topic == self.game_control_topic:
-            message = msg.payload.decode("utf-8").upper()
-            if message == "START":
-                self.start()
-            elif message == "STOP":
-                self.stop()
-            elif message == "PAUSE":
-                self.pause()
-            elif message.startswith("SKIP "):
-                workflow_name = message[5:].strip()
-                self.skip(workflow_name)
-            elif message == '':
-                pass
-            else:
-                print("The game command '%s' is not supported."
-                      % (str(message)))
+            self.__handle_command(msg)
+        elif msg.topic == self.game_option_topic:
+            self.__save_options(msg)
         else:
             self.main_sequence.on_message(msg)
             # Publish game state to MQTT
             config = self.main_sequence.get_graph_config()
             self.client.publish(self.game_state_topic, config, 0, True)
+
+    def __handle_command(self, msg):
+        message = msg.payload.decode("utf-8").upper()
+        if message == "START":
+            self.start()
+        elif message == "STOP":
+            self.stop()
+        elif message == "PAUSE":
+            self.pause()
+        elif message.startswith("SKIP "):
+            workflow_name = message[5:].strip()
+            self.skip(workflow_name)
+        elif message == '':
+            pass
+        else:
+            print("The game command '%s' is not supported." % (str(message)))
+
+    def __save_options(self, msg):
+        message = msg.payload.decode("utf-8")
+        self.options = json.loads(message)
 
     def __on_workflow_solved(self, name):
         print("===============================")
@@ -139,3 +154,11 @@ class WorkflowController:
         print("===============================")
         self.client.publish(self.game_control_topic, None, 2, True)
         self.stop()
+
+    def __purge_all_topics(self):
+        print("=== Purges all topics ===")
+        subprocess.CompletedProcess([
+            "/snap/bin/mosquitto_sub",
+            "-t", "#",
+            "--remove-retained",
+            "--retained-only"], returncode=0)
