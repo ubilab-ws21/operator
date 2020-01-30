@@ -234,11 +234,11 @@ function changeTab(target) {
  * @param content
  */
 function command(content) {
-    mqtt.send("1/gameControl", content, 2, true);
     let options = {
         participants: getID("playercount").value
     };
     mqtt.send("1/gameOptions", JSON.stringify(options), 2, true);
+    mqtt.send("1/gameControl", content, 2, true);
 }
 
 /**
