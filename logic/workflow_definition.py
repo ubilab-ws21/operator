@@ -14,7 +14,7 @@ class WorkflowDefinition:
             # First puzzle
             Workflow("Input keypad code", "4/puzzle"),
             # Open door after successfully solved previous puzzle
-            DoorWorkflow("Open door", "4/door/entrance", State.ON),
+            DoorWorkflow("Open lab room door", "4/door/entrance", State.ON),
             # Second puzzle for closing lab door
             Workflow("Globes riddle", "4/globes", {'data': 4}),
             # Allow multiple riddles in lab room
@@ -37,7 +37,8 @@ class WorkflowDefinition:
                                  "7/fusebox/potentiometer")
                     ]),
                     Workflow("Control robot", "7/robot"),
-                    DoorWorkflow("Open door", "4/door/server", State.ON)
+                    DoorWorkflow("Open server room door",
+                                 "4/door/server", State.ON)
                 ])
             ]),
             # Allow multiple riddles in server room
