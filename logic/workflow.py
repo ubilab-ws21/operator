@@ -411,9 +411,9 @@ class SequenceWorkflow(BaseWorkflow):
         client : Client
             MQTT client
         """
+        super()._execute(client)
         self.client = client
         self.__subscribe_current_workflow(self.client)
-        super()._execute(client)
 
     def _dispose(self, client):
         """
