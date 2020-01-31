@@ -4,6 +4,7 @@ from workflow import SequenceWorkflow
 from workflow import SendTriggerWorkflow
 from workflow import ScaleWorkflow
 from workflow import InitWorkflow
+from workflow import LightControlWorkflow
 from message import State
 
 
@@ -25,7 +26,21 @@ class WorkflowDefinition:
                                     "7/laser", State.OFF),
                 SendTriggerWorkflow("Deactivate laser",
                                     "7/laser", State.OFF),
-                # Turn lights off
+                LightControlWorkflow("Turn off light north",
+                                     "2/ledstrip/labroom/north",
+                                     State.OFF),
+                LightControlWorkflow("Turn off light south",
+                                     "2/ledstrip/labroom/south",
+                                     State.OFF),
+                LightControlWorkflow("Turn off light middle",
+                                     "2/ledstrip/labroom/middle",
+                                     State.OFF),
+                LightControlWorkflow("Turn off light serverroom",
+                                     "2/ledstrip/serverroom",
+                                     State.OFF),
+                LightControlWorkflow("Turn off light north",
+                                     "2/ledstrip/doorserverroom",
+                                     State.OFF)
             ]),
             # First puzzle
             Workflow("Input keypad code", "4/puzzle"),
@@ -34,6 +49,15 @@ class WorkflowDefinition:
                                 "4/door/entrance", State.ON),
             # Second puzzle for closing lab door
             Workflow("Globes riddle", "4/globes", {'data': participants}),
+            LightControlWorkflow("Turn off light north",
+                                 "2/ledstrip/labroom/north",
+                                 State.ON),
+            LightControlWorkflow("Turn off light south",
+                                 "2/ledstrip/labroom/south",
+                                 State.ON),
+            LightControlWorkflow("Turn off light middle",
+                                 "2/ledstrip/labroom/middle",
+                                 State.ON),
             # Allow multiple riddles in lab room
             ParallelWorkflow("Lab room", [
                 SequenceWorkflow("Solve safe", [
@@ -53,6 +77,12 @@ class WorkflowDefinition:
                         Workflow("Set potentiometer of fusebox",
                                  "7/fusebox/potentiometer")
                     ]),
+                    LightControlWorkflow("Turn off light serverroom",
+                                         "2/ledstrip/serverroom",
+                                         State.ON),
+                    LightControlWorkflow("Turn off light north",
+                                         "2/ledstrip/doorserverroom",
+                                         State.ON),
                     Workflow("Control robot", "7/robot"),
                     SendTriggerWorkflow("Open server room door",
                                         "4/door/server", State.ON)

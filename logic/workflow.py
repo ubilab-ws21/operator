@@ -750,3 +750,62 @@ class InitWorkflow(SequenceWorkflow):
         edges = self._create_edges(self.name, predecessors)
 
         return ([node], edges, [self.name])
+
+
+class LightControlWorkflow(BaseWorkflow):
+
+    def __init__(self, name, topic, target_state,
+                 brightness=255, color=(255, 255, 255)):
+        """
+        Initializes a new instance of this class.
+
+        Parameters
+        ----------
+        name : str
+            Display name of the workflow.
+
+        topic : str
+            Name of the MQTT topic.
+
+        target_state: State
+            Target state of the light.
+
+        brightness: int [0,255]
+            Brighness of the light.
+
+        color: Tuple (r, g, b)
+            Color of the light decoded in hex.
+        """
+        self.target_state = target_state
+        self.brightness = brightness
+        self.color = color
+        self.topic = topic
+        super().__init__(name)
+
+    def _execute(self, client):
+        """
+        Executes this workflow.
+
+        Parameters
+        ----------
+        client : Client
+            MQTT client
+        """
+        super()._execute(client)
+
+        col = f"{self.color[0]},{self.color[1]},{self.color[2]}"
+        self._publishTrigger(client, 'rgb', col)
+        self._publishTrigger(client, 'brightness', self.brightness)
+        self._publishTrigger(client, 'power', self.state.name.lower())
+        self.on_finished(self.name)
+
+    def _publishTrigger(self, client, state, data):
+        client.publish(
+            self.topic,
+            json.dumps({
+                'method': 'trigger',
+                'state': state,
+                'data': data
+            }),
+            2
+        )
