@@ -65,6 +65,7 @@ function onMessageArrived(msg) {
                 getID("stop").disabled = false;
                 getID("time").className = "started";
                 getID("playercount").disabled = true;
+                getID("playtime").disabled = true;
                 break;
             case "pause":
                 getID("start").disabled = false;
@@ -80,6 +81,7 @@ function onMessageArrived(msg) {
                 getID("stop").disabled = true;
                 getID("time").className = "stopped";
                 getID("playercount").disabled = false;
+                getID("playtime").disabled = false;
                 break;
         }
     }
@@ -268,8 +270,6 @@ function envSet() {
             command.data = getID("env-" + command.state).value;
     }
     mqtt.send(getID("env-target").value, JSON.stringify(command), 2, false);
-    getID("env-target").value = 0;
-    validateCommands(getID("env-target"));
 }
 
 /**
