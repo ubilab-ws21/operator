@@ -38,7 +38,7 @@ class WorkflowDefinition:
                 LightControlWorkflow("Turn off light serverroom",
                                      "2/ledstrip/serverroom",
                                      State.OFF),
-                LightControlWorkflow("Turn off light north",
+                LightControlWorkflow("Turn off light door server room",
                                      "2/ledstrip/doorserverroom",
                                      State.OFF)
             ]),
@@ -49,13 +49,13 @@ class WorkflowDefinition:
                                 "4/door/entrance", State.ON),
             # Second puzzle for closing lab door
             Workflow("Globes riddle", "4/globes", {'data': participants}),
-            LightControlWorkflow("Turn off light north",
+            LightControlWorkflow("Turn on light north",
                                  "2/ledstrip/labroom/north",
                                  State.ON),
-            LightControlWorkflow("Turn off light south",
+            LightControlWorkflow("Turn on light south",
                                  "2/ledstrip/labroom/south",
                                  State.ON),
-            LightControlWorkflow("Turn off light middle",
+            LightControlWorkflow("Turn on light middle",
                                  "2/ledstrip/labroom/middle",
                                  State.ON),
             # Allow multiple riddles in lab room
@@ -77,10 +77,10 @@ class WorkflowDefinition:
                         Workflow("Set potentiometer of fusebox",
                                  "7/fusebox/potentiometer")
                     ]),
-                    LightControlWorkflow("Turn off light serverroom",
+                    LightControlWorkflow("Turn on light serverroom",
                                          "2/ledstrip/serverroom",
                                          State.ON),
-                    LightControlWorkflow("Turn off light north",
+                    LightControlWorkflow("Turn on light door server room",
                                          "2/ledstrip/doorserverroom",
                                          State.ON),
                     Workflow("Control robot", "7/robot"),
