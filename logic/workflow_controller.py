@@ -39,6 +39,7 @@ class WorkflowController:
         self.game_option_topic = "1/gameOptions"
         self.options = None
         self.workflow_factory = workflow_factory
+        self.last_graph_config = None
         self.game_timer = GameTimer(mqtt_url, self.game_timer_topic)
         self.game_state = GameState.STOPPED
 
@@ -126,7 +127,9 @@ class WorkflowController:
             self.main_sequence.on_message(msg)
             # Publish game state to MQTT
             config = self.main_sequence.get_graph_config()
-            self.client.publish(self.game_state_topic, config, 0, True)
+            if config != self.last_graph_config:
+                self.client.publish(self.game_state_topic, config, 0, True)
+                self.last_graph_config = config
 
     def __handle_command(self, msg):
         message = msg.payload.decode("utf-8").upper()
