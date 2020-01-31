@@ -114,7 +114,10 @@ class BaseWorkflow:
     def get_settings(self):
         data = None
         if self.settings:
-            data = json.dumps(self.settings)
+            if len(self.settings) == 1:
+                data = next(iter(self.settings.values()))
+            else:
+                data = json.dumps(self.settings)
         return data
 
     def register_on_failed(self, func):
