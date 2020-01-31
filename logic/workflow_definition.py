@@ -51,5 +51,5 @@ class WorkflowDefinition:
                 Workflow("Maze riddle", "8/puzzle/maze"),
                 Workflow("Simon riddle", "8/puzzle/simon")
             ]),
-            DoorWorkflow("Open lab room door", "4/door/entrance", State.ON)
+            DoorWorkflow("Open escape room door", "4/door/entrance", State.ON)
         ]
