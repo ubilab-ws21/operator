@@ -20,7 +20,12 @@ class WorkflowDefinition:
                 SendTriggerWorkflow("Close lab room door",
                                     "4/door/entrance", State.OFF),
                 SendTriggerWorkflow("Close server room door",
-                                    "4/door/server", State.OFF)
+                                    "4/door/server", State.OFF),
+                SendTriggerWorkflow("Deactivate laser",
+                                    "7/laser", State.OFF),
+                SendTriggerWorkflow("Deactivate laser",
+                                    "7/laser", State.OFF),
+                # Turn lights off
             ]),
             # First puzzle
             Workflow("Input keypad code", "4/puzzle"),
