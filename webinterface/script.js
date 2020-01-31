@@ -63,12 +63,14 @@ function onMessageArrived(msg) {
                 getID("start").disabled = true;
                 getID("pause").disabled = false;
                 getID("stop").disabled = false;
+                getID("time").className = "started";
                 getID("playercount").disabled = true;
                 break;
             case "pause":
                 getID("start").disabled = false;
                 getID("pause").disabled = true;
                 getID("stop").disabled = false;
+                getID("time").className = "paused";
                 break;
             case "":
             case null:
@@ -76,7 +78,7 @@ function onMessageArrived(msg) {
                 getID("start").disabled = false;
                 getID("pause").disabled = true;
                 getID("stop").disabled = true;
-                getID("time").innerText = "";
+                getID("time").className = "stopped";
                 getID("playercount").disabled = false;
                 break;
         }

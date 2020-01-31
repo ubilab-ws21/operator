@@ -86,12 +86,24 @@ nav {
     background-color: #859900;
 }
 
+.started {
+    color: #859900;
+}
+
 .subs.off button, #stop {
     background-color: #cb4b16;
 }
 
+.stopped {
+    color: #cb4b16;
+}
+
 #pause {
     background-color: #b58900;
+}
+
+.paused {
+    color: #b58900;
 }
 
 footer form {
@@ -145,6 +157,7 @@ footer form {
 
 #time-container {
     float: right;
+    font-weight: bold;
 }
 
 #env-container {
