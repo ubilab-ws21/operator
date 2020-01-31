@@ -796,7 +796,7 @@ class LightControlWorkflow(BaseWorkflow):
         col = f"{self.color[0]},{self.color[1]},{self.color[2]}"
         self._publishTrigger(client, 'rgb', col)
         self._publishTrigger(client, 'brightness', self.brightness)
-        self._publishTrigger(client, 'power', self.state.name.lower())
+        self._publishTrigger(client, 'power', self.target_state.name.lower())
         self.on_finished(self.name)
 
     def _publishTrigger(self, client, state, data):
