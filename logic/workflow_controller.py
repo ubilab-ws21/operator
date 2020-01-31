@@ -163,6 +163,6 @@ class WorkflowController:
                 "-t", "#",
                 "-h", self.mqtt_url,
                 "--remove-retained",
-                "--retained-only"])
+                "--retained-only"], stdout=subprocess.PIPE)
         except subprocess.CalledProcessError:
             pass
