@@ -85,17 +85,8 @@ function onMessageArrived(msg) {
     else if (topic === "1/gameState") {
         try {
             displayGraph(JSON.parse(msg.payloadString));
-        } catch {}
-    }
-    // Change the state of the status box
-    else if (topic === "4/door/entrance" || topic === "4/door/serverRoom") {
-        try {
-            let obj = JSON.parse(msg.payloadString.toLowerCase());
-            if ("method" in obj && obj.method === "status" && "state" in obj) {
-                getID(btoa(topic) + "_state").value = obj.state;
-                getID(btoa(topic) + "_data").value = obj.data || "";
-            }
-        } catch {}
+        } catch {
+        }
     }
 }
 
@@ -122,8 +113,8 @@ function toggle(topic, button) {
     } else {
         mqtt.unsubscribe(topic + "/#");
         topicsUser.delete(topic.substr(0, 1));
-        for(let tUI of topicsUI) {
-            if(tUI.startsWith(topic)) {
+        for (let tUI of topicsUI) {
+            if (tUI.startsWith(topic)) {
                 mqtt.subscribe(tUI);
             }
         }
