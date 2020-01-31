@@ -77,6 +77,10 @@ nav {
     color: black;
 }
 
+#command-container div {
+	text-align: center;
+}
+
 :disabled {
     cursor: default;
     color: #586e75 !important;
@@ -155,13 +159,23 @@ footer form {
     display: block;
 }
 
+.control label {
+    display: block;
+    line-height: 1.7em;
+}
+
+.control label input {
+    float: right;
+}
+
 #time-container {
     float: right;
     font-weight: bold;
 }
 
 #env-container {
-    text-align: center;
+    /*text-align: center;*/
+    display: inline-block;
 }
 
 input[type=number] {

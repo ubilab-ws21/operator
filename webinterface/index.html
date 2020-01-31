@@ -38,6 +38,17 @@
                     <button type="button" onclick="changeState('NC9kb29yL3NlcnZlcg==', 'off');">Close</button>
                 </div>
             </div>
+
+        <div class="control" id="command-container">
+            <b>Game Control</b>
+            <label>Players: <input type="number" id="playercount" value="4" min="1"></label>
+            <label>Max. time: <input type="number" id="playtime" value="90" min="1"></label>
+            <div style="clear:both;">
+            <button type="button" id="start" onclick="command('start');">Start</button>
+            <button type="button" id="pause" onclick="command('pause');" disabled>Pause</button>
+            <button type="button" id="stop" onclick="command('stop');" disabled>Stop</button>
+                </div>
+        </div>
         </div>
         <div id="cy"></div>
     </div>
@@ -109,12 +120,6 @@
             <button id="env-button" type="button" onclick="return envSet();" disabled>Set</button>
         </div>
         <div id="time-container">Time: <span id="time"></span></div>
-        <div id="command-container">
-            <input type="number" id="playercount" value="4" min="1">
-            <button type="button" id="start" onclick="command('start');">Start</button>
-            <button type="button" id="pause" onclick="command('pause');" disabled>Pause</button>
-            <button type="button" id="stop" onclick="command('stop');" disabled>Stop</button>
-        </div>
     </footer>
 </div>
 <div id="mosquitto" style="display: none">
