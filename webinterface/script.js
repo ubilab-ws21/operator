@@ -73,8 +73,7 @@ function onMessageArrived(msg) {
                 getID("stop").disabled = false;
                 getID("time").className = "paused";
                 break;
-            case "":
-            case null:
+            // case "":
             case "stop":
                 getID("start").disabled = false;
                 getID("pause").disabled = true;
@@ -140,16 +139,16 @@ function toggleAll(from) {
  * Sends the message entered into the form
  */
 function send() {
-    if (getID("send_topic").value === "") {
+    if (getID("send-topic").value === "") {
         alert("Topic is required");
         return;
     }
-    mqtt.publish(getID("send_topic").value, getID("send_message").value, parseInt(getID("send_qos").value),
-        getID("send_retain").checked);
-    getID("send_topic").value = "";
-    getID("send_message").value = "";
-    getID("send_qos").value = 0;
-    getID("send_retain").checked = false;
+    mqtt.publish(getID("send-topic").value, getID("send-message").value, parseInt(getID("send-qos").value),
+        getID("send-retain").checked);
+    getID("send-topic").value = "";
+    getID("send-message").value = "";
+    getID("send-qos").value = 0;
+    getID("send-retain").checked = false;
 }
 
 /**
@@ -208,10 +207,10 @@ function changeState(dst_b64, state) {
  * Sends the input message to the text-to-speech script
  */
 function playMessage() {
-    if(getID("tts").value === "") {
+    if (getID("tts").value === "") {
         alert("Message must be set");
     }
-    mqtt.send("2/textToSpeech", JSON.stringify({method: "message", data: getID("tts").value}));
+    mqtt.send("2/textToSpeech", JSON.stringify({method: "message", data: getID("tts").value}), 2, false);
     getID("tts").value = "";
 }
 
@@ -225,10 +224,10 @@ function changeTab(target) {
         for (name of tabs) {
             if (name !== target) {
                 getID(name).style.display = "none";
-                getID("b-" + name).parentElement.className = "navitem";
+                getID("b-" + name).className = "navlink";
             } else {
                 getID(name).style.display = "block";
-                getID("b-" + name).parentElement.className = "navitem selected";
+                getID("b-" + name).className = "navlink selected";
             }
         }
         url += "?" + target;
@@ -270,17 +269,17 @@ function envSet() {
         default:
             command.data = getID("env-" + command.state).value;
     }
-    if(getID("env-target").value === "all lights") {
+    if (getID("env-target").value === "all lights") {
         mqtt.send("2/ledstrip/labroom/north", JSON.stringify(command), 2, false);
         mqtt.send("2/ledstrip/labroom/south", JSON.stringify(command), 2, false);
         mqtt.send("2/ledstrip/labroom/middle", JSON.stringify(command), 2, false);
         mqtt.send("2/ledstrip/serverroom", JSON.stringify(command), 2, false);
         mqtt.send("2/ledstrip/doorserverroom", JSON.stringify(command), 2, false);
-    } else if(getID("env-target").value === "lab room lights") {
+    } else if (getID("env-target").value === "lab room lights") {
         mqtt.send("2/ledstrip/labroom/north", JSON.stringify(command), 2, false);
         mqtt.send("2/ledstrip/labroom/south", JSON.stringify(command), 2, false);
         mqtt.send("2/ledstrip/labroom/middle", JSON.stringify(command), 2, false);
-    } else if(getID("env-target").value === "server room lights") {
+    } else if (getID("env-target").value === "server room lights") {
         mqtt.send("2/ledstrip/serverroom", JSON.stringify(command), 2, false);
         mqtt.send("2/ledstrip/doorserverroom", JSON.stringify(command), 2, false);
     } else {
@@ -343,6 +342,20 @@ function validateValues(cmd) {
 }
 
 /**
+ * This function adds a listener for the enter key to an input or textarea which then triggers a button
+ * @param target The target input or textarea
+ * @param button The button to trigger
+ */
+function addEnterEvent(target, button) {
+    target.addEventListener("keyup", function (event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+            button.click();
+        }
+    })
+}
+
+/**
  * Triggers all functions started on load
  */
 async function onLoad() {
@@ -350,6 +363,9 @@ async function onLoad() {
     if (window.location.href.includes("?")) {
         changeTab(window.location.href.split("?")[1])
     }
+    addEnterEvent(getID("tts"), getID("tts-button"));
+    addEnterEvent(getID("send-topic"), getID("send-button"));
+    addEnterEvent(getID("send-message"), getID("send-button"));
 
     // Read topics into textarea
     let client = new XMLHttpRequest();

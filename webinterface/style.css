@@ -9,10 +9,14 @@ textarea, #control-main, #topics {
     padding-left: 0.5em;
     border-top: 0;
     margin: 0 0 1em;
-    height: calc(95vh - 8em);
+    height: calc(95vh - 8.5em);
     resize: none;
     width: 100%;
     box-sizing: border-box;
+}
+
+#control-main {
+    height: calc(95vh - 6em);
 }
 
 input, button, select, #tts {
@@ -24,25 +28,32 @@ input, button, select, #tts {
     margin: 0;
 }
 
+label {
+    display: inline-block;
+}
+
 button {
     font-weight: bold;
     cursor: pointer;
 }
 
-nav {
-    background-color: #002b36;
+footer button, footer input {
+    margin-top: 2px
 }
 
-.navitem {
+nav {
+    background-color: #002b36;
+    padding: 5px 5px 0;
+}
+
+nav div {
     display: inline-block;
     text-align: center;
     background-color: #073642;
-    margin: 0;
-    border-top: 5px solid #002b36;
-    border-bottom: 5px solid #002b36;
+    margin: 0 0 5px;
 }
 
-.navitem a {
+.navlink {
     color: #b58900;
     text-decoration: none;
     font-weight: bold;
@@ -51,12 +62,12 @@ nav {
     user-select: none;
 }
 
-.navitem a:hover {
+.navlink:hover {
     color: #859900;
     cursor: pointer;
 }
 
-.selected a {
+.selected {
     color: #859900;
 }
 
@@ -64,16 +75,13 @@ nav {
     display: inline-block;
     resize: both;
     transform: rotate(180deg);
-    min-width: 20em;
-    min-height: 20em;
 }
 
 .subs {
-    display: inline-block;
+    display: inline;
 }
 
 .subs button, #command-container button {
-    margin: 2px;
     color: black;
 }
 
@@ -106,11 +114,6 @@ nav {
     color: #b58900;
 }
 
-footer form {
-    margin-top: 0.5em;
-    margin-bottom: 0;
-}
-
 .helpmark {
     border: 1px solid #93a1a1;
     color: #93a1a1;
@@ -140,6 +143,8 @@ footer form {
     margin: 5px;
     background-color: #002b36;
     float: left;
+    text-align: center;
+    width: calc(100% - 20px);
 }
 
 .control input {
@@ -151,13 +156,13 @@ footer form {
 }
 
 .control b, #command-container div, #tts + div {
-    text-align: center;
     display: block;
 }
 
 .control label {
     display: block;
     line-height: 1.7em;
+    text-align: justify;
 }
 
 .control label input {
@@ -167,10 +172,11 @@ footer form {
 #time-container {
     float: right;
     font-weight: bold;
+    line-height: 2em;
 }
 
 #env-container {
-    display: inline-block;
+    display: inline;
 }
 
 input[type=number] {
@@ -178,8 +184,8 @@ input[type=number] {
 }
 
 input[type=color] {
-	height: 2em;
-	vertical-align: bottom;
+    height: 2em;
+    vertical-align: bottom;
 }
 
 #cy, #control-groups {
@@ -202,10 +208,24 @@ input[type=color] {
     padding: 0;
 }
 
-#env-container label span {
-	display: none;
+#tts {
+    height: 3em !important;
 }
 
-#tts {
-    height: 3em;
+@media screen and (max-width: 990px) {
+    #control-main {
+        height: calc(95vh - 8em);
+    }
+}
+
+@media screen and (max-width: 1120px){
+    textarea {
+        height: calc(95vh - 10em);
+    }
+}
+
+@media screen and (max-width: 840px) {
+    textarea {
+        height: calc(95vh - 12em);
+    }
 }
