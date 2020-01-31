@@ -628,7 +628,7 @@ class ParallelWorkflow(BaseWorkflow):
             super().on_finished(self.name)
 
 
-class DoorWorkflow(BaseWorkflow):
+class SendTriggerWorkflow(BaseWorkflow):
 
     def __init__(self, name, topic, target_state):
         """
@@ -638,10 +638,12 @@ class DoorWorkflow(BaseWorkflow):
         ----------
         name : str
             Display name of the workflow.
+
         topic : str
             Name of the MQTT topic.
-        target_state: DoorState
-            Target state of the door (opened/closed)
+
+        target_state: State
+            Target state of the workflow.
         """
         self.target_state = target_state
         self.topic = topic
@@ -655,11 +657,6 @@ class DoorWorkflow(BaseWorkflow):
         ----------
         client : Client
             MQTT client
-
-        Returns
-        -------
-        is_started : boolean
-            Information if the workflow started.
         """
         super()._execute(client)
         self._publishTrigger(client, self.target_state)
@@ -669,53 +666,7 @@ class DoorWorkflow(BaseWorkflow):
         if self.topic is not None:
             message = Message(Method.TRIGGER, state)
             client.publish(self.topic, message.toJSON(), 2)
-            door_state = ""
-            if state is State.ON:
-                door_state = "opens"
-            elif state is State.OFF:
-                door_state = "closes"
-            print("[%s] Door %s..." % (self.name, door_state))
-
-
-class ActivateLaserWorkflow(BaseWorkflow):
-
-    def __init__(self, name, topic):
-        """
-        Initializes a new instance of this class.
-
-        Parameters
-        ----------
-        name : str
-            Display name of the workflow.
-        topic : str
-            Name of the MQTT topic.
-        """
-        self.topic = topic
-        super().__init__(name)
-
-    def _execute(self, client):
-        """
-        Executes this workflow.
-
-        Parameters
-        ----------
-        client : Client
-            MQTT client
-
-        Returns
-        -------
-        is_started : boolean
-            Information if the workflow started.
-        """
-        super()._execute(client)
-        self._publishTrigger(client)
-        self.on_finished(self.name)
-
-    def _publishTrigger(self, client):
-        if self.topic is not None:
-            message = Message(Method.TRIGGER, State.ON)
-            client.publish(self.topic, message.toJSON(), 2)
-            print("[%s] Laser activated..." % (self.name))
+            print("[%s] Triggered '%s'..." % (self.name, state.name))
 
 
 class ScaleWorkflow(Workflow):
@@ -746,3 +697,56 @@ class ScaleWorkflow(Workflow):
 
     def _on_received_status_active(self, data):
         self.scale_status = State.ACTIVE
+
+
+class InitWorkflow(SequenceWorkflow):
+
+    def __init__(self, workflows, settings=None):
+        """
+        Initializes a new instance of this class.
+
+        Parameters
+        ----------
+        workflows : Workflow[]
+            Collection of workflows should be executed in parallel.
+
+        settings: keywords
+            An dictionary of global settings.
+        """
+        super().__init__("Init", workflows, settings)
+
+    def get_graph(self, predecessors=None, parent=None):
+        """
+        Generates a graph from the workflow and returns a tuple:
+        (nodes, edges, final_states)
+
+        Parameters
+        ----------
+        predecessors : str[]
+            The IDs of the predecessor states.
+
+        parent : str
+            The ID of the parent state (group).
+
+        Return
+        ------
+        (nodes, edges, final_state_ids) : Tuple
+            Graph as a tuple.
+        """
+        nodeData = {
+            'id': self.name,
+            'name': self.name,
+            'status': self.state.name,
+            'type': self.type
+        }
+
+        if parent is not None:
+            nodeData['parent'] = parent
+
+        node = {
+            'data': nodeData
+        }
+
+        edges = self._create_edges(self.name, predecessors)
+
+        return ([node], edges, [self.name])

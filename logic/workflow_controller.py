@@ -164,5 +164,5 @@ class WorkflowController:
                 "-h", self.mqtt_url,
                 "--remove-retained",
                 "--retained-only"])
-        except subprocess.CalledProcessError as error:
+        except subprocess.CalledProcessError:
             pass

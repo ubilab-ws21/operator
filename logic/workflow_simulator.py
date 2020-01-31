@@ -30,5 +30,5 @@ messageSequence = [
 if __name__ == "__main__":
     mqtt_url = "127.0.0.1"
     for message in messageSequence:
-        publish.single(message[0], message[1])
+        publish.single(message[0], message[1], 2, False, mqtt_url)
         time.sleep(1)
