@@ -157,8 +157,12 @@ class WorkflowController:
 
     def __purge_all_topics(self):
         print("=== Purges all topics ===")
-        subprocess.CompletedProcess([
-            "/snap/bin/mosquitto_sub",
-            "-t", "#",
-            "--remove-retained",
-            "--retained-only"], returncode=0)
+        try:
+            subprocess.Popen([
+                "/snap/bin/mosquitto_sub",
+                "-t", "#",
+                "-h", self.mqtt_url,
+                "--remove-retained",
+                "--retained-only"])
+        except subprocess.CalledProcessError as error:
+            pass
