@@ -61,9 +61,7 @@ def on_scale(client, userdata, message):
                 gyro = "on"
                 # TODO: Commented for quota reasons
                 #msgs.append(
-                #    ("2/textToSpeech", json.dumps({"method": "message", "data": "Put the prototype back!", "kwargs": {
-                #        "VoiceId": "Joanna", "LanguageCode": "en-US"
-                #    }})))
+                #    ("2/textToSpeech", json.dumps({"method": "message", "data": "Put the prototype back!"})))
             elif data["state"] == "inactive":
                 gyro = "off"
             else:

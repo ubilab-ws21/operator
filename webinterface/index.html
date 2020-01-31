@@ -38,17 +38,21 @@
                     <button type="button" onclick="changeState('NC9kb29yL3NlcnZlcg==', 'off');">Close</button>
                 </div>
             </div>
-
-        <div class="control" id="command-container">
-            <b>Game Control</b>
-            <label>Players: <input type="number" id="playercount" value="4" min="1"></label>
-            <label>Max. time: <input type="number" id="playtime" value="90" min="1"></label>
-            <div style="clear:both;">
-            <button type="button" id="start" onclick="command('start');">Start</button>
-            <button type="button" id="pause" onclick="command('pause');" disabled>Pause</button>
-            <button type="button" id="stop" onclick="command('stop');" disabled>Stop</button>
+            <div class="control">
+                <b>Text-to-speech</b>
+                <textarea placeholder="Message" id="tts"></textarea>
+                <div><button type="button" onclick="playMessage();">Play</button></div>
+            </div>
+            <div class="control" id="command-container">
+                <b>Game Control</b>
+                <label>Players: <input type="number" id="playercount" value="4" min="1"></label>
+                <label>Max. time: <input type="number" id="playtime" value="90" min="1"></label>
+                <div style="clear:both;">
+                    <button type="button" id="start" onclick="command('start');">Start</button>
+                    <button type="button" id="pause" onclick="command('pause');" disabled>Pause</button>
+                    <button type="button" id="stop" onclick="command('stop');" disabled>Stop</button>
                 </div>
-        </div>
+            </div>
         </div>
         <div id="cy"></div>
     </div>
@@ -142,6 +146,7 @@
         <label>Time:<input type="checkbox" onclick="printTime = this.checked;"></label>
         <button type="button" onclick="toggleAll('soff')">Subscribe all</button>
         <button type="button" onclick="toggleAll('son')">Unsubscribe all</button>
+        <button type="button" onclick="getID('output').value = '';">Clear</button>
         <form>
             <input id="send_topic" type="text" placeholder="Topic">
             <input id="send_message" type="text" placeholder="Message">

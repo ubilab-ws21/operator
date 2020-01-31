@@ -15,7 +15,7 @@ textarea, #control-main, #topics {
     box-sizing: border-box;
 }
 
-input, button, select {
+input, button, select, #tts {
     background-color: #fdf6e3;
     color: #268bd2;
     border: 3px solid #002b36;
@@ -75,10 +75,6 @@ nav {
 .subs button, #command-container button {
     margin: 2px;
     color: black;
-}
-
-#command-container div {
-	text-align: center;
 }
 
 :disabled {
@@ -154,7 +150,7 @@ footer form {
     width: 5em;
 }
 
-.control b {
+.control b, #command-container div, #tts + div {
     text-align: center;
     display: block;
 }
@@ -174,7 +170,6 @@ footer form {
 }
 
 #env-container {
-    /*text-align: center;*/
     display: inline-block;
 }
 
@@ -195,12 +190,12 @@ input[type=color] {
 }
 
 #cy {
-    width: calc(100% - 12em);
+    width: calc(100% - 13em);
 }
 
 #control-groups {
     border-right: 5px solid #002b36;
-    width: 11em;
+    width: 12em;
 }
 
 #control-main {
@@ -209,4 +204,8 @@ input[type=color] {
 
 #env-container label span {
 	display: none;
+}
+
+#tts {
+    height: 3em;
 }

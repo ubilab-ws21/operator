@@ -201,6 +201,15 @@ function changeState(dst_b64, state) {
     mqtt.send(atob(dst_b64), JSON.stringify({method: "trigger", state: state}), 2);
 }
 
+
+function playMessage() {
+    if(getID("tts").value === "") {
+        alert("Message must be set");
+    }
+    mqtt.send("2/textToSpeech", JSON.stringify({method: "message", data: getID("tts").value}));
+    getID("tts").value = "";
+}
+
 /**
  * Changes the currently active tab
  * @param target
