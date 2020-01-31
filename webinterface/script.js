@@ -201,7 +201,9 @@ function changeState(dst_b64, state) {
     mqtt.send(atob(dst_b64), JSON.stringify({method: "trigger", state: state}), 2);
 }
 
-
+/**
+ * Sends the input message to the text-to-speech script
+ */
 function playMessage() {
     if(getID("tts").value === "") {
         alert("Message must be set");
@@ -237,7 +239,8 @@ function changeTab(target) {
  */
 function command(content) {
     let options = {
-        participants: getID("playercount").value
+        participants: parseInt(getID("playercount").value),
+        duration: parseInt(getID("playtime").value)
     };
     mqtt.send("1/gameOptions", JSON.stringify(options), 2, true);
     mqtt.send("1/gameControl", content, 2, true);
