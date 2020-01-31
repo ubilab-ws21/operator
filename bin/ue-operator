@@ -60,7 +60,7 @@ def on_scale(client, userdata, message):
             if data["state"] == "active":
                 gyro = "on"
                 # TODO: Commented for quota reasons
-                #msgs.append(
+                # msgs.append(
                 #    ("2/textToSpeech", json.dumps({"method": "message", "data": "Put the prototype back!"})))
             elif data["state"] == "inactive":
                 gyro = "off"
@@ -112,7 +112,6 @@ if __name__ == "__main__":
             pl.wait()
             remove("ue-operator.deb")
 
-
         """
             Starting all services and scripts
         """
@@ -128,7 +127,8 @@ if __name__ == "__main__":
                         cwd="/opt/mjpeg-relay/")
             pl.append(["mosquitto", "-c", OPT + "mosquitto.conf"])
             logic_command = ["python3", OPT + "logic/main.py"]
-            if args.workflow_def: logic_command.extend(["-d", args.workflow_def])
+            if args.workflow_def:
+                logic_command.extend(["-d", args.workflow_def])
             pl.append(logic_command)
             pl.append("mosquitto_sub -h localhost -t \\# -v | ts '%s' >" +
                       "/var/log/mosquitto/message_log_$(date +%Y-%m-%d_%H%M%S).txt")

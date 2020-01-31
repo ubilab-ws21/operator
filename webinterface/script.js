@@ -144,7 +144,8 @@ function send() {
         alert("Topic is required");
         return;
     }
-    mqtt.publish(getID("send_topic").value, getID("send_message").value, parseInt(getID("send_qos").value), getID("send_retain").checked);
+    mqtt.publish(getID("send_topic").value, getID("send_message").value, parseInt(getID("send_qos").value),
+        getID("send_retain").checked);
     getID("send_topic").value = "";
     getID("send_message").value = "";
     getID("send_qos").value = 0;
@@ -269,7 +270,22 @@ function envSet() {
         default:
             command.data = getID("env-" + command.state).value;
     }
-    mqtt.send(getID("env-target").value, JSON.stringify(command), 2, false);
+    if(getID("env-target").value === "all lights") {
+        mqtt.send("2/ledstrip/labroom/north", JSON.stringify(command), 2, false);
+        mqtt.send("2/ledstrip/labroom/south", JSON.stringify(command), 2, false);
+        mqtt.send("2/ledstrip/labroom/middle", JSON.stringify(command), 2, false);
+        mqtt.send("2/ledstrip/serverroom", JSON.stringify(command), 2, false);
+        mqtt.send("2/ledstrip/doorserverroom", JSON.stringify(command), 2, false);
+    } else if(getID("env-target").value === "lab room lights") {
+        mqtt.send("2/ledstrip/labroom/north", JSON.stringify(command), 2, false);
+        mqtt.send("2/ledstrip/labroom/south", JSON.stringify(command), 2, false);
+        mqtt.send("2/ledstrip/labroom/middle", JSON.stringify(command), 2, false);
+    } else if(getID("env-target").value === "server room lights") {
+        mqtt.send("2/ledstrip/serverroom", JSON.stringify(command), 2, false);
+        mqtt.send("2/ledstrip/doorserverroom", JSON.stringify(command), 2, false);
+    } else {
+        mqtt.send(getID("env-target").value, JSON.stringify(command), 2, false);
+    }
 }
 
 /**
