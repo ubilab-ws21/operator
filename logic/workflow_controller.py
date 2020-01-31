@@ -73,6 +73,7 @@ class WorkflowController:
                 self.main_sequence.execute(self.client)
             self.game_timer.start()
             self.game_state = GameState.STARTED
+            self.publish_game_state()
             print("Main workflow started...")
 
     def stop(self):
@@ -125,11 +126,13 @@ class WorkflowController:
             self.__save_options(msg)
         else:
             self.main_sequence.on_message(msg)
-            # Publish game state to MQTT
-            config = self.main_sequence.get_graph_config()
-            if config != self.last_graph_config:
-                self.client.publish(self.game_state_topic, config, 0, True)
-                self.last_graph_config = config
+            self.publish_game_state()
+
+    def publish_game_state(self):
+        config = self.main_sequence.get_graph_config()
+        if config != self.last_graph_config:
+            self.client.publish(self.game_state_topic, config, 0, True)
+            self.last_graph_config = config
 
     def __handle_command(self, msg):
         message = msg.payload.decode("utf-8").upper()
