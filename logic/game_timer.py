@@ -37,6 +37,17 @@ class GameTimer:
         self.interval = interval
         self.timer_state = TimerState.STOPPED
 
+    def set_duration(self, duration_in_minutes):
+        """
+        Sets the duration in minutes.
+
+        Parameters
+        ----------
+        duration_in_minutes : number
+            The game time in duration.
+        """
+        self.game_duration_in_sec = duration_in_minutes * 60
+
     def start(self):
         """
         Starts the game timer.
@@ -67,13 +78,27 @@ class GameTimer:
             self.timer.cancel()
             self.timer_state = TimerState.PAUSED
 
+    def register_on_expired(self, func):
+        """
+        Register a new handler for handling the game timer is expired.
+
+        Parameters
+        ----------
+        func : Function
+            Handler function: func()
+        """
+        self._on_time_expired = func
+
     def publish_game_time(self):
         """
         Publishes the game time to the specified MQTT topic.
         """
         self.game_time_sec += self.interval
-        self.timer = threading.Timer(self.interval, self.publish_game_time)
-        self.timer.start()
-        formatted_game_time = str(timedelta(seconds=self.game_time_sec))
-        self.client.publish(self.topic + "_in_sec", self.game_time_sec)
-        self.client.publish(self.topic + "_formatted", formatted_game_time)
+        if self.game_time_sec >= self.game_duration_in_sec:
+            self._on_time_expired()
+        else:
+            self.timer = threading.Timer(self.interval, self.publish_game_time)
+            self.timer.start()
+            formatted_game_time = str(timedelta(seconds=self.game_time_sec))
+            self.client.publish(self.topic + "_in_sec", self.game_time_sec)
+            self.client.publish(self.topic + "_formatted", formatted_game_time)

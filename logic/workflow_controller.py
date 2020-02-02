@@ -41,6 +41,7 @@ class WorkflowController:
         self.workflow_factory = workflow_factory
         self.last_graph_config = None
         self.game_timer = GameTimer(mqtt_url, self.game_timer_topic)
+        self.game_timer.register_on_expired(self.__on_game_time_expired)
         self.game_state = GameState.STOPPED
 
     def connect(self):
@@ -71,6 +72,7 @@ class WorkflowController:
                 self.main_sequence.register_on_finished(
                     self.__on_workflow_solved)
                 self.main_sequence.execute(self.client)
+            self.game_timer.set_duration(self.options["duration"])
             self.game_timer.start()
             self.game_state = GameState.STARTED
             self.publish_game_state()
@@ -154,10 +156,17 @@ class WorkflowController:
         message = msg.payload.decode("utf-8")
         self.options = json.loads(message)
 
+    def __on_game_time_expired(self):
+        print("==================")
+        print("Game time expired!")
+        print("==================")
+        self.client.publish(self.game_control_topic, None, 2, True)
+        self.stop()
+
     def __on_workflow_solved(self, name):
-        print("===============================")
-        print("Workflow finished successfully!")
-        print("===============================")
+        print("==================================")
+        print("Escape room finished successfully!")
+        print("==================================")
         self.client.publish(self.game_control_topic, None, 2, True)
         self.stop()
 
