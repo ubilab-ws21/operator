@@ -174,8 +174,9 @@ class WorkflowController:
         try:
             subprocess.Popen([
                 "/snap/bin/mosquitto_sub",
-                "-t", "#",
                 "-h", self.mqtt_url,
+                "-t", "#",
+                "-T", "1/gameControl",
                 "--remove-retained",
                 "--retained-only"], stdout=subprocess.PIPE)
         except subprocess.CalledProcessError:
