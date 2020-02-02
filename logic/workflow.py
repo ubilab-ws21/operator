@@ -699,21 +699,24 @@ class ScaleWorkflow(Workflow):
         self.scale_status = State.ACTIVE
 
 
-class InitWorkflow(SequenceWorkflow):
+class CombinedWorkflow(SequenceWorkflow):
 
-    def __init__(self, workflows, settings=None):
+    def __init__(self, name, workflows, settings=None):
         """
         Initializes a new instance of this class.
 
         Parameters
         ----------
+        name : str
+            Display name of the workflow.
+
         workflows : Workflow[]
             Collection of workflows should be executed in parallel.
 
         settings: keywords
             An dictionary of global settings.
         """
-        super().__init__("Init", workflows, settings)
+        super().__init__(name, workflows, settings)
 
     def get_graph(self, predecessors=None, parent=None):
         """
@@ -733,23 +736,23 @@ class InitWorkflow(SequenceWorkflow):
         (nodes, edges, final_state_ids) : Tuple
             Graph as a tuple.
         """
-        nodeData = {
-            'id': self.name,
-            'name': self.name,
-            'status': self.state.name,
-            'type': self.type
-        }
+        return super(SequenceWorkflow, self).get_graph(predecessors, parent)
 
-        if parent is not None:
-            nodeData['parent'] = parent
 
-        node = {
-            'data': nodeData
-        }
+class InitWorkflow(CombinedWorkflow):
+    def __init__(self, workflows, settings=None):
+        """
+        Initializes a new instance of this class.
 
-        edges = self._create_edges(self.name, predecessors)
+        Parameters
+        ----------
+        workflows : Workflow[]
+            Collection of workflows should be executed in parallel.
 
-        return ([node], edges, [self.name])
+        settings: keywords
+            An dictionary of global settings.
+        """
+        super().__init__("Init", workflows, settings)
 
 
 class LightControlWorkflow(BaseWorkflow):
@@ -809,3 +812,50 @@ class LightControlWorkflow(BaseWorkflow):
             }),
             2
         )
+
+
+class LabRoomLightControlWorkflow(CombinedWorkflow):
+    def __init__(self, target_state):
+        """
+        Initializes a new instance of this class.
+
+        Parameters
+        ----------
+        target_state: State
+            Target state of the light.
+        """
+        workflows = [
+            LightControlWorkflow("Turn off light north",
+                                 "2/ledstrip/labroom/north",
+                                 target_state),
+            LightControlWorkflow("Turn off light south",
+                                 "2/ledstrip/labroom/south",
+                                 target_state),
+            LightControlWorkflow("Turn off light middle",
+                                 "2/ledstrip/labroom/middle",
+                                 target_state)
+        ]
+        name = f"Turn {target_state.name} lab room lights"
+        super().__init__(name, workflows, None)
+
+
+class ServerRoomLightControlWorkflow(CombinedWorkflow):
+    def __init__(self, target_state):
+        """
+        Initializes a new instance of this class.
+
+        Parameters
+        ----------
+        target_state: State
+            Target state of the light.
+        """
+        workflows = [
+            LightControlWorkflow("Turn off light serverroom",
+                                 "2/ledstrip/serverroom",
+                                 target_state),
+            LightControlWorkflow("Turn off light door server room",
+                                 "2/ledstrip/doorserverroom",
+                                 target_state)
+        ]
+        name = f"Turn {target_state.name} server room lights"
+        super().__init__(name, workflows, None)
