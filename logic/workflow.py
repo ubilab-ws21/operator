@@ -44,7 +44,7 @@ class BaseWorkflow:
             MQTT client
         """
         if self.state is WorkflowState.SKIPPED:
-            self.on_finished(self.name)
+            self.on_finished(self.name, True)
         else:
             self._execute(client)
 
@@ -84,10 +84,11 @@ class BaseWorkflow:
             self.state = WorkflowState.INACTIVE
 
     def skip(self, name):
-        if self.state is not WorkflowState.SKIPPED:
+        if self.state not in [WorkflowState.SKIPPED, WorkflowState.FINISHED]:
             if name.upper() == self.name.upper():
                 if self.state is WorkflowState.ACTIVE:
-                    self.on_finished(self.name)
+                    self.on_finished(self.name, True)
+                print("[%s] Mark workflow as skipped..." % (self.name))
                 self.state = WorkflowState.SKIPPED
 
     def on_message(self, msg):
@@ -105,10 +106,10 @@ class BaseWorkflow:
         if self._on_workflow_failed:
             self._on_workflow_failed(name, error)
 
-    def on_finished(self, name):
+    def on_finished(self, name, skipped=False):
         if self._on_workflow_finished:
             self._on_workflow_finished(name)
-        if self.state is not WorkflowState.SKIPPED:
+        if not skipped:
             self.state = WorkflowState.FINISHED
 
     def get_settings(self):
@@ -331,13 +332,16 @@ class Workflow(BaseWorkflow):
 
         super().on_message(msg)
 
-    def on_finished(self, name):
-        self._publishTrigger(self.client, State.OFF)
-        super().on_finished(name)
+    def on_finished(self, name, skipped=False):
+        self._publishTrigger(self.client, State.OFF, skipped)
+        super().on_finished(name, skipped)
 
-    def _publishTrigger(self, client, state):
+    def _publishTrigger(self, client, state, skipped=False):
         if self.topic is not None:
-            data = self.get_settings()
+            if state is State.OFF and skipped:
+                data = "skipped"
+            else:
+                data = self.get_settings()
             message = Message(Method.TRIGGER, state, data)
             client.publish(self.topic, message.toJSON(), 2)
             msg = "[%s] Trigger state '%s'" % (self.name, state.name)
@@ -482,17 +486,17 @@ class SequenceWorkflow(BaseWorkflow):
 
         return (nodes, edges, last_final_state_ids)
 
-    def on_finished(self, name):
-        if self.state is WorkflowState.SKIPPED:
-            super().on_finished(self.name)
-
-        self.__unsubscribe_current_workflow(self.client)
-        self.current_workflow += 1
-        if self.current_workflow >= len(self.workflows):
-            print("  ==> Workflow sequence '%s' finished..." % (self.name))
-            super().on_finished(self.name)
+    def on_finished(self, name, skipped=False):
+        if skipped and name == self.name:
+            super().on_finished(self.name, True)
         else:
-            self.__subscribe_current_workflow(self.client)
+            self.__unsubscribe_current_workflow(self.client)
+            self.current_workflow += 1
+            if self.current_workflow >= len(self.workflows):
+                print("  ==> Workflow sequence '%s' finished..." % (self.name))
+                super().on_finished(self.name)
+            else:
+                self.__subscribe_current_workflow(self.client)
 
     def __subscribe_current_workflow(self, client):
         workflow = self.workflows[self.current_workflow]
@@ -617,15 +621,15 @@ class ParallelWorkflow(BaseWorkflow):
 
         return (nodes, edges, final_states)
 
-    def on_finished(self, name):
-        if self.state is WorkflowState.SKIPPED:
-            super().on_finished(self.name)
-
-        self.workflow_finished[name] = True
-        if all(list(self.workflow_finished.values())):
-            print("  ==> Parallel workflow sequence '%s' finished..."
-                  % (self.name))
-            super().on_finished(self.name)
+    def on_finished(self, name, skipped=False):
+        if skipped and name == self.name:
+            super().on_finished(self.name, True)
+        else:
+            self.workflow_finished[name] = True
+            if all(list(self.workflow_finished.values())):
+                print("  ==> Parallel workflow sequence '%s' finished..."
+                      % (self.name))
+                super().on_finished(self.name)
 
 
 class SendTriggerWorkflow(BaseWorkflow):
@@ -736,7 +740,7 @@ class CombinedWorkflow(SequenceWorkflow):
         (nodes, edges, final_state_ids) : Tuple
             Graph as a tuple.
         """
-        return super(SequenceWorkflow, self).get_graph(predecessors, parent)
+        return BaseWorkflow.get_graph(self, predecessors, parent)
 
 
 class InitWorkflow(CombinedWorkflow):

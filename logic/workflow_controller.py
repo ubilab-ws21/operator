@@ -75,7 +75,6 @@ class WorkflowController:
             self.game_timer.set_duration(self.options["duration"])
             self.game_timer.start()
             self.game_state = GameState.STARTED
-            self.publish_game_state()
             print("Main workflow started...")
 
     def stop(self):
@@ -128,7 +127,7 @@ class WorkflowController:
             self.__save_options(msg)
         else:
             self.main_sequence.on_message(msg)
-            self.publish_game_state()
+        self.publish_game_state()
 
     def publish_game_state(self):
         config = self.main_sequence.get_graph_config()
