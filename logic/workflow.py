@@ -778,7 +778,7 @@ class LightControlWorkflow(BaseWorkflow):
             Target state of the light.
 
         brightness: int [0,255]
-            Brighness of the light.
+            Brightness of the light.
 
         color: Tuple (r, g, b)
             Color of the light decoded in hex.
@@ -819,7 +819,7 @@ class LightControlWorkflow(BaseWorkflow):
 
 
 class LabRoomLightControlWorkflow(CombinedWorkflow):
-    def __init__(self, target_state):
+    def __init__(self, target_state, brightness=255, color=(255, 255, 255)):
         """
         Initializes a new instance of this class.
 
@@ -827,24 +827,36 @@ class LabRoomLightControlWorkflow(CombinedWorkflow):
         ----------
         target_state: State
             Target state of the light.
+
+        brightness: int [0,255]
+            Brightness of the light.
+
+        color: Tuple (r, g, b)
+            Color of the light decoded in hex.
         """
         workflows = [
             LightControlWorkflow("Turn off light north",
                                  "2/ledstrip/labroom/north",
-                                 target_state),
+                                 target_state,
+                                 brightness,
+                                 color),
             LightControlWorkflow("Turn off light south",
                                  "2/ledstrip/labroom/south",
-                                 target_state),
+                                 target_state,
+                                 brightness,
+                                 color),
             LightControlWorkflow("Turn off light middle",
                                  "2/ledstrip/labroom/middle",
-                                 target_state)
+                                 target_state,
+                                 brightness,
+                                 color)
         ]
         name = f"Turn {target_state.name} lab room lights"
         super().__init__(name, workflows, None)
 
 
 class ServerRoomLightControlWorkflow(CombinedWorkflow):
-    def __init__(self, target_state):
+    def __init__(self, target_state, brightness=255, color=(255, 255, 255)):
         """
         Initializes a new instance of this class.
 
@@ -852,14 +864,24 @@ class ServerRoomLightControlWorkflow(CombinedWorkflow):
         ----------
         target_state: State
             Target state of the light.
+
+        brightness: int [0,255]
+            Brightness of the light.
+
+        color: Tuple (r, g, b)
+            Color of the light decoded in hex.
         """
         workflows = [
             LightControlWorkflow("Turn off light serverroom",
                                  "2/ledstrip/serverroom",
-                                 target_state),
+                                 target_state,
+                                 brightness,
+                                 color),
             LightControlWorkflow("Turn off light door server room",
                                  "2/ledstrip/doorserverroom",
-                                 target_state)
+                                 target_state,
+                                 brightness,
+                                 color)
         ]
         name = f"Turn {target_state.name} server room lights"
         super().__init__(name, workflows, None)
