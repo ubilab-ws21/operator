@@ -66,7 +66,7 @@ Requirements (for Ubuntu 18.04 LTS, others may differ):
 
 - `build-essential`
 - `hub`
-- `gpg` with a valid key configured in `git`
+- `gpg` with a valid GPG key configured in `git`
 
 Process:
 
