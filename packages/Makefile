@@ -1,7 +1,7 @@
 .PHONY: build
 
 ifndef VERSION 
-$(error Please use 'make VERSION=x.x-x')
+$(error Please use 'make VERSION=x.x-x (LOCAL=true)')
 endif
 SOURCE_DIR = ue-operator_skeleton
 TMP_DIR = ue-operator
@@ -30,6 +30,8 @@ build:
 	sudo sed -i 's/%VERSION%/$(VERSION)/g' $(TMP_DIR)/usr/bin/ue-operator
 	dpkg-deb --build $(TMP_DIR)
 	sudo rm -rf $(TMP_DIR)
-	git tag -s -m "Version $(VERSION)" v$(VERSION)
-	hub release create -a $(TMP_DIR).deb -m "Version $(VERSION)" v$(VERSION)
-	rm $(TMP_DIR).deb
+	if [ LOCAL != "true" ]; then
+		git tag -s -m "Version $(VERSION)" v$(VERSION)
+		hub release create -a $(TMP_DIR).deb -m "Version $(VERSION)" v$(VERSION)
+		rm $(TMP_DIR).deb
+	fi
