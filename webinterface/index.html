@@ -46,7 +46,9 @@
             <div class="control" id="command-container">
                 <b>Game Control</b>
                 <label>Players: <input type="number" id="playercount" value="4" min="1"></label>
-                <label>Max. time: <input type="number" id="playtime" value="90" min="1"></label>
+                <label>Duration<br> (minutes):
+                    <input type="number" id="playtime" value="45" min="1" style="margin-top: -1em;">
+                </label>
                 <div style="clear:both;">
                     <button type="button" id="start" onclick="command('start');">Start</button>
                     <button type="button" id="pause" onclick="command('pause');" disabled>Pause</button>

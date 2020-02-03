@@ -60,6 +60,7 @@ The base system controls the deployment of software and requirements. This is do
 - Main game logic
 - Mosquitto message broker
 - Plugin scripts of all groups
+- Logging to `/var/log/mosquitto/`
 
 ### Deployment process
 Requirements (for Ubuntu 18.04 LTS, others may differ):
