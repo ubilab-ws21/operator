@@ -65,8 +65,8 @@ The base system controls the deployment of software and requirements. This is do
 Requirements (for Ubuntu 18.04 LTS, others may differ):
 
 - `build-essential`
-- `hub`
-- `gpg` with a valid GPG key configured in `git`
+- `hub` with either credentials or a configured token ([hub configuration](https://hub.github.com/hub.1.html#configuration), [OAuth Token](https://github.com/settings/tokens))
+- `gpg` with a valid GPG key configured in `git` and in GitHub ([Configuring git](https://git-scm.com/book/en/v2/Git-Tools-Signing-Your-Work), [Add key in GitHub](https://github.com/settings/keys))
 
 Process:
 
@@ -76,12 +76,23 @@ Process:
    * update: `ue-operator update`
 
 ## UI Control Board
-The UI Control Board is implemented by multiple .html files served by an Apache HTTP server which is listening on port 80. The main functions of the UI consist of:
+The UI Control Board is implemented by HTML files served by an Apache HTTP server which is listening on port 80. The main functions of the UI consist of:
 
 - Displaying and changing the current states of all puzzles and actors
 - Displaying the camera streams
 - Serving debug information about the mosquitto software
   - Possibly replaying a set of mosquitto topics
+  
+It's making use of several open-source JavaScript libraries:
+
+- Eclipse Paho JavaScript Client ([Documentation](https://www.eclipse.org/paho/files/jsdoc/index.html), [Eclipse Public License](https://www.eclipse.org/legal/epl-v10.html))
+- cytoscape ([Documentation](https://js.cytoscape.org/), [MIT License](https://github.com/cytoscape/cytoscape.js/blob/master/LICENSE))
+- cytoscape-cxtmenu ([Documentation](https://github.com/cytoscape/cytoscape.js-cxtmenu), [MIT License](https://github.com/cytoscape/cytoscape.js-cxtmenu/blob/master/LICENSE))
+- cytoscape-dagre ([Documentation](https://github.com/cytoscape/cytoscape.js-dagre), [MIT License](https://github.com/cytoscape/cytoscape.js-dagre/blob/master/LICENSE))
+- dagre ([Documentation](https://github.com/dagrejs/dagre), [MIT License](https://github.com/dagrejs/dagre/blob/master/LICENSE))
+- markdown-it ([Documentation](https://github.com/markdown-it/markdown-it), [MIT License](https://github.com/markdown-it/markdown-it/blob/master/LICENSE))
+
+For providing offline capabilities, these libraries are saved in the subfolder `libs`
 
 ## MC Communication
 ### Network
