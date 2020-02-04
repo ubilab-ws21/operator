@@ -759,6 +759,22 @@ class InitWorkflow(CombinedWorkflow):
         super().__init__("Init", workflows, settings)
 
 
+class ExitWorkflow(CombinedWorkflow):
+    def __init__(self, workflows, settings=None):
+        """
+        Initializes a new instance of this class.
+
+        Parameters
+        ----------
+        workflows : Workflow[]
+            Collection of workflows should be executed in parallel.
+
+        settings: keywords
+            An dictionary of global settings.
+        """
+        super().__init__("Exit", workflows, settings)
+
+
 class LightControlWorkflow(BaseWorkflow):
 
     def __init__(self, name, topic, target_state,

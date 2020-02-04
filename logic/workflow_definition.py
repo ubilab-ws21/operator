@@ -4,6 +4,7 @@ from workflow import SequenceWorkflow
 from workflow import SendTriggerWorkflow
 from workflow import ScaleWorkflow
 from workflow import InitWorkflow
+from workflow import ExitWorkflow
 from workflow import LabRoomLightControlWorkflow
 from workflow import ServerRoomLightControlWorkflow
 from message import State
@@ -72,6 +73,11 @@ class WorkflowDefinition:
                 Workflow("Maze riddle", "8/puzzle/maze"),
                 Workflow("Simon riddle", "8/puzzle/simon")
             ]),
-            SendTriggerWorkflow("Open escape room door",
-                                "4/door/entrance", State.ON)
+            ExitWorkflow([
+                SendTriggerWorkflow("Open escape room door",
+                                    "4/door/entrance", State.ON),
+                ServerRoomLightControlWorkflow(State.ON, 255, (0, 255, 0)),
+                LabRoomLightControlWorkflow(State.ON, 255, (0, 255, 0))
+                # TODO: Play win mp3 here
+            ])
         ]

@@ -162,6 +162,15 @@ class WorkflowController:
         print("==================")
         print("Game time expired!")
         print("==================")
+        for state, data in {"rgb": "255,0,0", "brightness": 255, "power": "on"}.items():
+            command = {
+                "method": "trigger",
+                "state": state,
+                "data": data
+            }
+            for led in ["labroom/north", "labroom/south", "labroom/middle", "serverroom", "doorserverroom"]:
+                self.client.publish("2/ledstrip/" + led, json.dumps(command), 2, False)
+        # TODO: Play lose mp3 here
         self.client.publish(self.game_control_topic, None, 2, True)
         self.stop()
 
