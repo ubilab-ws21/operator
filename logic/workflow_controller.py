@@ -126,14 +126,16 @@ class WorkflowController:
         elif msg.topic == self.game_option_topic:
             self.__save_options(msg)
         else:
-            self.main_sequence.on_message(msg)
+            if self.main_sequence:
+                self.main_sequence.on_message(msg)
         self.publish_game_state()
 
     def publish_game_state(self):
-        config = self.main_sequence.get_graph_config()
-        if config != self.last_graph_config:
-            self.client.publish(self.game_state_topic, config, 0, True)
-            self.last_graph_config = config
+        if self.main_sequence:
+            config = self.main_sequence.get_graph_config()
+            if config != self.last_graph_config:
+                self.client.publish(self.game_state_topic, config, 0, True)
+                self.last_graph_config = config
 
     def __handle_command(self, msg):
         message = msg.payload.decode("utf-8").upper()
