@@ -107,10 +107,12 @@ if __name__ == "__main__":
         if args.command == "update":
             pl.append(["git", "pull"], cwd=OPT + "environment")
             pl.append(["git", "pull"], cwd="/opt/mjpeg-relay")
+            pl.append(["rm", "-rf", "ue-operator.deb", "ue-operator.deb.asc"])
+            pl.wait()
             pl.append(["wget", "https://github.com/ubilab-escape/operator/releases/latest/download/ue-operator.deb",
                        "-q", "--show-progress"])
             pl.append(["wget", "https://github.com/ubilab-escape/operator/releases/latest/download/ue-operator.deb.asc",
-                       "-q"])
+                       "-q", "--show-progress"])
             pl.wait()
             pl.append(["gpg", "--textmode", "--verify", "ue-operator.deb.asc", "ue-operator.deb"])
             pl.wait()
