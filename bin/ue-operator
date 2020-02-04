@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
     try:
         """
-            Initializing the network and stuff
+            Initializing requirements not fetched over apt
         """
         if args.command == "init":
             pl.append(["git", "clone", "https://github.com/ubilab-escape/environment",
@@ -97,6 +97,8 @@ if __name__ == "__main__":
                        "/opt/mjpeg-relay"])
             pl.wait()
             pl.append(["python", "-m", "pip", "install", "-r", "requirements.txt"], cwd="/opt/mjpeg-relay/")
+            pl.append(["sudo", "snap", "install", "mosquitto"])
+            pl.append(["sudo", "systemctl", "disable", "snapd"])
             pl.wait()
 
         """
