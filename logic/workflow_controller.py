@@ -43,6 +43,7 @@ class WorkflowController:
         self.game_timer = GameTimer(mqtt_url, self.game_timer_topic)
         self.game_timer.register_on_expired(self.__on_game_time_expired)
         self.game_state = GameState.STOPPED
+        self.main_sequence = None
 
     def connect(self):
         """
