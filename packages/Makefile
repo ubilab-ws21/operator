@@ -1,10 +1,18 @@
-.PHONY: build
+.PHONY: build, publish
 
 ifndef VERSION 
 $(error Please use 'make VERSION=x.x-x (LOCAL=true)')
 endif
 SOURCE_DIR = ue-operator_skeleton
 TMP_DIR = ue-operator
+
+all:
+
+ifeq ($(LOCAL),true)
+all: build
+else
+all: build publish
+endif
 
 build:
     # creating work directory
@@ -30,8 +38,8 @@ build:
 	sudo sed -i 's/%VERSION%/$(VERSION)/g' $(TMP_DIR)/usr/bin/ue-operator
 	dpkg-deb --build $(TMP_DIR)
 	sudo rm -rf $(TMP_DIR)
-	if [ LOCAL != "true" ]; then
-		git tag -s -m "Version $(VERSION)" v$(VERSION)
-		hub release create -a $(TMP_DIR).deb -m "Version $(VERSION)" v$(VERSION)
-		rm $(TMP_DIR).deb
-	fi
+
+publish:
+	git tag -s -m "Version $(VERSION)" v$(VERSION)
+	hub release create -a $(TMP_DIR).deb -m "Version $(VERSION)" v$(VERSION)
+	rm $(TMP_DIR).deb
