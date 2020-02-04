@@ -73,7 +73,7 @@ function onMessageArrived(msg) {
                 getID("stop").disabled = false;
                 getID("time").className = "paused";
                 break;
-            // case "":
+            case "":
             case "stop":
                 getID("start").disabled = false;
                 getID("pause").disabled = true;
