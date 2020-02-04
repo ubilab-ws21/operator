@@ -3,10 +3,12 @@
 from paho.mqtt import subscribe, publish
 from argparse import ArgumentParser
 from os import remove
+from urllib.request import urlretrieve
 import subprocess
 import json
 
 OPT = "/opt/ue-operator/"
+GITHUB = "https://github.com/ubilab-escape/operator/"
 
 
 class ProcessList(list):
@@ -24,7 +26,8 @@ class ProcessList(list):
         :return: None
         """
         if isinstance(cmd, str) or isinstance(cmd, list):
-            process = subprocess.Popen(cmd, shell=isinstance(cmd, str), cwd=cwd, stderr=stderr)
+            process = subprocess.Popen(cmd, shell=isinstance(cmd, str), cwd=cwd,
+                                       stderr=stderr)
         else:
             raise TypeError("Expecting a string or a list as cmd")
         # process.check_returncode()
@@ -61,25 +64,34 @@ def on_scale(client, userdata, message):
                 gyro = "on"
                 # TODO: Commented for quota reasons
                 # msgs.append(
-                #    ("2/textToSpeech", json.dumps({"method": "message", "data": "Put the prototype back!"})))
+                #    ("2/textToSpeech", json.dumps({"method": "message",
+                #    "data": "Put the prototype back!"})))
             elif data["state"] == "inactive":
                 gyro = "off"
             else:
                 return
-            msgs.append(("2/gyrophare", json.dumps({"method": "trigger", "state": "power", "data": gyro})))
+            msgs.append(("2/gyrophare", json.dumps(
+                {"method": "trigger", "state": "power", "data": gyro})))
             publish.multiple(msgs, hostname="10.0.0.2")
     except json.JSONDecodeError:
         pass
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description='Command-line interface for the ubilab-escape operator')
-    parser.add_argument('command', metavar='CMD', type=str, choices=["init", "start", "update", "help"], nargs="?",
-                        help='the command to execute\n(init, start)', default="help")
-    parser.add_argument("-f", "--fallback", action="store_true", default=False, help="use the fallback camera control")
-    help_text = "definition of the workflow.\nFormat: module:class\nwith get method returning an array of Workflows."
+    parser = ArgumentParser(
+        description='Command-line interface for the ubilab-escape operator')
+    parser.add_argument('command', metavar='CMD', type=str,
+                        choices=["init", "start", "update", "help"], nargs="?",
+                        help='the command to execute\n(init, start)',
+                        default="help")
+    parser.add_argument("-f", "--fallback", action="store_true", default=False,
+                        help="use the fallback camera control")
+    help_text = "definition of the workflow.\n" \
+                "Format: module:class\n" \
+                "with get method returning an array of Workflows."
     parser.add_argument("--workflow_def", "-d", help=help_text)
-    parser.add_argument("-v", "--version", action="version", version="%(prog)s %VERSION%")
+    parser.add_argument("-v", "--version", action="version",
+                        version="%(prog)s %VERSION%")
     args = parser.parse_args()
     pl = ProcessList()
 
@@ -88,15 +100,20 @@ if __name__ == "__main__":
             Initializing requirements not fetched over apt
         """
         if args.command == "init":
-            pl.append(["git", "clone", "https://github.com/ubilab-escape/environment",
-                       OPT + "environment"])
+            pl.append(
+                ["git", "clone", "https://github.com/ubilab-escape/environment",
+                 OPT + "environment"])
             pl.wait()
-            pl.append(["python3", "-m", "pip", "install", "-r", "requirements.txt"],
-                      cwd=OPT + "environment/text_to_speech")
-            pl.append(["git", "clone", "--recurse-submodules", "https://github.com/OliverF/mjpeg-relay.git",
+            pl.append(
+                ["python3", "-m", "pip", "install", "-r", "requirements.txt"],
+                cwd=OPT + "environment/text_to_speech")
+            pl.append(["git", "clone", "--recurse-submodules",
+                       "https://github.com/OliverF/mjpeg-relay.git",
                        "/opt/mjpeg-relay"])
             pl.wait()
-            pl.append(["python", "-m", "pip", "install", "-r", "requirements.txt"], cwd="/opt/mjpeg-relay/")
+            pl.append(
+                ["python", "-m", "pip", "install", "-r", "requirements.txt"],
+                cwd="/opt/mjpeg-relay/")
             pl.append(["sudo", "snap", "install", "mosquitto"])
             pl.append(["sudo", "systemctl", "disable", "snapd"])
             pl.wait()
@@ -107,39 +124,46 @@ if __name__ == "__main__":
         if args.command == "update":
             pl.append(["git", "pull"], cwd=OPT + "environment")
             pl.append(["git", "pull"], cwd="/opt/mjpeg-relay")
-            pl.append(["rm", "-rf", "ue-operator.deb", "ue-operator.deb.asc"])
-            pl.wait()
-            pl.append(["wget", "https://github.com/ubilab-escape/operator/releases/latest/download/ue-operator.deb",
-                       "-q", "--show-progress"])
-            pl.append(["wget", "https://github.com/ubilab-escape/operator/releases/latest/download/ue-operator.deb.asc",
-                       "-q", "--show-progress"])
-            pl.wait()
-            pl.append(["gpg", "--textmode", "--verify", "ue-operator.deb.asc", "ue-operator.deb"])
+            remove("ue-operator.deb")
+            remove("ue-operator.deb.asc")
+            urlretrieve(GITHUB + "releases/latest/download/ue-operator.deb",
+                        "ue-operator.deb")
+            urlretrieve(GITHUB + "releases/latest/download/ue-operator.deb.asc",
+                        "ue-operator.deb.asc")
+            pl.append(["gpg", "--textmode", "--verify", "ue-operator.deb.asc",
+                       "ue-operator.deb"])
             pl.wait()
             pl.append(["sudo", "apt", "-qq", "install", "./ue-operator.deb"])
             pl.wait()
             remove("ue-operator.deb")
+            remove("ue-operator.deb.asc")
 
         """
             Starting all services and scripts
         """
         if args.command == "start":
-            pl.append(["python3", OPT + "environment/text_to_speech/main.py", "-c",
-                       "/home/alexa/text_to_speech/text_to_speech.cfg"], stderr=subprocess.STDOUT)
+            pl.append(
+                ["python3", OPT + "environment/text_to_speech/main.py", "-c",
+                 "/home/alexa/text_to_speech/text_to_speech.cfg"],
+                stderr=subprocess.STDOUT
+            )
             if args.fallback:
                 pl.append(["python3", "/usr/bin/ue-camera"])
             else:
                 for i in range(1, 6):
                     pl.append(
-                        ["python", "relay.py", "-p", "808" + str(i), "-w", "1234" + str(i), "http://10.0.1." + str(i)],
-                        cwd="/opt/mjpeg-relay/")
+                        ["python", "relay.py", "-p", "808" + str(i), "-w",
+                         "1234" + str(i), "http://10.0.1." + str(i)],
+                        cwd="/opt/mjpeg-relay/"
+                    )
             pl.append(["mosquitto", "-c", OPT + "mosquitto.conf"])
             logic_command = ["python3", OPT + "logic/main.py"]
             if args.workflow_def:
                 logic_command.extend(["-d", args.workflow_def])
             pl.append(logic_command)
-            pl.append("mosquitto_sub -h localhost -t \\# -v | ts '%s' >" +
-                      "/var/log/mosquitto/message_log_$(date +%Y-%m-%d_%H%M%S).txt")
+            pl.append("mosquitto_sub -h localhost -t \\# -v | ts '%s' >"
+                      "/var/log/mosquitto/message_log_"
+                      "$(date +%Y-%m-%d_%H%M%S).txt")
             subscribe.callback(on_scale, "6/puzzle/scale", hostname="10.0.0.2")
             pl.wait()
 

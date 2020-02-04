@@ -313,7 +313,8 @@ class Workflow(BaseWorkflow):
                 else:
                     self.on_error(
                         self.name,
-                        f"[{self.name}] Trigger state '{obj.state}' is not supported"
+                        f"[{self.name}] Trigger state "
+                        f"'{obj.state}' is not supported"
                     )
             elif obj.method == Method.MESSAGE:
                 print(f"[{self.name}] Received message with method 'MESSAGE'. "
@@ -368,7 +369,7 @@ class Workflow(BaseWorkflow):
         self.on_finished(self.name)
 
     def _on_received_status_failed(self, data):
-        print(f"  ==> An error occured: {data}")
+        print("  ==> An error occured: %s" % (data))
         self.on_error(self.name, data)
 
     def _on_received_trigger_on(self, data):
@@ -624,7 +625,8 @@ class ParallelWorkflow(BaseWorkflow):
         else:
             self.workflow_finished[name] = True
             if all(list(self.workflow_finished.values())):
-                print(f"  ==> Parallel workflow sequence '{self.name}' finished...")
+                print(f"  ==> Parallel workflow sequence"
+                      f" '{self.name}' finished...")
                 super().on_finished(self.name)
 
 

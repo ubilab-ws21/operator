@@ -76,7 +76,7 @@ if __name__ == "__main__":
     controller = WorkflowController(mqtt_url, workflow_factory)
     controller.connect()
 
-    # listen to SIGINT and wait until exit request received 
+    # listen to SIGINT and wait until exit request received
     signal.signal(signal.SIGINT, lambda sig, frame: shutdown(controller))
     print('Press Ctrl+C to exit...')
     signal.pause()

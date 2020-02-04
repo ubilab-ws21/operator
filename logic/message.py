@@ -43,7 +43,7 @@ def fromJSON(text):
 
         methodStr = methodStr.upper()
         if methodStr not in [k.name for k in Method]:
-            raise Exception("Method '%s' is not valid." % (methodStr))
+            raise Exception(f"Method '{methodStr}' is not valid.")
 
         stateStr = obj.get("state")
         if not stateStr:
@@ -51,13 +51,13 @@ def fromJSON(text):
 
         stateStr = stateStr.upper()
         if stateStr not in [k.name for k in State]:
-            raise Exception("State '%s' is not valid." % (stateStr))
+            raise Exception(f"State '{stateStr}' is not valid.")
 
         method = Method[methodStr]
         state = State[stateStr]
         data = obj.get("data")
     except ValueError as error:
-        print("Message is no valid JSON: %s" % (error))
+        print(f"Message is no valid JSON: {error}")
         method = Method.MESSAGE
         state = None
         data = text

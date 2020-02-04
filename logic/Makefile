@@ -7,7 +7,7 @@ test:
 	python3 -m doctest *.py
 
 checkstyle:
-	flake8 *.py
+	flake8 --ignore F405 *.py
 
 clean:
 	rm -rf __pycache__

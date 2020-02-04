@@ -1,13 +1,4 @@
-from workflow import Workflow
-from workflow import ParallelWorkflow
-from workflow import SequenceWorkflow
-from workflow import SendTriggerWorkflow
-from workflow import ScaleWorkflow
-from workflow import InitWorkflow
-from workflow import ExitWorkflow
-from workflow import LabRoomLightControlWorkflow
-from workflow import ServerRoomLightControlWorkflow
-from workflow import AudioControlWorkflow
+from workflow import *                                       # noqa ignore=F405
 from message import State
 
 
@@ -79,6 +70,10 @@ class WorkflowDefinition:
                                     "4/door/entrance", State.ON),
                 ServerRoomLightControlWorkflow(State.ON, 255, (0, 255, 0)),
                 LabRoomLightControlWorkflow(State.ON, 255, (0, 255, 0)),
-                AudioControlWorkflow("Play success", "/opt/ue-operator/sounds/gamesuccess.mp3", True)
+                AudioControlWorkflow(
+                    "Play success",
+                    "/opt/ue-operator/sounds/gamesuccess.mp3",
+                    True
+                )
             ])
         ]
