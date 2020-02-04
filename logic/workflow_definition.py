@@ -7,6 +7,7 @@ from workflow import InitWorkflow
 from workflow import ExitWorkflow
 from workflow import LabRoomLightControlWorkflow
 from workflow import ServerRoomLightControlWorkflow
+from workflow import AudioControlWorkflow
 from message import State
 
 
@@ -77,7 +78,7 @@ class WorkflowDefinition:
                 SendTriggerWorkflow("Open escape room door",
                                     "4/door/entrance", State.ON),
                 ServerRoomLightControlWorkflow(State.ON, 255, (0, 255, 0)),
-                LabRoomLightControlWorkflow(State.ON, 255, (0, 255, 0))
-                # TODO: Play win mp3 here
+                LabRoomLightControlWorkflow(State.ON, 255, (0, 255, 0)),
+                AudioControlWorkflow("Play success", "/opt/ue-operator/sounds/gamesuccess.mp3", True)
             ])
         ]

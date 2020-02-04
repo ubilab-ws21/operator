@@ -1,7 +1,7 @@
 import paho.mqtt.client as mqtt
 import subprocess
 import json
-from workflow import SequenceWorkflow
+from workflow import SequenceWorkflow, AudioControlWorkflow
 from game_timer import GameTimer
 from enum import Enum
 
@@ -152,7 +152,7 @@ class WorkflowController:
         elif message == '':
             pass
         else:
-            print("The game command '%s' is not supported." % (str(message)))
+            print(f"The game command '{str(message)}' is not supported.")
 
     def __save_options(self, msg):
         message = msg.payload.decode("utf-8")
@@ -170,7 +170,7 @@ class WorkflowController:
             }
             for led in ["labroom/north", "labroom/south", "labroom/middle", "serverroom", "doorserverroom"]:
                 self.client.publish("2/ledstrip/" + led, json.dumps(command), 2, False)
-        # TODO: Play lose mp3 here
+        AudioControlWorkflow("Play gameover", "/opt/ue-operator/sounds/gameover.mp3", True).execute(self.client)
         self.client.publish(self.game_control_topic, None, 2, True)
         self.stop()
 

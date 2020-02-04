@@ -88,7 +88,7 @@ class BaseWorkflow:
             if name.upper() == self.name.upper():
                 if self.state is WorkflowState.ACTIVE:
                     self.on_finished(self.name, True)
-                print("[%s] Mark workflow as skipped..." % (self.name))
+                print(f"[{self.name}] Mark workflow as skipped...")
                 self.state = WorkflowState.SKIPPED
 
     def on_message(self, msg):
@@ -190,7 +190,7 @@ class BaseWorkflow:
 
         edges = self._create_edges(self.name, predecessors)
 
-        return ([node], edges, [self.name])
+        return [node], edges, [self.name]
 
     def _create_edges(self, target, predecessors):
         """
@@ -290,8 +290,7 @@ class Workflow(BaseWorkflow):
             message = msg.payload.decode("utf-8")
             obj = fromJSON(message)
             if obj.method == Method.STATUS:
-                print("[%s] State change to '%s'"
-                      % (self.name, obj.state.name))
+                print(f"[{self.name}] State change to '{obj.state.name}'")
                 if obj.state == State.INACTIVE:
                     self._on_received_status_inactive(obj.data)
                 elif obj.state == State.ACTIVE:
@@ -303,11 +302,10 @@ class Workflow(BaseWorkflow):
                 else:
                     self.on_error(
                         self.name,
-                        "[%s] State '%s' is not supported"
-                        % (self.name, obj.state))
+                        f"[{self.name}] State '{obj.state}' is not supported"
+                    )
             elif obj.method == Method.TRIGGER:
-                print("[%s] Requested trigger '%s'"
-                      % (self.name, obj.state.name))
+                print(f"[{self.name}] Requested trigger '{obj.state.name}'")
                 if obj.state == State.ON:
                     self._on_received_trigger_on(obj.data)
                 elif obj.state == State.OFF:
@@ -315,18 +313,18 @@ class Workflow(BaseWorkflow):
                 else:
                     self.on_error(
                         self.name,
-                        "[%s] Trigger state '%s' is not supported"
-                        % (self.name, obj.state))
+                        f"[{self.name}] Trigger state '{obj.state}' is not supported"
+                    )
             elif obj.method == Method.MESSAGE:
-                print("[%s] Received message with method 'MESSAGE'. "
-                      "Nothing to do..." % (self.name))
+                print(f"[{self.name}] Received message with method 'MESSAGE'. "
+                      "Nothing to do...")
             else:
                 self.on_error(
                     self.name,
-                    "[%s] Method '%s' is not supported"
-                    % (self.name, obj.method))
+                    f"[{self.name}] Method '{obj.method}' is not supported"
+                )
         except Exception as e:
-            error_msg = "[%s] No valid JSON: %s" % (self.name, str(e))
+            error_msg = f"[{self.name}] No valid JSON: {str(e)}"
             print(error_msg)
             self.on_error(self.name, error_msg)
 
@@ -344,21 +342,20 @@ class Workflow(BaseWorkflow):
                 data = self.get_settings()
             message = Message(Method.TRIGGER, state, data)
             client.publish(self.topic, message.toJSON(), 2)
-            msg = "[%s] Trigger state '%s'" % (self.name, state.name)
+            msg = f"[{self.name}] Trigger state '{state.name}'"
             if data:
-                msg += " with settings '%s'" % (data)
+                msg += f" with settings '{data}'"
             print(msg + "...")
 
     def _subscripeToTopic(self, client):
         if self.topic is not None:
             client.subscribe(self.topic)
-            print("[%s] Subscribed to topic '%s'..." % (self.name, self.topic))
+            print(f"[{self.name}] Subscribed to topic '{self.topic}'...")
 
     def _unsubscripeFromTopic(self, client):
         if self.topic is not None:
             client.unsubscribe(self.topic)
-            print("[%s] Unsubscribed from topic '%s'..."
-                  % (self.name, self.topic))
+            print(f"[{self.name}] Unsubscribed from topic '{self.topic}'...")
 
     def _on_received_status_inactive(self, data):
         print("  ==> Nothing to do")
@@ -371,7 +368,7 @@ class Workflow(BaseWorkflow):
         self.on_finished(self.name)
 
     def _on_received_status_failed(self, data):
-        print("  ==> An error occured: %s" % (data))
+        print(f"  ==> An error occured: {data}")
         self.on_error(self.name, data)
 
     def _on_received_trigger_on(self, data):
@@ -450,7 +447,7 @@ class SequenceWorkflow(BaseWorkflow):
         msg : Message
             Message from the MQTT topic.
         """
-        if (self.current_workflow < len(self.workflows)):
+        if self.current_workflow < len(self.workflows):
             workflow = self.workflows[self.current_workflow]
             workflow.on_message(msg)
         super().on_message(msg)
@@ -484,7 +481,7 @@ class SequenceWorkflow(BaseWorkflow):
             edges.extend(graph[1])
             last_final_state_ids = graph[2]
 
-        return (nodes, edges, last_final_state_ids)
+        return nodes, edges, last_final_state_ids
 
     def on_finished(self, name, skipped=False):
         if skipped and name == self.name:
@@ -493,7 +490,7 @@ class SequenceWorkflow(BaseWorkflow):
             self.__unsubscribe_current_workflow(self.client)
             self.current_workflow += 1
             if self.current_workflow >= len(self.workflows):
-                print("  ==> Workflow sequence '%s' finished..." % (self.name))
+                print(f"  ==> Workflow sequence '{self.name}' finished...")
                 super().on_finished(self.name)
             else:
                 self.__subscribe_current_workflow(self.client)
@@ -549,7 +546,7 @@ class ParallelWorkflow(BaseWorkflow):
             MQTT client
         """
         names = [w.name for w in self.workflows]
-        print("[%s] Starting in parallel..." % (", ".join(names)))
+        print(f"[{', '.join(names)}] Starting in parallel...")
         for workflow in self.workflows:
             workflow.execute(client)
         super()._execute(client)
@@ -619,7 +616,7 @@ class ParallelWorkflow(BaseWorkflow):
             edges.extend(graph[1])
             final_state_ids.extend(graph[2])
 
-        return (nodes, edges, final_states)
+        return nodes, edges, final_states
 
     def on_finished(self, name, skipped=False):
         if skipped and name == self.name:
@@ -627,8 +624,7 @@ class ParallelWorkflow(BaseWorkflow):
         else:
             self.workflow_finished[name] = True
             if all(list(self.workflow_finished.values())):
-                print("  ==> Parallel workflow sequence '%s' finished..."
-                      % (self.name))
+                print(f"  ==> Parallel workflow sequence '{self.name}' finished...")
                 super().on_finished(self.name)
 
 
@@ -670,7 +666,7 @@ class SendTriggerWorkflow(BaseWorkflow):
         if self.topic is not None:
             message = Message(Method.TRIGGER, state)
             client.publish(self.topic, message.toJSON(), 2)
-            print("[%s] Triggered '%s'..." % (self.name, state.name))
+            print(f"[{self.name}] Triggered '{state.name}'...")
 
 
 class ScaleWorkflow(Workflow):
@@ -773,6 +769,53 @@ class ExitWorkflow(CombinedWorkflow):
             An dictionary of global settings.
         """
         super().__init__("Exit", workflows, settings)
+
+
+class AudioControlWorkflow(BaseWorkflow):
+
+    def __init__(self, name, payload, from_file=False):
+        """
+        Initializes a new instance of this class.
+
+        Parameters
+        ----------
+        name : str
+            Display name of the workflow.
+
+        payload : str
+            Either content or file location of the audio to play
+
+        from_file : bool
+            Whether a mp3 file should be played
+        """
+        self.payload = payload
+        self.from_file = from_file
+        self.topic = "2/textToSpeech"
+        super().__init__(name)
+
+    def _execute(self, client):
+        """
+        Executes this workflow.
+
+        Parameters
+        ----------
+        client : Client
+            MQTT client
+        """
+        super()._execute(client)
+        if self.from_file:
+            message = {
+                "method": "message",
+                "play_from_file": True,
+                "file_location": self.payload
+            }
+        else:
+            message = {
+                "method": "message",
+                "data": self.payload
+            }
+        client.publish(self.topic, json.dumps(message), 2)
+        self.on_finished(self.name)
 
 
 class LightControlWorkflow(BaseWorkflow):
