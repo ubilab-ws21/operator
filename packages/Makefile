@@ -41,5 +41,6 @@ build:
 
 publish:
 	git tag -s -m "Version $(VERSION)" v$(VERSION)
-	hub release create -a $(TMP_DIR).deb -m "Version $(VERSION)" v$(VERSION)
-	rm $(TMP_DIR).deb
+	gpg -ab $(TMP_DIR).deb
+	hub release create -a $(TMP_DIR).deb -a $(TMP_DIR).deb.asc -m "Version $(VERSION)" v$(VERSION)
+	rm $(TMP_DIR).deb $(TMP_DIR).deb.asc
