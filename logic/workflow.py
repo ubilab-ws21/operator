@@ -181,6 +181,9 @@ class BaseWorkflow:
             'type': self.type
         }
 
+        if hasattr(self, "topic"):
+            nodeData['topic'] = self.topic
+
         if parent is not None:
             nodeData['parent'] = parent
 

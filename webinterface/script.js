@@ -465,10 +465,32 @@ async function displayGraph(data) {
         atMouse: true,
         commands: [
             {
-                fillColor: 'rgba(200, 200, 200, 0.75)',
+                fillColor: 'rgba(0, 0, 255, 0.75)',
                 content: 'Skip',
                 select: function (ele) {
                     mqtt.send("1/gameControl", "SKIP " + ele.id(), 2, false);
+                },
+                enabled: true
+            }
+        ],
+
+    });
+        cy.cxtmenu({
+        selector: "node[topic]",
+        commands: [
+            {
+                fillColor: 'rgba(0, 255, 0, 0.75)',
+                content: 'On',
+                select: function (ele) {
+                    mqtt.send(ele.topic(), JSON.stringify({method:"trigger","state":"on"}), 2, false);
+                },
+                enabled: true
+            },
+            {
+                fillColor: 'rgba(255, 0, 0, 0.75)',
+                content: 'Off',
+                select: function (ele) {
+                    mqtt.send(ele.topic(), JSON.stringify({method:"trigger","state":"off"}), 2, false);
                 },
                 enabled: true
             }
