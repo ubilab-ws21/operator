@@ -944,5 +944,5 @@ class ServerRoomLightControlWorkflow(CombinedWorkflow):
                                  brightness,
                                  color)
         ]
-        name = f"Turn {target_state.name} server room lights"
+        name = f"Turn {target_state.name} {'dimmed' if brightness < 255 else 'full'} server room lights"
         super().__init__(name, workflows, None)
