@@ -160,8 +160,7 @@ if __name__ == "__main__":
                          "1234" + str(i), "http://10.0.1." + str(i)],
                         cwd="/opt/mjpeg-relay/"
                     )
-            pl.append(["mosquitto", "-c", OPT + "mosquitto.conf"])
-            pl.append(["mosquitto_sub", "-t", "$SYS/broker/log/E"])
+            pl.append("mosquitto -c " + OPT + "mosquitto.conf | grep Error")
             logic_command = ["python3", OPT + "logic/main.py"]
             if args.workflow_def:
                 logic_command.extend(["-d", args.workflow_def])
