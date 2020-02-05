@@ -130,7 +130,9 @@ if __name__ == "__main__":
             except FileNotFoundError:
                 pass
             download(GITHUB + "releases/latest/download/ue-operator.deb")
+            print("")
             download(GITHUB + "releases/latest/download/ue-operator.deb.asc")
+            print("")
             pl.append(["gpg", "--textmode", "--verify", "ue-operator.deb.asc",
                        "ue-operator.deb"])
             pl.wait()
