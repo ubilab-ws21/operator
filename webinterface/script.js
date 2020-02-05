@@ -152,6 +152,19 @@ function send() {
 }
 
 /**
+ * Sends the message entered into the simplified form
+ */
+function simpleSend() {
+    let message = {
+        method: getID("simple-method").value,
+        state: getID("simple-state").value,
+        data: getID("simple-data").value
+    };
+    mqtt.publish(getID("simple-topic").value, JSON.stringify(message), parseInt(getID("simple-qos").value),
+        getID("simple-retain").checked);
+}
+
+/**
  * Toggles a given help block
  * @param n
  */
@@ -378,6 +391,15 @@ async function onLoad() {
         }
     };
     client.send();
+
+    // Add topic options to simple send
+    let topicList2 = typeof topicList === 'undefined' ? ["0/dummy"] : topicList;
+    let selectTopic = getID("simple-topic");
+    for(let topic of topicList2) {
+        let option = document.createElement("option");
+        option.text = topic;
+        selectTopic.add(option);
+    }
 }
 
 async function displayGraph(data) {
