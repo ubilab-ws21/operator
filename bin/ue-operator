@@ -120,7 +120,7 @@ if __name__ == "__main__":
             pl.wait()
 
         """
-            Initializing the network and stuff
+            Updating git repos and installing the newest release
         """
         if args.command == "update":
             pl.append(["git", "pull"], cwd=OPT + "environment")
