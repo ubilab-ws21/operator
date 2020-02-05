@@ -12,7 +12,7 @@
   - [Base system](#base-system)
     - [Deployment process](#deployment-process)
   - [UI Control Board](#ui-control-board)
-  - [MC Communication](#mc-communication)
+  - [μC Communication](#μc-communication)
     - [Network](#network)
     - [Message protocol](#message-protocol)
     - [Communication format](#communication-format)
@@ -22,25 +22,26 @@
 The operator room is the control center of the escape room. It's a separate room where the operator (game master) is taking place to observe the happenings in the escape room.
 The operator room supports functionality to control, monitor and trace the events of the room. It also provides mechanisms to display hints to the visitors.
 
-Another purpose of the operator room is to centralize the communication of all involved systems. It serves as a kind of server room which provides an interface for all systems to communicate with each other. It also controls the game workflow.   
+Another purpose of the operator room is to centralize the communication of all involved systems. It serves as a kind of server room which provides an interface for all systems to communicate with each other. It also controls the game workflow.
+
 ## Components
 The requirements of the system can be devided into three abstract components.
 
 ### Monitoring
-The monitoring serves as feedback for the operator (game master) to observe the visitors. This is for ex. camaras or microphones.
+The monitoring serves as feedback for the operator (game master) to observe the visitors. This is for ex. a camaras or a text-to-speech system.
 
 ***Implementation:*** The **UI control board** is implemented as a web application. It provides following features:
 
   1. Camera integration
-  2. Game state displaying
-  3. UI for state controlling (ex. reset, start, step back…)
+  2. Displaying of the states reported by the microcontrollers
+  3. UI for state controlling (ex. start, stop , skip…)
 
 ### Communication
 The communication interface allows the participated systems to exchange messages and transit a the game states (ex. if a puzzle is solved).
 
 ***Implementation:*** The communication framework and game interface consist of two modules.
 
-  1. Centralized and standardized interface for inter mc communication (simple way to send message to other mcs)
+  1. Centralized and standardized interface for inter μC communication (simple way to send message to other mcs)
   2. Interface for workflow feedback and state changes (ex. puzzle solved)
    
 ### Game logic
@@ -96,9 +97,9 @@ It's making use of several open-source JavaScript libraries:
 
 For providing offline capabilities, these libraries are saved in the subfolder `libs`
 
-## MC Communication
+## μC Communication
 ### Network
-All communication between the micro computers and the server will done over IP/TCP.
+All communication between the micro computers and the server will done over MQTT (IP/TCP).
 So every group gets an own IP range where they can use to connect their participants to the local network.
 
 We are using the private ip range 10.0.0.0/16 (Subnet mask: 255.255.0.0).
@@ -131,7 +132,7 @@ The topics of every client are clustered by group. They can be found [here](MQTT
 The format of the messages exchanged between the the clients and the server is **JSON**.
 JSON is a very simple and compact data format to exchange data (more information [here](https://en.wikipedia.org/wiki/JSON)). 
 
-All messages are sended to the **main server** should JSON schema: 
+All messages are sended to the **main server** should match following JSON schema: 
 
 ```json
 {
@@ -144,11 +145,11 @@ All messages are sended to the **main server** should JSON schema:
 | Method  | State                            | Description                                                                                |
 | :------ | :------------------------------- | :----------------------------------------------------------------------------------------- |
 | message |                                  | Ignored by the server. For m2m communication.                                              |
-| status  | inactive, active, solved, failed | The transmitted status of the client. The \<data> of status messages is printed in the UI.  All messages using this method **must** set the retained flag if the MQTT protocol! |
+| status  | inactive, active, solved, failed | The transmitted status of the client. The \<data> of status messages is printed in the UI.  All messages using this method **must** set the **retained** flag if the MQTT protocol! |
 | trigger | on, off                          | Triggers a state change of an other module (ex. lamp on/off).                              |
 
 ### Communication protocol
-The definition of the message protocol and the communication format is not sufficient for understanding the semantic and chronology of the messages shared between the participants. The semantic of these messages depends on the particular use case. For example the transmittion data of a finger print sensor (binary) is completely different from the data to turn on a light (boolean). The chronology of the messages is crucial to ensure the correct overall process workflow.
+The definition of the message protocol and the communication format is not sufficient for understanding the semantic and chronology of the messages shared between the participants. The semantic of these messages depends on the particular use case. For example the transmittion data of a finger print sensor (binary) is completely different from the data to turn on a light (boolean). The chronology of the messages is crucial to ensure the correct overall workflow.
 
 We'll solve these problems using UML sequence digrams
 (more information [here](https://en.wikipedia.org/wiki/Sequence_diagram)).
