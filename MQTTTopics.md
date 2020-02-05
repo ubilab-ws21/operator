@@ -1,4 +1,4 @@
-| Group No. | Group Name                         | Topic Names               | Description                                                                                          |
+| Group No. | Group Name                         | Topic Name                | Description                                                                                          |
 | :-------- | :--------------------------------- | :------------------------ | :--------------------------------------------------------------------------------------------------- |
 | **1**     | **Operator Room**                  | 1/gameTime_in_sec         | Provides the game time in seconds.                                                                   |
 |           |                                    | 1/gameTime_formatted      | Provides the game time as a formatted string.                                                        |
