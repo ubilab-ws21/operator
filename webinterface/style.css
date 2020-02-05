@@ -170,6 +170,25 @@ nav div {
     float: right;
 }
 
+table {
+    border-collapse: collapse;
+    box-sizing: border-box;
+    padding: 0 5px !important;
+    width: calc(100% - 10px) !important;
+}
+
+th + th, td + td {
+    border-left: 5px solid #073642;
+}
+
+th {
+	padding-top: 5px;
+}
+
+td {
+    padding-bottom: 5px;
+}
+
 #time-container {
     float: right;
     font-weight: bold;

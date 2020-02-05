@@ -23,20 +23,22 @@
 <div id="control">
     <div id="control-main">
         <div id="control-groups">
-            <div class="control">
-                <b>Lab Door</b>
-                <div>
-                    <button type="button" onclick="changeState('NC9kb29yL2VudHJhbmNl', 'on');">Open</button>
-                    <button type="button" onclick="changeState('NC9kb29yL2VudHJhbmNl', 'off');">Close</button>
-                </div>
-            </div>
-            <div class="control">
-                <b>Server Room Door</b>
-                <div>
-                    <button type="button" onclick="changeState('NC9kb29yL3NlcnZlcg==', 'on');">Open</button>
-                    <button type="button" onclick="changeState('NC9kb29yL3NlcnZlcg==', 'off');">Close</button>
-                </div>
-            </div>
+            <table class="control">
+                <tr>
+                    <th>Lab Door</th>
+                    <th>Server Room Door</th>
+                </tr>
+                <tr>
+                    <td align="center">
+                        <button type="button" onclick="changeState('NC9kb29yL2VudHJhbmNl', 'on');">Open</button>
+                        <button type="button" onclick="changeState('NC9kb29yL2VudHJhbmNl', 'off');">Close</button>
+                    </td>
+                    <td align="center">
+                        <button type="button" onclick="changeState('NC9kb29yL3NlcnZlcg==', 'on');">Open</button>
+                        <button type="button" onclick="changeState('NC9kb29yL3NlcnZlcg==', 'off');">Close</button>
+                    </td>
+                </tr>
+            </table>
             <div class="control">
                 <b>Text-to-speech</b>
                 <textarea placeholder="Message" id="tts"></textarea>
