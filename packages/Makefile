@@ -21,7 +21,7 @@ build:
 	mkdir -p $(TMP_DIR)/var/www/html/
 	cp -r ../webinterface/* $(TMP_DIR)/var/www/html/
 	cp ../MQTTTopics.md $(TMP_DIR)/var/www/html/
-	cat ../MQTTTopics.md | cut -d"|" -f4 | grep "/" | sed -e 's/^ /"/g' -e 's/ *$$/",/g' -e '1s/^/let topicList = [\n/g' -e '$ a ];' > $(TMP_DIR)/var/www/html/topics.js
+	cat ../MQTTTopics.md | cut -d"|" -f4 | grep "/" | sed -e 's/^ /"/g' -e 's/ *$$/",/g' -e '1s/^/let topicList = [\n/g' -e '$$ a ];' > $(TMP_DIR)/var/www/html/topics.js
 	# copying the game logic
 	mkdir -p $(TMP_DIR)/opt/ue-operator/logic
 	cp -r ../logic/* $(TMP_DIR)/opt/ue-operator/logic
