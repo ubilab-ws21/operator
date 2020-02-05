@@ -367,9 +367,9 @@ async function onLoad() {
     addEnterEvent(getID("send-topic"), getID("send-button"));
     addEnterEvent(getID("send-message"), getID("send-button"));
 
-    // Read topics into textarea
+    // Read topics into textarea (add timestamp to defy caching)
     let client = new XMLHttpRequest();
-    client.open('GET', 'MQTTTopics.md');
+    client.open('GET', 'MQTTTopics.md?v=' + Date.now().toString());
     client.onload = function () {
         if (client.status === 200) {
             getID("topics").innerHTML = window.markdownit().render(client.responseText);
