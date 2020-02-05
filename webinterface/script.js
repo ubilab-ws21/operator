@@ -461,8 +461,8 @@ async function displayGraph(data) {
     });
     cy.cxtmenu({
         menuRadius: 70,
-        selector: "node[name!='main']",
         atMouse: true,
+        selector: "node[name!='main'][^topic]",
         commands: [
             {
                 fillColor: 'rgba(0, 0, 255, 0.75)',
@@ -476,13 +476,23 @@ async function displayGraph(data) {
 
     });
         cy.cxtmenu({
+        menuRadius: 70,
+        atMouse: true,
         selector: "node[topic]",
         commands: [
+            {
+                fillColor: 'rgba(0, 0, 255, 0.75)',
+                content: 'Skip',
+                select: function (ele) {
+                    mqtt.send("1/gameControl", "SKIP " + ele.id(), 2, false);
+                },
+                enabled: true
+            },
             {
                 fillColor: 'rgba(0, 255, 0, 0.75)',
                 content: 'On',
                 select: function (ele) {
-                    mqtt.send(ele.topic(), JSON.stringify({method:"trigger","state":"on"}), 2, false);
+                    mqtt.send(ele.data("topic"), JSON.stringify({method:"trigger","state":"on"}), 2, false);
                 },
                 enabled: true
             },
@@ -490,7 +500,7 @@ async function displayGraph(data) {
                 fillColor: 'rgba(255, 0, 0, 0.75)',
                 content: 'Off',
                 select: function (ele) {
-                    mqtt.send(ele.topic(), JSON.stringify({method:"trigger","state":"off"}), 2, false);
+                    mqtt.send(ele.data("topic"), JSON.stringify({method:"trigger","state":"off"}), 2, false);
                 },
                 enabled: true
             }
