@@ -124,8 +124,11 @@ if __name__ == "__main__":
         if args.command == "update":
             pl.append(["git", "pull"], cwd=OPT + "environment")
             pl.append(["git", "pull"], cwd="/opt/mjpeg-relay")
-            remove("ue-operator.deb")
-            remove("ue-operator.deb.asc")
+            try:
+                remove("ue-operator.deb")
+                remove("ue-operator.deb.asc")
+            except FileNotFoundError:
+                pass
             urlretrieve(GITHUB + "releases/latest/download/ue-operator.deb",
                         "ue-operator.deb")
             urlretrieve(GITHUB + "releases/latest/download/ue-operator.deb.asc",
