@@ -22,17 +22,17 @@ package "MC [1 .. M]" {
 }
 
 package "Operator System" {
-    interface TCP as TCP1
-    [Game workflow] - TCP1
+    interface MQTT as MQTT1
+    [Game workflow] - MQTT1
 
-    interface TCP as TCP
-    [MC communication] -up-- TCP: provides
+    interface MQTT as MQTT
+    [MC communication] -up-- MQTT: provides
 
     interface HTTP as HTTP
     [UI control board] -up-- HTTP: provides
 
-    [UI control board] <..> TCP1
-    [MC communication] <..> TCP1: standardized format
+    [UI control board] <..> MQTT1
+    [MC communication] <..> MQTT1: standardized format
 }
 
 package "ESP cams [1 .. N]" {
@@ -46,8 +46,8 @@ package "ESP cams [1 .. N]" {
 [UI control board] <.. HTTP1: iframe
 [Browser] <..> HTTP
 
-[MC 1] <..> TCP
-[MC ...] <..> TCP
-[MC M] <..> TCP
+[MC 1] <..> MQTT
+[MC ...] <..> MQTT
+[MC M] <..> MQTT
 
 @enduml
