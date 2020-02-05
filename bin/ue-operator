@@ -3,7 +3,7 @@
 from paho.mqtt import subscribe, publish
 from argparse import ArgumentParser
 from os import remove
-from urllib.request import urlretrieve
+from wget import download
 import subprocess
 import json
 
@@ -129,10 +129,8 @@ if __name__ == "__main__":
                 remove("ue-operator.deb.asc")
             except FileNotFoundError:
                 pass
-            urlretrieve(GITHUB + "releases/latest/download/ue-operator.deb",
-                        "ue-operator.deb")
-            urlretrieve(GITHUB + "releases/latest/download/ue-operator.deb.asc",
-                        "ue-operator.deb.asc")
+            download(GITHUB + "releases/latest/download/ue-operator.deb")
+            download(GITHUB + "releases/latest/download/ue-operator.deb.asc")
             pl.append(["gpg", "--textmode", "--verify", "ue-operator.deb.asc",
                        "ue-operator.deb"])
             pl.wait()
