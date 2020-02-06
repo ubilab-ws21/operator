@@ -47,11 +47,27 @@ nav {
     padding: 5px 5px 0;
 }
 
+nav::before,
+nav::after {
+  content: " ";
+  display: table;
+}
+
+nav::after {
+  clear: both;
+}
+
 nav div {
-    display: inline-block;
+    display: block;
     text-align: center;
     background-color: #073642;
-    margin: 0 0 5px;
+    float: left;
+    margin: 0 5px 5px 0;
+}
+
+#nav-audio {
+    float: right;
+    margin-right: 0;
 }
 
 .navlink {
@@ -89,6 +105,10 @@ nav div {
 :disabled {
     cursor: default;
     color: #586e75 !important;
+}
+
+#env-container :disabled {
+	display: none;
 }
 
 .subs.on button, #start {

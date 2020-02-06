@@ -414,6 +414,12 @@ async function onLoad() {
         option.text = topic;
         selectTopic.add(option);
     }
+
+    // Bust the HTTP cache for audio streaming
+    var aud = document.querySelector('audio source');
+    aud.src = encodeURI(aud.src + '?nocache=' + Math.random().toString(36));
+    aud.parentElement.load();
+    aud.parentElement.play();
 }
 
 async function displayGraph(data) {
