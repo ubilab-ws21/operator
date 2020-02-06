@@ -85,6 +85,9 @@ Process:
    * update: `ue-operator update`
 
 ## UI Control Board
+
+![UI Screenshot](doc/design/ui.png)
+
 The UI Control Board is implemented by HTML files served by an Apache HTTP server which is listening on port 80. The main functions of the UI consist of:
 
 - Displaying and changing the current states of all puzzles and actors (**Control**)
