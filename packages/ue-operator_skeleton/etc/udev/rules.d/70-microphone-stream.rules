@@ -1,0 +1,2 @@
+ACTION=="add",    KERNEL=="card*", DRIVERS=="snd-usb-audio", SUBSYSTEMS=="usb", RUN+="/bin/systemctl restart microphone-stream.service"
+ACTION=="remove", KERNEL=="card*", SUBSYSTEMS=="usb", RUN+="/bin/systemctl stop microphone-stream.service"
