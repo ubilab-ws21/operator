@@ -17,6 +17,12 @@
     - [Message protocol](#message-protocol)
     - [Communication format](#communication-format)
     - [Communication protocol](#communication-protocol)
+      - [Default communication protocol](#default-communication-protocol)
+  - [Workflow](#workflow)
+    - [Software architecture](#software-architecture)
+    - [Workflow definition](#workflow-definition)
+    - [Starting the workflow engine](#starting-the-workflow-engine)
+    - [Contolling the workflow engine](#contolling-the-workflow-engine)
 
 ## What is this about?
 The operator room is the control center of the escape room. It's a separate room where the operator (game master) is taking place to observe the happenings in the escape room.
@@ -142,11 +148,11 @@ All messages are sended to the **main server** should match following JSON schem
 }
 ```
 
-| Method  | State                            | Description                                                                                |
-| :------ | :------------------------------- | :----------------------------------------------------------------------------------------- |
-| message |                                  | Ignored by the server. For m2m communication.                                              |
+| Method  | State                            | Description                                                                                                                                                                         |
+| :------ | :------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| message |                                  | Ignored by the server. For m2m communication.                                                                                                                                       |
 | status  | inactive, active, solved, failed | The transmitted status of the client. The \<data> of status messages is printed in the UI.  All messages using this method **must** set the **retained** flag if the MQTT protocol! |
-| trigger | on, off                          | Triggers a state change of an other module (ex. lamp on/off).                              |
+| trigger | on, off                          | Triggers a state change of an other module (ex. lamp on/off).                                                                                                                       |
 
 ### Communication protocol
 The definition of the message protocol and the communication format is not sufficient for understanding the semantic and chronology of the messages shared between the participants. The semantic of these messages depends on the particular use case. For example the transmittion data of a finger print sensor (binary) is completely different from the data to turn on a light (boolean). The chronology of the messages is crucial to ensure the correct overall workflow.
@@ -167,6 +173,7 @@ For example the topic name *4/door/entrance* is transformed into *mqtt_4_door_en
 
 ![Communication format example](doc/design/communication_format_example.svg)
 
+#### Default communication protocol
 To ensure the overall process we'll have to define the communication protocol. 
 Because most of the groups have simliar communication protocols, we have defined a default sequence diagram:
 
@@ -186,4 +193,95 @@ The following table provides the customized communication definitions:
 | 7         | Second Door Puzzles            |                                                                                                                                                                 |
 | 8         | AI Server & Puzzles            |                                                                                                                                                                 |
 
+## Workflow
+### Software architecture
+The game logic is implemented via a custom workflow engine.
+It's a simple and self-written workflow framework developed in python.
 
+There are three main components of the workflow engine, which allows to build arbitrary workflows:
+
+1. **Workflow**: This workflow implements the default procedure defined in section "[Default communication protocol](#default-communication-protocol)".
+
+2. **SequenceWorkflow**: This workflow is a *composition* of other workflows which should be executed in sequence (one after another).
+
+3. **ParallelWorkflow**: This workflow is a *composition* of other workflows which should be executed in parallel.
+
+The composition workflows allows to slot workflows together and building more complex workflows.
+
+To implement special workflows the model allows to simply inherit from the main components. The following class diagram illustrates the class dependencies.
+
+![Workflow engine model](doc/design/workflow_engine_model.svg)
+
+### Workflow definition
+The definition of main workflow takes place in a python file ([our escape room workflow](logic/workflow_definition.py)).
+
+The only requirement to this python file is to contain a method with following signature returning an array of **BaseWorkflow**s.
+
+```python
+def create(self, settings)
+```
+
+The returned array itself is interpreted as a **SequenceWorkflow**.
+
+The following example shows a simple workflow which executes *Puzzle 1*.
+After *Puzzle 1* is finished, *Puzzle 2* and *Puzzle 4* are executed in parallel.
+After *Puzzle 2* and *Puzzle 4* is executed, the workflow reaches it's final state. 
+
+```python
+from workflow import *
+from message import State
+
+class WorkflowDefinition:
+
+    def create(self, settings):
+        return [
+            Workflow("Puzzle 1", "<topic_name_puzzle_1>"),
+            ParallelWorkflow("Parallel block", [
+                SequenceWorkflow("Sequence block", [
+                  Workflow("Puzzle 2", "<topic_name_puzzle_2>"),
+                  Workflow("Puzzle 3", "<topic_name_puzzle_3>"),
+                ]),
+                Workflow("Puzzle 4", "<topic_name_puzzle_4>"),
+            ])
+        ]
+```
+
+### Starting the workflow engine
+The workflow engine can be executed by following command:
+
+```console
+foo@bar:~$ python3 logic/main.py -h
+usage: main.py [-h] [--workflow_def WORKFLOW_DEF] [--mqtt_host MQTT_HOST]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --workflow_def WORKFLOW_DEF, -d WORKFLOW_DEF
+                        definition of the workflow. Format: "module:class".
+                        The referenced class must implement a method
+                        "create(self, settings)" returning an array of
+                        BaseWorkflow. (default:
+                        workflow_definition:WorkflowDefinition)
+  --mqtt_host MQTT_HOST, -m MQTT_HOST
+                        IP of the MQTT server. (default: 127.0.0.1)
+```
+
+### Contolling the workflow engine
+There are two ways to control the workflow engine on runtime:
+
+1. Sending commands to topic "1/gameControl":
+   1. **START**: Starts or resume the workflow.
+   2. **PAUSE**: Pauses the workflow (simply pauses game timer).
+   3. **STOP**: Stops the workflow and resets it's states.
+   4. **SKIP** \<workflow_name>: Skips the workflow with the given \<workflow_name>.
+
+2. Applying options in topic "1/gameOptions" before starting the workflow.
+   
+   Defined JSON schema of the options:
+   ```javascript
+   {
+     "participants": 3, // number of players
+     "duration": 5 // in seconds
+    }
+   ```
+
+   The options are not applyed if the game is already started.
