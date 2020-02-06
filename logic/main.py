@@ -36,15 +36,17 @@ def parse_args():
 
     help_text = """
     definition of the workflow.
-    Format: module:class
-    with get method returning an array of Workflows.
+    Format: "module:class".
+    The referenced class must implement a method "create(self, settings)"
+    returning an array of BaseWorkflow.
+    (default: workflow_definition:WorkflowDefinition)
     """
     parser.add_argument("--workflow_def", "-d", help=help_text)
     parser.add_argument(
         "--mqtt_host",
         "-m",
         default="127.0.0.1",
-        help="IP of the MQTT server.")
+        help="IP of the MQTT server. (default: 127.0.0.1)")
     return parser.parse_args()
 
 
