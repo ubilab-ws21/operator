@@ -29,4 +29,5 @@
 |           |                                    | 7/fusebox/potentiometer   | Topic of the potentiometer riddle in the fuse box.                                                   |
 |           |                                    | 7/robot                   | Topic of the robot riddle to open the server room door.                                              |
 | **8**     | **AI Server & Puzzles**            | 8/puzzle/maze             | Topic of the maze riddle in the server room.                                                         |
+|           |                                    | 8/puzzle/IP               | Topic of the IP riddle in the server room.                                                           |
 |           |                                    | 8/puzzle/simon            | Topic of the simon riddle in the server room.                                                        |

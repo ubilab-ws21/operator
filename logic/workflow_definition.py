@@ -62,7 +62,10 @@ class WorkflowDefinition:
             # Allow multiple riddles in server room
             ParallelWorkflow("Server room", [
                 Workflow("Terminal riddle", "6/puzzle/terminal"),
-                Workflow("Maze riddle", "8/puzzle/maze")
+                SequenceWorkflow("Server cabinet", [
+                    Workflow("Maze riddle", "8/puzzle/maze"),
+                    Workflow("IP riddle", "8/puzzle/IP")
+                ])
             ]),
             Workflow("Simon riddle", "8/puzzle/simon"),
             ExitWorkflow([
