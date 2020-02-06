@@ -23,6 +23,7 @@ messageSequence = [
     # Server room
     ['8/puzzle/maze', '{"method": "STATUS", "state": "SOLVED"}'],
     ['6/puzzle/terminal', '{"method": "STATUS", "state": "SOLVED"}'],
+    ['8/puzzle/IP', '{"method": "STATUS", "state": "SOLVED"}'],
     ['8/puzzle/simon', '{"method": "STATUS", "state": "SOLVED"}']
 ]
 
