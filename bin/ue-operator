@@ -60,21 +60,18 @@ def on_scale(client, userdata, message):
     """
     try:
         data = json.loads(message.payload.lower())
-        if data["method"] and data["method"] == "status" and data["state"]:
-            msgs = []
-            if data["state"] == "active":
-                gyro = "on"
-                # TODO: Commented for quota reasons
-                # msgs.append(
-                #    ("2/textToSpeech", json.dumps({"method": "message",
-                #    "data": "Put the prototype back!"})))
-            elif data["state"] == "inactive":
-                gyro = "off"
-            else:
-                return
-            msgs.append(("2/gyrophare", json.dumps(
-                {"method": "trigger", "state": "power", "data": gyro})))
-            publish.multiple(msgs, hostname="10.0.0.2")
+        if not (data["method"]
+                and data["method"] == "status"
+                and data["state"]
+                and data["state"] in ["active", "inactive"]):
+            return
+        gyro = "off"
+        if data["state"] == "active":
+            gyro = "on"
+            msg = '{"method":"message","data":"Put the prototype back!"}'
+            publish.single("2/textToSpeech", msg, hostname="10.0.0.2")
+        msg = f'{{"method": "trigger", "state": "power", "data": {gyro}}}'
+        publish.single("2/gyrophare", msg, hostname="10.0.0.2")
     except json.JSONDecodeError:
         pass
 
@@ -136,13 +133,28 @@ if __name__ == "__main__":
             download(GITHUB + "releases/latest/download/ue-operator.deb.asc")
             print("")
             gpg = GPG(gnupghome=environ["HOME"] + "/.gnupg")
-            with open("ue-operator.deb.asc") as sig:
-                verify = gpg.verify_file(sig, "ue-operator.deb")
-            if verify:
-                pl.append(["sudo", "apt", "-qq", "install", "./ue-operator.deb"])
-                pl.wait()
+            with open("ue-operator.deb.asc", "rb") as sig:
+                ver = gpg.verify_file(sig, "ue-operator.deb")
+            if ver.trust_level is not None:
+                if ver.trust_level >= ver.TRUST_FULLY:
+                    print(f"Valid trusted GPG signature by {ver.username} "
+                          f"on {ver.creation_date} with key {ver.key_id}")
+                    install = True
+                else:
+                    print(f"Valid untrusted GPG signature by {ver.username} "
+                          f"on {ver.creation_date} with key {ver.key_id}")
+                    s = input("Do you want to continue anyway? y/N")
+                    install = s.lower() == "y"
+                if install:
+                    pl.append(["sudo", "apt", "-qq", "install",
+                               "./ue-operator.deb"])
+                    pl.wait()
+                else:
+                    s = input("Do you want to keep the downloaded files? y/N")
+                    if s.lower() == "y":
+                        exit(0)
             else:
-                print("Invalid signature")
+                print("Invalid GPG signature")
             remove("ue-operator.deb")
             remove("ue-operator.deb.asc")
 
