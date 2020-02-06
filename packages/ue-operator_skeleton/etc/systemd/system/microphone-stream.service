@@ -1,0 +1,7 @@
+[Unit]
+Description=stream microphone server
+
+[Service]
+Type=simple
+ExecStart=cvlc alsa://hw:CARD=PCH --sout '#transcode{acodec=vorb,ab=128,channels=1,samplerate=44100}:standard{access=http,mux=ogg,dst=:8554/stream.ogg}' --sout-mux-caching 50
+User=phil
