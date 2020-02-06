@@ -87,7 +87,13 @@ Process:
 ## UI Control Board
 The UI Control Board is implemented by HTML files served by an Apache HTTP server which is listening on port 80. The main functions of the UI consist of:
 
-- Displaying and changing the current states of all puzzles and actors
+- Displaying and changing the current states of all puzzles and actors (*Control*)
+   * A graph displays the current state of the workflow with data sent by the logic over mqtt into the topic `1/gameState`. It also allows to skip parts and send on/off triggers to puzzles in it
+   * Buttons allow to control the doors
+   * A form allows to control the state of the escape room and to change settings as duration and number of players
+   * Another form allows to send mqtt messages using the defind communication format by simply selecting predefined fields
+   * A third form allows to control the environment over mqtt
+   * The game time and state is displayed
 - Displaying the camera streams
 - Serving debug information about the mosquitto software
   - Possibly replaying a set of mosquitto topics
