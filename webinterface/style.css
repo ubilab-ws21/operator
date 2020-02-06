@@ -13,6 +13,7 @@ textarea, #control-main, #topics {
     resize: none;
     width: 100%;
     box-sizing: border-box;
+    overflow: auto;
 }
 
 #control-main {
@@ -161,12 +162,33 @@ nav div {
 
 .control label {
     display: block;
-    line-height: 1.7em;
+    line-height: 1.9em;
     text-align: justify;
 }
 
-.control label input {
+.control label input, .control label select {
     float: right;
+}
+
+table {
+    border-collapse: collapse;
+    box-sizing: border-box;
+    padding: 0 5px !important;
+    width: calc(100% - 10px) !important;
+}
+
+th + th, td + td {
+    border-left: 5px solid #073642;
+}
+
+th {
+	padding-top: 5px;
+    width: 50%;
+}
+
+td {
+    padding-bottom: 5px;
+    width: 50%;
 }
 
 #time-container {
@@ -179,7 +201,7 @@ nav div {
     display: inline;
 }
 
-input[type=number] {
+input[type=number], input[type=checkbox] {
     width: 4em;
 }
 
@@ -196,12 +218,12 @@ input[type=color] {
 }
 
 #cy {
-    width: calc(100% - 13em);
+    width: calc(100% - 20em);
 }
 
 #control-groups {
     border-right: 5px solid #002b36;
-    width: 12em;
+    width: 19em;
 }
 
 #control-main {

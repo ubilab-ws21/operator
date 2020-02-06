@@ -152,6 +152,19 @@ function send() {
 }
 
 /**
+ * Sends the message entered into the simplified form
+ */
+function simpleSend() {
+    let message = {
+        method: getID("simple-method").value,
+        state: getID("simple-state").value,
+        data: getID("simple-data").value
+    };
+    mqtt.publish(getID("simple-topic").value, JSON.stringify(message), parseInt(getID("simple-qos").value),
+        getID("simple-retain").checked);
+}
+
+/**
  * Toggles a given help block
  * @param n
  */
@@ -367,9 +380,9 @@ async function onLoad() {
     addEnterEvent(getID("send-topic"), getID("send-button"));
     addEnterEvent(getID("send-message"), getID("send-button"));
 
-    // Read topics into textarea
+    // Read topics into textarea (add timestamp to defy caching)
     let client = new XMLHttpRequest();
-    client.open('GET', 'MQTTTopics.md');
+    client.open('GET', 'MQTTTopics.md?v=' + Date.now().toString());
     client.onload = function () {
         if (client.status === 200) {
             getID("topics").innerHTML = window.markdownit().render(client.responseText);
@@ -378,6 +391,15 @@ async function onLoad() {
         }
     };
     client.send();
+
+    // Add topic options to simple send
+    let topicList2 = typeof topicList === 'undefined' ? ["0/dummy"] : topicList;
+    let selectTopic = getID("simple-topic");
+    for(let topic of topicList2) {
+        let option = document.createElement("option");
+        option.text = topic;
+        selectTopic.add(option);
+    }
 }
 
 async function displayGraph(data) {
@@ -461,14 +483,46 @@ async function displayGraph(data) {
     });
     cy.cxtmenu({
         menuRadius: 70,
-        selector: "node[name!='main']",
         atMouse: true,
+        selector: "node[name!='main'][^topic]",
         commands: [
             {
-                fillColor: 'rgba(200, 200, 200, 0.75)',
+                fillColor: 'rgba(0, 0, 255, 0.75)',
                 content: 'Skip',
                 select: function (ele) {
                     mqtt.send("1/gameControl", "SKIP " + ele.id(), 2, false);
+                },
+                enabled: true
+            }
+        ],
+
+    });
+        cy.cxtmenu({
+        menuRadius: 70,
+        atMouse: true,
+        selector: "node[topic]",
+        commands: [
+            {
+                fillColor: 'rgba(0, 0, 255, 0.75)',
+                content: 'Skip',
+                select: function (ele) {
+                    mqtt.send("1/gameControl", "SKIP " + ele.id(), 2, false);
+                },
+                enabled: true
+            },
+            {
+                fillColor: 'rgba(0, 255, 0, 0.75)',
+                content: 'On',
+                select: function (ele) {
+                    mqtt.send(ele.data("topic"), JSON.stringify({method:"trigger","state":"on"}), 2, false);
+                },
+                enabled: true
+            },
+            {
+                fillColor: 'rgba(255, 0, 0, 0.75)',
+                content: 'Off',
+                select: function (ele) {
+                    mqtt.send(ele.data("topic"), JSON.stringify({method:"trigger","state":"off"}), 2, false);
                 },
                 enabled: true
             }

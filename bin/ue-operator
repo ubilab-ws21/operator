@@ -3,7 +3,7 @@
 from paho.mqtt import subscribe, publish
 from argparse import ArgumentParser
 from os import remove, environ
-from urllib.request import urlretrieve
+from wget import download
 import subprocess
 import json
 from gnupg import GPG
@@ -17,18 +17,19 @@ class ProcessList(list):
     List to manage created processes
     """
 
-    def append(self, cmd, cwd=None, stderr=None):
+    def append(self, cmd, cwd=None, stdout=None, stderr=None):
         """
         Creates a new process and adds it to the list
 
         :param cmd: The command to execute
         :param cwd: An optional working directory
         :param stderr: An optional stderr redirection
+        :param stdout: An optional stdout redirection
         :return: None
         """
         if isinstance(cmd, str) or isinstance(cmd, list):
             process = subprocess.Popen(cmd, shell=isinstance(cmd, str), cwd=cwd,
-                                       stderr=stderr)
+                                       stdout=stdout, stderr=stderr)
         else:
             raise TypeError("Expecting a string or a list as cmd")
         # process.check_returncode()
@@ -120,17 +121,20 @@ if __name__ == "__main__":
             pl.wait()
 
         """
-            Initializing the network and stuff
+            Updating git repos and installing the newest release
         """
         if args.command == "update":
             pl.append(["git", "pull"], cwd=OPT + "environment")
             pl.append(["git", "pull"], cwd="/opt/mjpeg-relay")
-            remove("ue-operator.deb")
-            remove("ue-operator.deb.asc")
-            urlretrieve(GITHUB + "releases/latest/download/ue-operator.deb",
-                        "ue-operator.deb")
-            urlretrieve(GITHUB + "releases/latest/download/ue-operator.deb.asc",
-                        "ue-operator.deb.asc")
+            try:
+                remove("ue-operator.deb")
+                remove("ue-operator.deb.asc")
+            except FileNotFoundError:
+                pass
+            download(GITHUB + "releases/latest/download/ue-operator.deb")
+            print("")
+            download(GITHUB + "releases/latest/download/ue-operator.deb.asc")
+            print("")
             gpg = GPG(gnupghome=environ["HOME"] + "/.gnupg")
             with open("ue-operator.deb.asc") as sig:
                 verify = gpg.verify_file(sig, "ue-operator.deb")
@@ -160,12 +164,12 @@ if __name__ == "__main__":
                          "1234" + str(i), "http://10.0.1." + str(i)],
                         cwd="/opt/mjpeg-relay/"
                     )
-            pl.append(["mosquitto", "-c", OPT + "mosquitto.conf"])
+            pl.append("mosquitto -c " + OPT + "mosquitto.conf | grep Error")
             logic_command = ["python3", OPT + "logic/main.py"]
             if args.workflow_def:
                 logic_command.extend(["-d", args.workflow_def])
             pl.append(logic_command)
-            pl.append("mosquitto_sub -h localhost -t \\# -v | ts '%s' >"
+            pl.append("mosquitto_sub -t \\# -v | ts '%s' >"
                       "/var/log/mosquitto/message_log_"
                       "$(date +%Y-%m-%d_%H%M%S).txt")
             subscribe.callback(on_scale, "6/puzzle/scale", hostname="10.0.0.2")

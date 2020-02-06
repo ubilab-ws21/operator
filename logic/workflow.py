@@ -181,6 +181,9 @@ class BaseWorkflow:
             'type': self.type
         }
 
+        if hasattr(self, "topic"):
+            nodeData['topic'] = self.topic
+
         if parent is not None:
             nodeData['parent'] = parent
 
@@ -944,5 +947,7 @@ class ServerRoomLightControlWorkflow(CombinedWorkflow):
                                  brightness,
                                  color)
         ]
-        name = f"Turn {target_state.name} server room lights"
+        name = f"Turn {target_state.name} " \
+               f"{'dimmed' if brightness < 255 else 'full'}" \
+               f" server room lights"
         super().__init__(name, workflows, None)

@@ -11,6 +11,7 @@
     <script src="libs/cytoscape-dagre.js" type="text/javascript"></script>
     <script src="libs/cytoscape-cxtmenu.js"></script>
     <script src="script.js" type="text/javascript"></script>
+    <script src="topics.js" type="text/javascript"></script>
     <link href="style.css" rel="stylesheet">
 </head>
 <body onload="onLoad();">
@@ -22,20 +23,22 @@
 <div id="control">
     <div id="control-main">
         <div id="control-groups">
-            <div class="control">
-                <b>Lab Door</b>
-                <div>
-                    <button type="button" onclick="changeState('NC9kb29yL2VudHJhbmNl', 'on');">Open</button>
-                    <button type="button" onclick="changeState('NC9kb29yL2VudHJhbmNl', 'off');">Close</button>
-                </div>
-            </div>
-            <div class="control">
-                <b>Server Room Door</b>
-                <div>
-                    <button type="button" onclick="changeState('NC9kb29yL3NlcnZlcg==', 'on');">Open</button>
-                    <button type="button" onclick="changeState('NC9kb29yL3NlcnZlcg==', 'off');">Close</button>
-                </div>
-            </div>
+            <table class="control">
+                <tr>
+                    <th>Lab Door</th>
+                    <th>Server Room Door</th>
+                </tr>
+                <tr>
+                    <td align="center">
+                        <button type="button" onclick="changeState('NC9kb29yL2VudHJhbmNl', 'on');">Open</button>
+                        <button type="button" onclick="changeState('NC9kb29yL2VudHJhbmNl', 'off');">Close</button>
+                    </td>
+                    <td align="center">
+                        <button type="button" onclick="changeState('NC9kb29yL3NlcnZlcg==', 'on');">Open</button>
+                        <button type="button" onclick="changeState('NC9kb29yL3NlcnZlcg==', 'off');">Close</button>
+                    </td>
+                </tr>
+            </table>
             <div class="control">
                 <b>Text-to-speech</b>
                 <textarea placeholder="Message" id="tts"></textarea>
@@ -46,13 +49,52 @@
             <div class="control" id="command-container">
                 <b>Game Control</b>
                 <label>Players: <input type="number" id="playercount" value="4" min="1"></label>
-                <label>Duration<br> (minutes):
-                    <input type="number" id="playtime" value="45" min="1" style="margin-top: -1em;">
+                <label>Duration (mins):
+                    <input type="number" id="playtime" value="45" min="1">
                 </label>
                 <div style="clear:both;">
                     <button type="button" id="start" onclick="command('start');">Start</button>
                     <button type="button" id="pause" onclick="command('pause');" disabled>Pause</button>
                     <button type="button" id="stop" onclick="command('stop');" disabled>Stop</button>
+                </div>
+            </div>
+            <div class="control">
+                <b>Simple send</b>
+                <label>
+                    Topic:
+                    <select id="simple-topic"></select>
+                </label>
+                <label>
+                    Method:
+                    <select id="simple-method">
+                        <option>status</option>
+                        <option>trigger</option>
+                        <option>message</option>
+                    </select>
+                </label>
+                <label>
+                    State:
+                    <select id="simple-state">
+                        <option>on</option>
+                        <option>off</option>
+                        <option>active</option>
+                        <option>inactive</option>
+                        <option>solved</option>
+                        <option>failed</option>
+                    </select>
+                </label>
+                <label>Data: <input type="text" id="simple-data"></label>
+                <label>
+                    QoS:
+                    <select id="simple-qos">
+                        <option value="0">max once</option>
+                        <option value="1">min once</option>
+                        <option value="2" selected>once</option>
+                    </select>
+                </label>
+                <label>Retained: <input type="checkbox" id="simple-retain"></label>
+                <div style="clear:both;">
+                    <button type="button" onclick="simpleSend();">Send</button>
                 </div>
             </div>
         </div>

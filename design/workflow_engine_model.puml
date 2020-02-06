@@ -1,0 +1,54 @@
+@startuml workflow_engine_model
+enum WorkflowState {
+    INACTIVE
+    ACTIVE
+    FINISHED
+    SKIPPED
+}
+
+class WorkflowBase {
+    + name: String
+    + state: WorkflowState
+    --
+    .. Control methods ..
+    + execute()
+    + dispose()
+    + skip()
+    .. Event handler ..
+    + onMessage()
+    .. Events ..
+    + registerOnFailed()
+    + registerOnFinished()
+    .. State getter ..
+    + getGraphConfig()
+}
+
+
+class Workflow {
+}
+note left of Workflow
+    Implementation of the default
+    workflow definition.
+end note
+
+class SequenceWorkflow {
+}
+
+class ParallelWorkflow {
+}
+
+class CombinedWorkflow {
+}
+note left of CombinedWorkflow
+    Composition of multiple workflows
+    displayed as one node in the graph
+    config. 
+end note
+
+WorkflowBase <|-- Workflow
+WorkflowBase <|-- SequenceWorkflow
+WorkflowBase <|-- ParallelWorkflow
+
+SequenceWorkflow <|-- CombinedWorkflow
+
+@enduml
