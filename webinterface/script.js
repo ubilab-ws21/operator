@@ -289,6 +289,17 @@ function envSet() {
                 return parseInt(v, 16)
             }).join(",");
             break;
+        case "stroboscop":
+            let hex1 = getID("env-rgb").value;
+            hex1 = hex1.match(/[A-Za-z0-9]{2}/g).map(function (v) {
+                return parseInt(v, 16)
+            }).join(",");
+            let hex2  = getID("env-rgb2").value;
+            hex2 = hex2.match(/[A-Za-z0-9]{2}/g).map(function (v) {
+                return parseInt(v, 16)
+            }).join(",");
+            command.data = getID("env-delay") + "," + hex1 + "," + hex2;
+            break;
         default:
             command.data = getID("env-" + command.state).value;
     }
@@ -354,11 +365,18 @@ function validateValues(cmd) {
     getID("env-brightness").disabled = true;
     getID("env-adjust").disabled = true;
     getID("env-rgb").disabled = true;
+    getID("env-rgb2").disabled = true;
+    getID("env-delay").disabled = true;
     getID("env-button").disabled = false;
     switch (cmd.value) {
         case "brightnessAdjust":
         case "patternAdjust":
             getID("env-adjust").disabled = false;
+            break;
+        case "stroboscop":
+            getID("env-rgb").disabled = false;
+            getID("env-rgb2").disabled = false;
+            getID("env-delay").disabled = false;
             break;
         case "0":
             getID("env-button").disabled = true;

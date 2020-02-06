@@ -8,7 +8,7 @@ textarea, #control-main, #topics {
     border: 5px solid #002b36;
     padding-left: 0.5em;
     border-top: 0;
-    margin: 0 0 1em;
+    margin: 0 0 0.5em;
     height: calc(95vh - 8.5em);
     resize: none;
     width: 100%;
@@ -38,7 +38,7 @@ button {
     cursor: pointer;
 }
 
-footer button, footer input {
+footer button, footer input, footer select {
     margin-top: 2px
 }
 
