@@ -20,7 +20,7 @@ textarea, #control-main, #topics {
     height: calc(95vh - 6em);
 }
 
-input, button, select, #tts {
+input, button, select, #tts, .newcheck {
     background-color: #fdf6e3;
     color: #268bd2;
     border: 3px solid #002b36;
@@ -186,7 +186,7 @@ nav div {
     text-align: justify;
 }
 
-.control-item label input, .control-item label select {
+.control-item label input, .control-item label select, .control-item label .newcheck {
     float: right;
 }
 
@@ -221,7 +221,7 @@ nav div {
     display: inline;
 }
 
-input[type=number], input[type=checkbox] {
+input[type=number] {
     width: 4em;
 }
 
@@ -252,6 +252,32 @@ input[type=color] {
 
 #tts {
     height: 3em !important;
+}
+
+.newcheck {
+    width: 1em;
+    background-color: #cb4b16;
+    padding: 0;
+    display: inline-block;
+    cursor: pointer;
+    text-align: center;
+    font-weight: bold;
+    color: #cb4b16;
+    user-select: none;
+}
+
+.control-item .newcheck {
+    margin-top: 5px;
+    line-height: initial;
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+
+input[type="checkbox"]:checked + .newcheck {
+    background-color: #859900;
+    color: black;
 }
 
 @media screen and (max-width: 990px) {

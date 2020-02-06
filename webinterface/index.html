@@ -132,7 +132,7 @@
                     </select>
                 </label>
                 <label>Retained: <input type="checkbox"
-                                        id="simple-retain"></label>
+                                        id="simple-retain"><span class="newcheck">X</span></label>
                 <div style="clear:both;">
                     <button type="button" onclick="simpleSend();">Send</button>
                 </div>
@@ -260,7 +260,7 @@
         </div>
         <div id="son" class="subs on">
         </div>
-        <label>Time:<input type="checkbox" onclick="printTime = this.checked;"></label>
+        <label>Time:<input type="checkbox" onclick="printTime = this.checked;"><span class="newcheck">X</span></label>
         <button type="button" onclick="toggleAll('soff')">Subscribe all</button>
         <button type="button" onclick="toggleAll('son')">Unsubscribe all
         </button>
@@ -269,7 +269,7 @@
         <br>
         <input id="send-topic" type="text" placeholder="Topic">
         <input id="send-message" type="text" placeholder="Message">
-        <label>Retain:<input id="send-retain" type="checkbox"></label>
+        <label>Retain:<input id="send-retain" type="checkbox"><span class="newcheck">X</span></label>
         <label>QoS:<input id="send-qos" type="number" min="0" max="2" value="0"></label>
         <button id="send-button" type="button" onclick="send();">Send</button>
         <span class="helpmark" onclick="toggleHelp(1)">?</span>
