@@ -138,11 +138,11 @@ if __name__ == "__main__":
             if ver.trust_level is not None:
                 if ver.trust_level >= ver.TRUST_FULLY:
                     print(f"Valid trusted GPG signature by {ver.username} "
-                          f"on {ver.creation_date} with key {ver.key_id}")
+                          f"with key {ver.key_id}")
                     install = True
                 else:
                     print(f"Valid untrusted GPG signature by {ver.username} "
-                          f"on {ver.creation_date} with key {ver.key_id}")
+                          f"with key {ver.key_id}")
                     s = input("Do you want to continue anyway? y/N")
                     install = s.lower() == "y"
                 if install:
