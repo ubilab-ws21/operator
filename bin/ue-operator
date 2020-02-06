@@ -154,7 +154,7 @@ if __name__ == "__main__":
                     pl.append(["sudo", "apt", "-qq", "install",
                                "./ue-operator.deb"])
                     pl.wait()
-                    pl.append(["sudo", "systemctl", "daemon", "reload"])
+                    pl.append(["sudo", "systemctl", "daemon-reload"])
                     pl.wait()
                     pl.append(["sudo", "systemctl", "restart", "ue-operator"])
                     pl.wait()
