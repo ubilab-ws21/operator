@@ -418,7 +418,7 @@ async function onLoad() {
 
 async function displayGraph(data) {
     let cy = window.cy = cytoscape({
-        container: document.getElementById('cy'),
+        container: document.getElementById('cytoscape-container'),
         style: [
             {
                 selector: 'node',

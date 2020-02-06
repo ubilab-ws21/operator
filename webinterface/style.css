@@ -137,7 +137,7 @@ nav div {
     line-height: 1.2;
 }
 
-.control {
+.control-item {
     display: inline-block;
     padding: 5px;
     border-radius: 5px;
@@ -148,25 +148,25 @@ nav div {
     width: calc(100% - 20px);
 }
 
-.control input {
+.control-item input {
     width: 10.5em;
 }
 
-.control button {
+.control-item button {
     width: 5em;
 }
 
-.control b, #command-container div, #tts + div {
+.control-item b, #command-container div, #tts + div {
     display: block;
 }
 
-.control label {
+.control-item label {
     display: block;
     line-height: 1.9em;
     text-align: justify;
 }
 
-.control label input, .control label select {
+.control-item label input, .control-item label select {
     float: right;
 }
 
@@ -210,18 +210,18 @@ input[type=color] {
     vertical-align: bottom;
 }
 
-#cy, #control-groups {
+#cytoscape-container, #control-left {
     float: left;
     height: 100%;
     display: inline-block;
     overflow: auto;
 }
 
-#cy {
+#cytoscape-container {
     width: calc(100% - 20em);
 }
 
-#control-groups {
+#control-left {
     border-right: 5px solid #002b36;
     width: 19em;
 }

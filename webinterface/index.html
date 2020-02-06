@@ -15,50 +15,84 @@
     <link href="style.css" rel="stylesheet">
 </head>
 <body onload="onLoad();">
+<!-- NAVIGATION STARTS HERE -->
 <nav>
-    <div><a class="navlink selected" onclick="changeTab('control');" id="b-control">Control</a></div>
-    <div><a class="navlink" onclick="changeTab('cameras');" id="b-cameras">Cameras</a></div>
-    <div><a class="navlink" onclick="changeTab('mosquitto');" id="b-mosquitto">Mosquitto</a></div>
+    <div><a class="navlink selected" onclick="changeTab('control');"
+            id="b-control">Control</a></div>
+    <div><a class="navlink" onclick="changeTab('cameras');" id="b-cameras">Cameras</a>
+    </div>
+    <div><a class="navlink" onclick="changeTab('mosquitto');" id="b-mosquitto">Mosquitto</a>
+    </div>
 </nav>
+<!-- NAVIGATION ENDS HERE -->
+<!-- CONTROL PAGE STARTS HERE -->
 <div id="control">
     <div id="control-main">
-        <div id="control-groups">
-            <table class="control">
+        <div id="control-left">
+            <!-- DOOR CONTROL STARTS HERE -->
+            <table class="control-item">
                 <tr>
                     <th>Lab Door</th>
                     <th>Server Room Door</th>
                 </tr>
                 <tr>
                     <td align="center">
-                        <button type="button" onclick="changeState('NC9kb29yL2VudHJhbmNl', 'on');">Open</button>
-                        <button type="button" onclick="changeState('NC9kb29yL2VudHJhbmNl', 'off');">Close</button>
+                        <button type="button"
+                                onclick="changeState('NC9kb29yL2VudHJhbmNl', 'on');">
+                            Open
+                        </button>
+                        <button type="button"
+                                onclick="changeState('NC9kb29yL2VudHJhbmNl', 'off');">
+                            Close
+                        </button>
                     </td>
                     <td align="center">
-                        <button type="button" onclick="changeState('NC9kb29yL3NlcnZlcg==', 'on');">Open</button>
-                        <button type="button" onclick="changeState('NC9kb29yL3NlcnZlcg==', 'off');">Close</button>
+                        <button type="button"
+                                onclick="changeState('NC9kb29yL3NlcnZlcg==', 'on');">
+                            Open
+                        </button>
+                        <button type="button"
+                                onclick="changeState('NC9kb29yL3NlcnZlcg==', 'off');">
+                            Close
+                        </button>
                     </td>
                 </tr>
             </table>
-            <div class="control">
+            <!-- DOOR CONTROL ENDS HERE -->
+            <!-- SPEECH CONTROL STARTS HERE -->
+            <div class="control-item">
                 <b>Text-to-speech</b>
                 <textarea placeholder="Message" id="tts"></textarea>
                 <div>
-                    <button id="tts-button" type="button" onclick="playMessage();">Play</button>
+                    <button id="tts-button" type="button"
+                            onclick="playMessage();">Play
+                    </button>
                 </div>
             </div>
-            <div class="control" id="command-container">
+            <!-- SPEECH CONTROL ENDS HERE -->
+            <!-- GAME CONTROL STARTS HERE -->
+            <div class="control-item" id="command-container">
                 <b>Game Control</b>
-                <label>Players: <input type="number" id="playercount" value="4" min="1"></label>
+                <label>Players: <input type="number" id="playercount" value="4"
+                                       min="1"></label>
                 <label>Duration (mins):
                     <input type="number" id="playtime" value="45" min="1">
                 </label>
                 <div style="clear:both;">
-                    <button type="button" id="start" onclick="command('start');">Start</button>
-                    <button type="button" id="pause" onclick="command('pause');" disabled>Pause</button>
-                    <button type="button" id="stop" onclick="command('stop');" disabled>Stop</button>
+                    <button type="button" id="start"
+                            onclick="command('start');">Start
+                    </button>
+                    <button type="button" id="pause" onclick="command('pause');"
+                            disabled>Pause
+                    </button>
+                    <button type="button" id="stop" onclick="command('stop');"
+                            disabled>Stop
+                    </button>
                 </div>
             </div>
-            <div class="control">
+            <!-- GAME CONTROL ENDS HERE -->
+            <!-- SIMPLE MQTT SENDING STARTS HERE -->
+            <div class="control-item">
                 <b>Simple send</b>
                 <label>
                     Topic:
@@ -92,29 +126,43 @@
                         <option value="2" selected>once</option>
                     </select>
                 </label>
-                <label>Retained: <input type="checkbox" id="simple-retain"></label>
+                <label>Retained: <input type="checkbox"
+                                        id="simple-retain"></label>
                 <div style="clear:both;">
                     <button type="button" onclick="simpleSend();">Send</button>
                 </div>
             </div>
+            <!-- SIMPLE MQTT SENDING ENDS HERE -->
         </div>
-        <div id="cy"></div>
+        <div id="cytoscape-container"></div>
     </div>
     <footer>
+        <!-- ENVIRONMENT CONTROL STARTS HERE -->
         <div id="env-container">
             <select id="env-target" onchange="validateCommands(this)">
                 <option value="0" selected>&larr;select&rarr;</option>
                 <option value="2/ledstrip/timer">ledstrip/timer</option>
-                <option value="2/ledstrip/labroom/north">ledstrip/labroom/north</option>
-                <option value="2/ledstrip/labroom/south">ledstrip/labroom/south</option>
-                <option value="2/ledstrip/labroom/middle">ledstrip/labroom/middle</option>
-                <option value="2/ledstrip/serverroom">ledstrip/serverroom</option>
-                <option value="2/ledstrip/doorserverroom">ledstrip/doorserverroom</option>
+                <option value="2/ledstrip/labroom/north">
+                    ledstrip/labroom/north
+                </option>
+                <option value="2/ledstrip/labroom/south">
+                    ledstrip/labroom/south
+                </option>
+                <option value="2/ledstrip/labroom/middle">
+                    ledstrip/labroom/middle
+                </option>
+                <option value="2/ledstrip/serverroom">ledstrip/serverroom
+                </option>
+                <option value="2/ledstrip/doorserverroom">
+                    ledstrip/doorserverroom
+                </option>
                 <option>all lights</option>
                 <option>lab room lights</option>
                 <option>server room lights</option>
-                <option value="powermeter/gyrophare1/switch">gyrophare 1</option>
-                <option value="powermeter/gyrophare2/switch">gyrophare 2</option>
+                <option value="powermeter/gyrophare1/switch">gyrophare 1
+                </option>
+                <option value="powermeter/gyrophare2/switch">gyrophare 2
+                </option>
                 <option value="powermeter/switch">both gyrophares</option>
             </select>
             <select id="env-command" onchange="validateValues(this)" disabled>
@@ -144,16 +192,48 @@
                 <option>fire</option>
                 <option>timerprint</option>
             </select>
-            <input type="number" value="0" min="0" max="255" id="env-brightness" disabled>
+            <input type="number" value="0" min="0" max="255" id="env-brightness"
+                   disabled>
             <select id="env-adjust" disabled>
                 <option>+1</option>
                 <option>-1</option>
             </select>
-            <button id="env-button" type="button" onclick="return envSet();" disabled>Set</button>
+            <button id="env-button" type="button" onclick="return envSet();"
+                    disabled>Set
+            </button>
         </div>
+        <!-- ENVIRONMENT CONTROL STARTS HERE -->
         <div id="time-container">Time: <span id="time"></span></div>
     </footer>
 </div>
+<!-- CONTROL PAGE STARTS HERE -->
+<!-- CAMERA PAGE STARTS HERE -->
+<div id="cameras" style="display: none">
+    <img class="webcam" src="http://10.0.0.2:8081/stream">
+    <img class="webcam" src="http://10.0.0.2:8082/stream">
+    <img class="webcam" src="http://10.0.0.2:8083/stream">
+    <img class="webcam" src="http://10.0.0.2:8084/stream">
+    <img class="webcam" src="http://10.0.0.2:8085/stream"><br>
+    <a class="navlink" onclick="changeTab('cameras-fallback')"
+       id="b-cameras-fallback">Cameras (fallback)</a>
+</div>
+<!-- CAMERA PAGE ENDS HERE -->
+<!-- CAMERA FALLBACK PAGE STARTS HERE -->
+<div id="cameras-fallback" style="display: none">
+    <img class="webcam" src="http://10.0.0.2:8080/stream">
+    <form>
+        <select name="camera" id="camera-selection">
+            <option value="1">Camera 1</option>
+            <option value="2">Camera 2</option>
+            <option value="3">Camera 3</option>
+            <option value="4">Camera 4</option>
+            <option value="5">Camera 5</option>
+        </select>
+        <button type="button" onclick="changeCamera();">Change Camera</button>
+    </form>
+</div>
+<!-- CAMERA FALLBACK PAGE ENDS HERE -->
+<!-- MOSQUITTO PAGE STARTS HERE -->
 <div id="mosquitto" style="display: none">
     <textarea id="output" readonly></textarea>
     <div id="topics" style="display: none;"></div>
@@ -173,8 +253,10 @@
         </div>
         <label>Time:<input type="checkbox" onclick="printTime = this.checked;"></label>
         <button type="button" onclick="toggleAll('soff')">Subscribe all</button>
-        <button type="button" onclick="toggleAll('son')">Unsubscribe all</button>
-        <button type="button" onclick="getID('output').value = '';">Clear</button>
+        <button type="button" onclick="toggleAll('son')">Unsubscribe all
+        </button>
+        <button type="button" onclick="getID('output').value = '';">Clear
+        </button>
         <br>
         <input id="send-topic" type="text" placeholder="Topic">
         <input id="send-message" type="text" placeholder="Message">
@@ -185,42 +267,23 @@
         <input type="text" class="help" readonly id="help" style="display: none"
                value='{"method":"trigger","state":"on","data":"spam"}'>
         <span class="helpmark" onclick="toggleHelp(2)">?</span>
-        <input type="text" class="help" readonly id="help2" style="display: none"
+        <input type="text" class="help" readonly id="help2"
+               style="display: none"
                value='{"method":"status","state":"active","data":"spam"}'>
         <span class="helpmark" onclick="toggleTopics();">!</span>
     </footer>
 </div>
-<div id="cameras" style="display: none">
-    <img class="webcam" src="http://10.0.0.2:8081/stream">
-    <img class="webcam" src="http://10.0.0.2:8082/stream">
-    <img class="webcam" src="http://10.0.0.2:8083/stream">
-    <img class="webcam" src="http://10.0.0.2:8084/stream">
-    <img class="webcam" src="http://10.0.0.2:8085/stream"><br>
-    <a class="navlink" onclick="changeTab('cameras-fallback')" id="b-cameras-fallback">Cameras (fallback)</a>
-</div>
-<div id="cameras-fallback" style="display: none">
-    <img class="webcam" src="http://10.0.0.2:8080/stream">
-    <form>
-        <select name="camera" id="camera-selection">
-            <option value="1">Camera 1</option>
-            <option value="2">Camera 2</option>
-            <option value="3">Camera 3</option>
-            <option value="4">Camera 4</option>
-            <option value="5">Camera 5</option>
-        </select>
-        <button type="button" onclick="changeCamera();">Change Camera</button>
-    </form>
-</div>
+<!-- MOSQUITTO PAGE ENDS HERE -->
 
 <audio controls preload='none'>
     <source src="http://10.0.0.2:8554/stream.ogg" type="audio/ogg">
 </audio>
 <!-- bust the http cache for audio streaming -->
 <script>
-  var aud = document.querySelector('audio source');
-  aud.src = encodeURI(aud.src + '?nocache=' + Math.random().toString(36));
-  aud.parentElement.load();
-  aud.parentElement.play();
+    var aud = document.querySelector('audio source');
+    aud.src = encodeURI(aud.src + '?nocache=' + Math.random().toString(36));
+    aud.parentElement.load();
+    aud.parentElement.play();
 </script>
 
 </body>
