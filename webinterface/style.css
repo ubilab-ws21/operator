@@ -190,23 +190,23 @@ nav div {
     float: right;
 }
 
-table {
+#control table {
     border-collapse: collapse;
     box-sizing: border-box;
     padding: 0 5px !important;
     width: calc(100% - 10px) !important;
 }
 
-th + th, td + td {
+#control th + th, #control td + td {
     border-left: 5px solid #073642;
 }
 
-th {
+#control th {
 	padding-top: 5px;
     width: 50%;
 }
 
-td {
+#control td {
     padding-bottom: 5px;
     width: 50%;
 }
