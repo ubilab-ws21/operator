@@ -189,7 +189,7 @@ class WorkflowController:
         print("=== Purges all topics ===")
         try:
             subprocess.Popen([
-                "/snap/bin/mosquitto_sub",
+                "/opt/ue-operator/mosquitto_sub",
                 "-h", self.mqtt_url,
                 "-t", "#",
                 "-T", "1/gameControl",
