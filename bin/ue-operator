@@ -2,10 +2,11 @@
 
 from paho.mqtt import subscribe, publish
 from argparse import ArgumentParser
-from os import remove
+from os import remove, environ
 from urllib.request import urlretrieve
 import subprocess
 import json
+from gnupg import GPG
 
 OPT = "/opt/ue-operator/"
 GITHUB = "https://github.com/ubilab-escape/operator/"
@@ -130,11 +131,14 @@ if __name__ == "__main__":
                         "ue-operator.deb")
             urlretrieve(GITHUB + "releases/latest/download/ue-operator.deb.asc",
                         "ue-operator.deb.asc")
-            pl.append(["gpg", "--textmode", "--verify", "ue-operator.deb.asc",
-                       "ue-operator.deb"])
-            pl.wait()
-            pl.append(["sudo", "apt", "-qq", "install", "./ue-operator.deb"])
-            pl.wait()
+            gpg = GPG(gnupghome=environ["HOME"] + "/.gnupg")
+            with open("ue-operator.deb.asc") as sig:
+                verify = gpg.verify_file(sig, "ue-operator.deb")
+            if verify:
+                pl.append(["sudo", "apt", "-qq", "install", "./ue-operator.deb"])
+                pl.wait()
+            else:
+                print("Invalid signature")
             remove("ue-operator.deb")
             remove("ue-operator.deb.asc")
 
