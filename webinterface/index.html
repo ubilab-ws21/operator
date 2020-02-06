@@ -209,5 +209,17 @@
         <button type="button" onclick="changeCamera();">Change Camera</button>
     </form>
 </div>
+
+<audio controls preload='none'>
+    <source src="http://localhost:8554/stream.ogg" type="audio/ogg">
+</audio>
+<!-- bust the http cache for audio streaming -->
+<script>
+  var aud = document.querySelector('audio source');
+  aud.src = encodeURI(aud.src + '?nocache=' + Math.random().toString(36));
+  aud.parentElement.load();
+  aud.parentElement.play();
+</script>
+
 </body>
 </html>
