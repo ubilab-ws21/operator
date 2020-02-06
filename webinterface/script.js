@@ -213,7 +213,10 @@ function changeCamera() {
  * @param state
  */
 function changeState(dst_b64, state) {
-    mqtt.send(atob(dst_b64), JSON.stringify({method: "trigger", state: state}), 2);
+    mqtt.send(atob(dst_b64), JSON.stringify({
+        method: "trigger",
+        state: state
+    }), 2);
 }
 
 /**
@@ -223,7 +226,10 @@ function playMessage() {
     if (getID("tts").value === "") {
         alert("Message must be set");
     }
-    mqtt.send("2/textToSpeech", JSON.stringify({method: "message", data: getID("tts").value}), 2, false);
+    mqtt.send("2/textToSpeech", JSON.stringify({
+        method: "message",
+        data: getID("tts").value
+    }), 2, false);
     getID("tts").value = "";
 }
 
@@ -265,7 +271,11 @@ function command(content) {
  * Sends a environment control command
  */
 function envSet() {
-    let command = {method: "trigger", state: getID("env-command").value, data: null};
+    let command = {
+        method: "trigger",
+        state: getID("env-command").value,
+        data: null
+    };
     switch (command.state) {
         case "0":
             return false;
@@ -282,21 +292,23 @@ function envSet() {
         default:
             command.data = getID("env-" + command.state).value;
     }
-    if (getID("env-target").value === "all lights") {
-        mqtt.send("2/ledstrip/labroom/north", JSON.stringify(command), 2, false);
-        mqtt.send("2/ledstrip/labroom/south", JSON.stringify(command), 2, false);
-        mqtt.send("2/ledstrip/labroom/middle", JSON.stringify(command), 2, false);
-        mqtt.send("2/ledstrip/serverroom", JSON.stringify(command), 2, false);
-        mqtt.send("2/ledstrip/doorserverroom", JSON.stringify(command), 2, false);
-    } else if (getID("env-target").value === "lab room lights") {
-        mqtt.send("2/ledstrip/labroom/north", JSON.stringify(command), 2, false);
-        mqtt.send("2/ledstrip/labroom/south", JSON.stringify(command), 2, false);
-        mqtt.send("2/ledstrip/labroom/middle", JSON.stringify(command), 2, false);
-    } else if (getID("env-target").value === "server room lights") {
-        mqtt.send("2/ledstrip/serverroom", JSON.stringify(command), 2, false);
-        mqtt.send("2/ledstrip/doorserverroom", JSON.stringify(command), 2, false);
+    let target = getID("env-target").value;
+    if (target.startsWith("powermeter")) {
+        if (command.state === "power") {
+            mqtt.send(target, command.data, 2, false);
+        }
+    } else if (target.includes(" lights")) {
+        if (target === "lab room lights" || target === "all lights") {
+            mqtt.send("2/ledstrip/labroom/north", JSON.stringify(command), 2, false);
+            mqtt.send("2/ledstrip/labroom/south", JSON.stringify(command), 2, false);
+            mqtt.send("2/ledstrip/labroom/middle", JSON.stringify(command), 2, false);
+        }
+        if (target === "server room lights" || target === "all lights") {
+            mqtt.send("2/ledstrip/serverroom", JSON.stringify(command), 2, false);
+            mqtt.send("2/ledstrip/doorserverroom", JSON.stringify(command), 2, false);
+        }
     } else {
-        mqtt.send(getID("env-target").value, JSON.stringify(command), 2, false);
+        mqtt.send(target, JSON.stringify(command), 2, false);
     }
 }
 
@@ -313,7 +325,9 @@ function validateCommands(target) {
             cmd.value = 0;
             validateValues(cmd);
             break;
-        case "2/gyrophare":
+        case "powermeter/gyrophare1/switch":
+        case "powermeter/gyrophare2/switch":
+        case "powermeter/switch":
             for (let child of cmd.children) {
                 child.disabled = child.value !== "power";
                 if (child.value === "power") {
@@ -361,7 +375,7 @@ function validateValues(cmd) {
  */
 function addEnterEvent(target, button) {
     target.addEventListener("keyup", function (event) {
-        if(event.keyCode === 13) {
+        if (event.keyCode === 13) {
             event.preventDefault();
             button.click();
         }
@@ -395,7 +409,7 @@ async function onLoad() {
     // Add topic options to simple send
     let topicList2 = typeof topicList === 'undefined' ? ["0/dummy"] : topicList;
     let selectTopic = getID("simple-topic");
-    for(let topic of topicList2) {
+    for (let topic of topicList2) {
         let option = document.createElement("option");
         option.text = topic;
         selectTopic.add(option);
@@ -497,7 +511,7 @@ async function displayGraph(data) {
         ],
 
     });
-        cy.cxtmenu({
+    cy.cxtmenu({
         menuRadius: 70,
         atMouse: true,
         selector: "node[topic]",
@@ -514,7 +528,10 @@ async function displayGraph(data) {
                 fillColor: 'rgba(0, 255, 0, 0.75)',
                 content: 'On',
                 select: function (ele) {
-                    mqtt.send(ele.data("topic"), JSON.stringify({method:"trigger","state":"on"}), 2, false);
+                    mqtt.send(ele.data("topic"), JSON.stringify({
+                        method: "trigger",
+                        "state": "on"
+                    }), 2, false);
                 },
                 enabled: true
             },
@@ -522,7 +539,10 @@ async function displayGraph(data) {
                 fillColor: 'rgba(255, 0, 0, 0.75)',
                 content: 'Off',
                 select: function (ele) {
-                    mqtt.send(ele.data("topic"), JSON.stringify({method:"trigger","state":"off"}), 2, false);
+                    mqtt.send(ele.data("topic"), JSON.stringify({
+                        method: "trigger",
+                        "state": "off"
+                    }), 2, false);
                 },
                 enabled: true
             }
