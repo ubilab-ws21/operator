@@ -70,13 +70,17 @@ def on_scale(client, userdata, message):
             gyro = "on"
             msg = '{"method":"message","data":"Put the prototype back!"}'
             publish.single("2/textToSpeech", msg, hostname="10.0.0.2")
-        msg = f'{{"method": "trigger", "state": "power", "data": {gyro}}}'
-        publish.single("2/gyrophare", msg, hostname="10.0.0.2")
+        publish.single("powermeter/switch", gyro, hostname="10.0.0.2")
     except json.JSONDecodeError:
         pass
 
 
 if __name__ == "__main__":
+    """
+    This script controls the whole server logic
+    Different commands allow options as updating from GitHub, starting and 
+    initializing
+    """
     parser = ArgumentParser(
         description='Command-line interface for the ubilab-escape operator')
     parser.add_argument('command', metavar='CMD', type=str,
@@ -96,29 +100,30 @@ if __name__ == "__main__":
 
     try:
         """
-            Initializing requirements not fetched over apt
+            Command INIT: Initializing requirements not fetched over apt  
+             This includes cloning git repositories for camera relay and text-
+             to-speech and installing the respective requirements.txt
         """
         if args.command == "init":
             pl.append(
                 ["git", "clone", "https://github.com/ubilab-escape/environment",
                  OPT + "environment"])
-            pl.wait()
-            pl.append(
-                ["python3", "-m", "pip", "install", "-r", "requirements.txt"],
-                cwd=OPT + "environment/text_to_speech")
             pl.append(["git", "clone", "--recurse-submodules",
                        "https://github.com/OliverF/mjpeg-relay.git",
                        "/opt/mjpeg-relay"])
             pl.wait()
             pl.append(
+                ["python3", "-m", "pip", "install", "-r", "requirements.txt"],
+                cwd=OPT + "environment/text_to_speech")
+            pl.append(
                 ["python", "-m", "pip", "install", "-r", "requirements.txt"],
                 cwd="/opt/mjpeg-relay/")
-            pl.append(["sudo", "snap", "install", "mosquitto"])
-            pl.append(["sudo", "systemctl", "disable", "snapd"])
             pl.wait()
 
         """
-            Updating git repos and installing the newest release
+            Command UPDATE: Updating git repos for the camera relay and text-to-
+             speech and installing the newest release from GitHub
+             This also checks the GPG signature of the release
         """
         if args.command == "update":
             pl.append(["git", "pull"], cwd=OPT + "environment")
@@ -159,7 +164,9 @@ if __name__ == "__main__":
             remove("ue-operator.deb.asc")
 
         """
-            Starting all services and scripts
+            Command START: Starting all services and scripts, including:
+             text-to-speech, camera relay/camera fallback script, mosquitto,
+             game logic, mqtt logging and the script for monitoring the scale
         """
         if args.command == "start":
             pl.append(
@@ -188,7 +195,7 @@ if __name__ == "__main__":
             pl.wait()
 
         """
-            Outputting the help
+            Command HELP: Outputting the help message
         """
         if args.command == "help":
             print("Select a CMD to execute")

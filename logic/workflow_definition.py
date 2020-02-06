@@ -72,7 +72,7 @@ class WorkflowDefinition:
                 LabRoomLightControlWorkflow(State.ON, 255, (0, 255, 0)),
                 AudioControlWorkflow(
                     "Play success",
-                    "/opt/ue-operator/sounds/gamesuccess.mp3",
+                    "/opt/ue-operator/sounds/success.mp3",
                     True
                 )
             ])
