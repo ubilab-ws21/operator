@@ -8,7 +8,7 @@ textarea, #control-main, #topics {
     border: 5px solid #002b36;
     padding-left: 0.5em;
     border-top: 0;
-    margin: 0 0 1em;
+    margin: 0 0 0.5em;
     height: calc(95vh - 8.5em);
     resize: none;
     width: 100%;
@@ -20,7 +20,7 @@ textarea, #control-main, #topics {
     height: calc(95vh - 6em);
 }
 
-input, button, select, #tts {
+input, button, select, #tts, .newcheck {
     background-color: #fdf6e3;
     color: #268bd2;
     border: 3px solid #002b36;
@@ -38,7 +38,7 @@ button {
     cursor: pointer;
 }
 
-footer button, footer input {
+footer button, footer input, footer select {
     margin-top: 2px
 }
 
@@ -47,11 +47,27 @@ nav {
     padding: 5px 5px 0;
 }
 
+nav::before,
+nav::after {
+  content: " ";
+  display: table;
+}
+
+nav::after {
+  clear: both;
+}
+
 nav div {
-    display: inline-block;
+    display: block;
     text-align: center;
     background-color: #073642;
-    margin: 0 0 5px;
+    float: left;
+    margin: 0 5px 5px 0;
+}
+
+#nav-audio {
+    float: right;
+    margin-right: 0;
 }
 
 .navlink {
@@ -89,6 +105,14 @@ nav div {
 :disabled {
     cursor: default;
     color: #586e75 !important;
+}
+
+#env-container :disabled {
+	display: none;
+}
+
+#env-delay {
+    width: 5em;
 }
 
 .subs.on button, #start {
@@ -137,7 +161,7 @@ nav div {
     line-height: 1.2;
 }
 
-.control {
+.control-item {
     display: inline-block;
     padding: 5px;
     border-radius: 5px;
@@ -148,45 +172,45 @@ nav div {
     width: calc(100% - 20px);
 }
 
-.control input {
+.control-item input {
     width: 10.5em;
 }
 
-.control button {
+.control-item button {
     width: 5em;
 }
 
-.control b, #command-container div, #tts + div {
+.control-item b, #command-container div, #tts + div {
     display: block;
 }
 
-.control label {
+.control-item label {
     display: block;
     line-height: 1.9em;
     text-align: justify;
 }
 
-.control label input, .control label select {
+.control-item label input, .control-item label select, .control-item label .newcheck {
     float: right;
 }
 
-table {
+#control table {
     border-collapse: collapse;
     box-sizing: border-box;
     padding: 0 5px !important;
     width: calc(100% - 10px) !important;
 }
 
-th + th, td + td {
+#control th + th, #control td + td {
     border-left: 5px solid #073642;
 }
 
-th {
+#control th {
 	padding-top: 5px;
     width: 50%;
 }
 
-td {
+#control td {
     padding-bottom: 5px;
     width: 50%;
 }
@@ -201,7 +225,7 @@ td {
     display: inline;
 }
 
-input[type=number], input[type=checkbox] {
+input[type=number] {
     width: 4em;
 }
 
@@ -210,18 +234,18 @@ input[type=color] {
     vertical-align: bottom;
 }
 
-#cy, #control-groups {
+#cytoscape-container, #control-left {
     float: left;
     height: 100%;
     display: inline-block;
     overflow: auto;
 }
 
-#cy {
+#cytoscape-container {
     width: calc(100% - 20em);
 }
 
-#control-groups {
+#control-left {
     border-right: 5px solid #002b36;
     width: 19em;
 }
@@ -232,6 +256,32 @@ input[type=color] {
 
 #tts {
     height: 3em !important;
+}
+
+.newcheck {
+    width: 1em;
+    background-color: #cb4b16;
+    padding: 0;
+    display: inline-block;
+    cursor: pointer;
+    text-align: center;
+    font-weight: bold;
+    color: #cb4b16;
+    user-select: none;
+}
+
+.control-item .newcheck {
+    margin-top: 5px;
+    line-height: initial;
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+
+input[type="checkbox"]:checked + .newcheck {
+    background-color: #859900;
+    color: black;
 }
 
 @media screen and (max-width: 990px) {
@@ -250,4 +300,21 @@ input[type=color] {
     textarea {
         height: calc(95vh - 12em);
     }
+}
+
+#loader-control, #loader-mosquitto {
+	border: 10px dotted #cb4b16;
+	border-radius: 50%;
+	width: 4em;
+	height: 4em;
+	animation: spin 1.5s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+	position: absolute;
+	margin-top: 1em;
+	margin-left: calc(50vw - 3em);
+    display: none;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

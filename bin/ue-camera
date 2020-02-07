@@ -9,17 +9,21 @@ from subprocess import Popen
 class ControlHandler(BaseHTTPRequestHandler):
     """
     The control handler handle HTTP requests for defined methods
+    It switches between cameras depending of the requested HTTP path
+    It is only thought as a fallback method
     """
     currentProcess = None
 
     def do_GET(self):
         """
-        This implements the GET method to connect the multiplexer to another camera
+        This implements the GET method to connect the multiplexer to another
+        camera stated in the path
         """
         address = "http://10.0.1."
         try:
             if int(self.path[1]) not in range(1, 6):
-                raise ValueError(f"{self.path[1]} is not a valid camera number (1-5)")
+                raise ValueError(f"{self.path[1]}"
+                                 f" is not a valid camera number (1-5)")
             address += self.path[1]
         except Exception as e:
             if isinstance(e, ValueError):
@@ -32,7 +36,8 @@ class ControlHandler(BaseHTTPRequestHandler):
 
         if self.currentProcess is not None:
             self.currentProcess.terminate()
-        self.currentProcess = Popen(["python", "relay.py", "-p", "8080", "-w", "12340", address], cwd="/opt/mjpeg-relay/")
+        self.currentProcess = Popen(["python", "relay.py", "-p", "8080", "-w",
+                                     "12340", address], cwd="/opt/mjpeg-relay/")
         self.send_response(HTTPStatus.OK)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
@@ -42,8 +47,9 @@ if __name__ == "__main__":
     """
     This starts the web server on a given port
     """
-    parser = ArgumentParser(description='Web server for the ubilab-escape camera control')
-    parser.add_argument('--port', '-p', action='store', default=9000, type=int, help='set the port to listen on')
+    parser = ArgumentParser(description='ubilab-escape camera control server')
+    parser.add_argument('--port', '-p', action='store', default=9000, type=int,
+                        help='set the port to listen on')
     args = parser.parse_args()
     httpd = HTTPServer(("localhost", args.port), ControlHandler)
     try:

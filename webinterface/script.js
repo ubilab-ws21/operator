@@ -17,12 +17,23 @@ function getID(id) {
 }
 
 /**
+ * This function toggles the spinner and sets the opacity of the tabs
+ * @param activate Whether to activate or deactivate the spinner and opacity
+ */
+function setSpinner(activate) {
+    getID("loader-control").style.display = activate ? "block" : "none";
+    getID("loader-mosquitto").style.display = activate ? "block" : "none";
+    getID("control").style.filter = activate ? "opacity(0.2)" : "";
+    getID("mosquitto").style.filter = activate ? "opacity(0.2)" : "";
+}
+
+/**
  * Is called when the connection fails for the mqtt client
  * Tries to restart the client connection
  * @param message
  */
 function onFailure(message) {
-    console.log("Connection attempt failed");
+    setSpinner(true);
     console.log(message);
     setTimeout(mqttConnect, reconnectTimeout);
 }
@@ -31,7 +42,7 @@ function onFailure(message) {
  * Is called when the client connected
  */
 function onConnect() {
-    console.log("Connected debug");
+    setSpinner(false);
     for (let topic of topicsUI) {
         mqtt.subscribe(topic);
     }
@@ -43,7 +54,7 @@ function onConnect() {
  * @param msg
  */
 function onMessageArrived(msg) {
-    let topic = msg.destinationName
+    let topic = msg.destinationName;
     if (topicsUser.has(topic.substr(0, 1)) && (!topic.startsWith("1/gameTime") || printTime)) {
         let op = getID("output");
         op.value += "Topic " + topic + "; time ";
@@ -95,10 +106,10 @@ function onMessageArrived(msg) {
 
 /**
  * Creates and connects the mqtt client
- * @constructor
  */
-function mqttConnect() {
+async function mqttConnect() {
     console.log("Connecting mqtt client to " + host + ":" + port + "...");
+    setSpinner(true);
     mqtt = new Paho.Client(host, port, "", "ws-client-d" + ~~(Date.now() / 1000));
     mqtt.onMessageArrived = onMessageArrived;
     mqtt.connect({timeout: 3, onSuccess: onConnect, onFailure: onFailure});
@@ -213,7 +224,10 @@ function changeCamera() {
  * @param state
  */
 function changeState(dst_b64, state) {
-    mqtt.send(atob(dst_b64), JSON.stringify({method: "trigger", state: state}), 2);
+    mqtt.send(atob(dst_b64), JSON.stringify({
+        method: "trigger",
+        state: state
+    }), 2);
 }
 
 /**
@@ -223,7 +237,10 @@ function playMessage() {
     if (getID("tts").value === "") {
         alert("Message must be set");
     }
-    mqtt.send("2/textToSpeech", JSON.stringify({method: "message", data: getID("tts").value}), 2, false);
+    mqtt.send("2/textToSpeech", JSON.stringify({
+        method: "message",
+        data: getID("tts").value
+    }), 2, false);
     getID("tts").value = "";
 }
 
@@ -265,7 +282,11 @@ function command(content) {
  * Sends a environment control command
  */
 function envSet() {
-    let command = {method: "trigger", state: getID("env-command").value, data: null};
+    let command = {
+        method: "trigger",
+        state: getID("env-command").value,
+        data: null
+    };
     switch (command.state) {
         case "0":
             return false;
@@ -279,24 +300,37 @@ function envSet() {
                 return parseInt(v, 16)
             }).join(",");
             break;
+        case "blink":
+            let hex1 = getID("env-rgb").value;
+            hex1 = hex1.match(/[A-Za-z0-9]{2}/g).map(function (v) {
+                return parseInt(v, 16)
+            }).join(",");
+            let hex2  = getID("env-rgb2").value;
+            hex2 = hex2.match(/[A-Za-z0-9]{2}/g).map(function (v) {
+                return parseInt(v, 16)
+            }).join(",");
+            command.data = getID("env-delay").value + "," + hex1 + "," + hex2;
+            break;
         default:
             command.data = getID("env-" + command.state).value;
     }
-    if (getID("env-target").value === "all lights") {
-        mqtt.send("2/ledstrip/labroom/north", JSON.stringify(command), 2, false);
-        mqtt.send("2/ledstrip/labroom/south", JSON.stringify(command), 2, false);
-        mqtt.send("2/ledstrip/labroom/middle", JSON.stringify(command), 2, false);
-        mqtt.send("2/ledstrip/serverroom", JSON.stringify(command), 2, false);
-        mqtt.send("2/ledstrip/doorserverroom", JSON.stringify(command), 2, false);
-    } else if (getID("env-target").value === "lab room lights") {
-        mqtt.send("2/ledstrip/labroom/north", JSON.stringify(command), 2, false);
-        mqtt.send("2/ledstrip/labroom/south", JSON.stringify(command), 2, false);
-        mqtt.send("2/ledstrip/labroom/middle", JSON.stringify(command), 2, false);
-    } else if (getID("env-target").value === "server room lights") {
-        mqtt.send("2/ledstrip/serverroom", JSON.stringify(command), 2, false);
-        mqtt.send("2/ledstrip/doorserverroom", JSON.stringify(command), 2, false);
+    let target = getID("env-target").value;
+    if (target.startsWith("powermeter")) {
+        if (command.state === "power") {
+            mqtt.send(target, command.data, 2, false);
+        }
+    } else if (target.includes(" lights")) {
+        if (target === "lab room lights" || target === "all lights") {
+            mqtt.send("2/ledstrip/labroom/north", JSON.stringify(command), 2, false);
+            mqtt.send("2/ledstrip/labroom/south", JSON.stringify(command), 2, false);
+            mqtt.send("2/ledstrip/labroom/middle", JSON.stringify(command), 2, false);
+        }
+        if (target === "server room lights" || target === "all lights") {
+            mqtt.send("2/ledstrip/serverroom", JSON.stringify(command), 2, false);
+            mqtt.send("2/ledstrip/doorserverroom", JSON.stringify(command), 2, false);
+        }
     } else {
-        mqtt.send(getID("env-target").value, JSON.stringify(command), 2, false);
+        mqtt.send(target, JSON.stringify(command), 2, false);
     }
 }
 
@@ -313,7 +347,9 @@ function validateCommands(target) {
             cmd.value = 0;
             validateValues(cmd);
             break;
-        case "2/gyrophare":
+        case "powermeter/gyrophare1/switch":
+        case "powermeter/gyrophare2/switch":
+        case "powermeter/switch":
             for (let child of cmd.children) {
                 child.disabled = child.value !== "power";
                 if (child.value === "power") {
@@ -340,11 +376,18 @@ function validateValues(cmd) {
     getID("env-brightness").disabled = true;
     getID("env-adjust").disabled = true;
     getID("env-rgb").disabled = true;
+    getID("env-rgb2").disabled = true;
+    getID("env-delay").disabled = true;
     getID("env-button").disabled = false;
     switch (cmd.value) {
         case "brightnessAdjust":
         case "patternAdjust":
             getID("env-adjust").disabled = false;
+            break;
+        case "blink":
+            getID("env-rgb").disabled = false;
+            getID("env-rgb2").disabled = false;
+            getID("env-delay").disabled = false;
             break;
         case "0":
             getID("env-button").disabled = true;
@@ -361,7 +404,7 @@ function validateValues(cmd) {
  */
 function addEnterEvent(target, button) {
     target.addEventListener("keyup", function (event) {
-        if(event.keyCode === 13) {
+        if (event.keyCode === 13) {
             event.preventDefault();
             button.click();
         }
@@ -369,18 +412,47 @@ function addEnterEvent(target, button) {
 }
 
 /**
- * Triggers all functions started on load
+ * Triggers all functions started on load in parallel
  */
 async function onLoad() {
-    new mqttConnect();
     if (window.location.href.includes("?")) {
         changeTab(window.location.href.split("?")[1])
     }
+    let promises = [];
+    promises.push(mqttConnect());
+    promises.push(onLoadAddEnterEvents());
+    promises.push(onLoadTopicHelp());
+    promises.push(onLoadTopicsSelect());
+    promises.push(onLoadBustAudioCache());
+    await Promise.all(promises);
+}
+
+/**
+ * Adds all enter events for buttons
+ * @returns {Promise<void>}
+ */
+async function onLoadAddEnterEvents() {
     addEnterEvent(getID("tts"), getID("tts-button"));
     addEnterEvent(getID("send-topic"), getID("send-button"));
     addEnterEvent(getID("send-message"), getID("send-button"));
+}
 
-    // Read topics into textarea (add timestamp to defy caching)
+/**
+ * Bust the HTTP cache for audio streaming
+ * @returns {Promise<void>}
+ */
+async function onLoadBustAudioCache() {
+    let aud = document.querySelector('audio source');
+    aud.src = encodeURI(aud.src + '?nocache=' + Math.random().toString(36));
+    aud.parentElement.load();
+    aud.parentElement.play();
+}
+
+/**
+ * Read topics into textarea (add timestamp to defy caching)
+ * @returns {Promise<void>}
+ */
+async function onLoadTopicHelp() {
     let client = new XMLHttpRequest();
     client.open('GET', 'MQTTTopics.md?v=' + Date.now().toString());
     client.onload = function () {
@@ -391,20 +463,25 @@ async function onLoad() {
         }
     };
     client.send();
+}
 
-    // Add topic options to simple send
+/**
+ * Add topic options to simple send
+ * @returns {Promise<void>}
+ */
+async function onLoadTopicsSelect() {
     let topicList2 = typeof topicList === 'undefined' ? ["0/dummy"] : topicList;
     let selectTopic = getID("simple-topic");
-    for(let topic of topicList2) {
+    for (let topic of topicList2) {
         let option = document.createElement("option");
         option.text = topic;
         selectTopic.add(option);
     }
 }
 
-async function displayGraph(data) {
+function displayGraph(data) {
     let cy = window.cy = cytoscape({
-        container: document.getElementById('cy'),
+        container: document.getElementById('cytoscape-container'),
         style: [
             {
                 selector: 'node',
@@ -497,7 +574,7 @@ async function displayGraph(data) {
         ],
 
     });
-        cy.cxtmenu({
+    cy.cxtmenu({
         menuRadius: 70,
         atMouse: true,
         selector: "node[topic]",
@@ -514,7 +591,10 @@ async function displayGraph(data) {
                 fillColor: 'rgba(0, 255, 0, 0.75)',
                 content: 'On',
                 select: function (ele) {
-                    mqtt.send(ele.data("topic"), JSON.stringify({method:"trigger","state":"on"}), 2, false);
+                    mqtt.send(ele.data("topic"), JSON.stringify({
+                        method: "trigger",
+                        "state": "on"
+                    }), 2, false);
                 },
                 enabled: true
             },
@@ -522,7 +602,10 @@ async function displayGraph(data) {
                 fillColor: 'rgba(255, 0, 0, 0.75)',
                 content: 'Off',
                 select: function (ele) {
-                    mqtt.send(ele.data("topic"), JSON.stringify({method:"trigger","state":"off"}), 2, false);
+                    mqtt.send(ele.data("topic"), JSON.stringify({
+                        method: "trigger",
+                        "state": "off"
+                    }), 2, false);
                 },
                 enabled: true
             }

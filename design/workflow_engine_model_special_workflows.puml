@@ -1,0 +1,59 @@
+@startuml workflow_engine_model_special_workflows
+
+class WorkflowBase {
+}
+
+class Workflow {
+}
+
+class SequenceWorkflow {
+}
+
+class ParallelWorkflow {
+}
+
+class CombinedWorkflow {
+}
+
+class SendTriggerWorkflow {
+}
+
+class ScaleWorkflow {
+}
+
+class InitWorkflow {
+}
+
+class ExitWorkflow {
+}
+
+class AudioControlWorkflow {
+}
+
+class LightControlWorkflow {
+}
+
+class LabRoomLightControlWorkflow {
+}
+
+class ServerRoomLightControlWorkflow {
+}
+
+WorkflowBase <|-- Workflow
+WorkflowBase <|-- SequenceWorkflow
+WorkflowBase <|-- ParallelWorkflow
+
+SequenceWorkflow <|-- CombinedWorkflow
+
+WorkflowBase <|-- SendTriggerWorkflow
+WorkflowBase <|-- AudioControlWorkflow
+WorkflowBase <|-- LightControlWorkflow
+
+Workflow <|-- ScaleWorkflow
+
+CombinedWorkflow <|-- InitWorkflow
+CombinedWorkflow <|-- ExitWorkflow
+CombinedWorkflow <|-- LabRoomLightControlWorkflow
+CombinedWorkflow <|-- ServerRoomLightControlWorkflow
+
+@enduml

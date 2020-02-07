@@ -14,6 +14,8 @@ class WorkflowDefinition:
             InitWorkflow([
                 SendTriggerWorkflow("Reset safe",
                                     "5/safe/control", State.OFF),
+                SendTriggerWorkflow("Reset scale",
+                                    "6/puzzle/scale", State.OFF),
                 SendTriggerWorkflow("Close lab room door",
                                     "4/door/entrance", State.OFF),
                 SendTriggerWorkflow("Close server room door",
@@ -62,7 +64,10 @@ class WorkflowDefinition:
             # Allow multiple riddles in server room
             ParallelWorkflow("Server room", [
                 Workflow("Terminal riddle", "6/puzzle/terminal"),
-                Workflow("Maze riddle", "8/puzzle/maze")
+                SequenceWorkflow("Server cabinet", [
+                    Workflow("Maze riddle", "8/puzzle/maze"),
+                    Workflow("IP riddle", "8/puzzle/IP")
+                ])
             ]),
             Workflow("Simon riddle", "8/puzzle/simon"),
             ExitWorkflow([
@@ -72,7 +77,7 @@ class WorkflowDefinition:
                 LabRoomLightControlWorkflow(State.ON, 255, (0, 255, 0)),
                 AudioControlWorkflow(
                     "Play success",
-                    "/opt/ue-operator/sounds/gamesuccess.mp3",
+                    "/opt/ue-operator/sounds/success.mp3",
                     True
                 )
             ])

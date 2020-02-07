@@ -634,6 +634,9 @@ class ParallelWorkflow(BaseWorkflow):
 
 
 class SendTriggerWorkflow(BaseWorkflow):
+    """
+    This workflow sends trigger:on and trigger:off to a given topic.
+    """
 
     def __init__(self, name, topic, target_state):
         """
@@ -674,54 +677,11 @@ class SendTriggerWorkflow(BaseWorkflow):
             print(f"[{self.name}] Triggered '{state.name}'...")
 
 
-class ScaleWorkflow(Workflow):
-
-    def __init__(self, name, topic, settings=None):
-        """
-        Initializes a new instance of this class.
-
-        Parameters
-        ----------
-        name : str
-            Display name of the workflow.
-
-        topic : str
-            Name of the MQTT topic.
-
-        settings: keywords
-            An dictionary of global settings.
-        """
-        super().__init__(name, topic, settings)
-        self.scale_status = State.INACTIVE
-
-    def _on_received_status_inactive(self, data):
-        if self.scale_status == State.ACTIVE:
-            self.on_finished(self.name)
-        else:
-            self.scale_status = State.INACTIVE
-
-    def _on_received_status_active(self, data):
-        self.scale_status = State.ACTIVE
-
-
 class CombinedWorkflow(SequenceWorkflow):
-
-    def __init__(self, name, workflows, settings=None):
-        """
-        Initializes a new instance of this class.
-
-        Parameters
-        ----------
-        name : str
-            Display name of the workflow.
-
-        workflows : Workflow[]
-            Collection of workflows should be executed in parallel.
-
-        settings: keywords
-            An dictionary of global settings.
-        """
-        super().__init__(name, workflows, settings)
+    """
+    This workflow is a special sequence workflows displaying all
+    it's capsulate workflows as one node in the graph config.
+    """
 
     def get_graph(self, predecessors=None, parent=None):
         """
@@ -744,7 +704,48 @@ class CombinedWorkflow(SequenceWorkflow):
         return BaseWorkflow.get_graph(self, predecessors, parent)
 
 
+class ScaleWorkflow(Workflow):
+    """
+    This workflow handles the special solved condition of the scale riddle.
+    The riddle is solved if the scale is unbalanced and after that is
+    balanced again.
+    """
+
+    def __init__(self, name, topic, settings=None):
+        """
+        Initializes a new instance of this class.
+
+        Parameters
+        ----------
+        name : str
+            Display name of the workflow.
+
+        topic : str
+            Name of the MQTT topic.
+
+        settings: keywords
+            An dictionary of global settings.
+        """
+        super().__init__(name, topic, settings)
+        self.scale_status = State.INACTIVE
+
+    def _on_received_status_inactive(self, data):
+        if self.scale_status == State.ACTIVE:
+            # call super().super() on_finished to avoid sending trigger:off
+            BaseWorkflow.on_finished(self, self.name)
+        else:
+            self.scale_status = State.INACTIVE
+
+    def _on_received_status_active(self, data):
+        self.scale_status = State.ACTIVE
+
+
 class InitWorkflow(CombinedWorkflow):
+    """
+    This workflow is just a named ("Init") combined workflow to do some initial
+    tasks.
+    """
+
     def __init__(self, workflows, settings=None):
         """
         Initializes a new instance of this class.
@@ -761,6 +762,11 @@ class InitWorkflow(CombinedWorkflow):
 
 
 class ExitWorkflow(CombinedWorkflow):
+    """
+    This workflow is just a named ("Exit") combined workflow to do some
+    finalization tasks.
+    """
+
     def __init__(self, workflows, settings=None):
         """
         Initializes a new instance of this class.
@@ -777,6 +783,10 @@ class ExitWorkflow(CombinedWorkflow):
 
 
 class AudioControlWorkflow(BaseWorkflow):
+    """
+    This workflow sends messages to text-to-speech or play defined
+    audio files over the audio system.
+    """
 
     def __init__(self, name, payload, from_file=False):
         """
@@ -824,6 +834,9 @@ class AudioControlWorkflow(BaseWorkflow):
 
 
 class LightControlWorkflow(BaseWorkflow):
+    """
+    This workflow allows to contol the light of the room.
+    """
 
     def __init__(self, name, topic, target_state,
                  brightness=255, color=(255, 255, 255)):
@@ -883,6 +896,11 @@ class LightControlWorkflow(BaseWorkflow):
 
 
 class LabRoomLightControlWorkflow(CombinedWorkflow):
+    """
+    This workflow controls all LED stripes in the lab room in one
+    single workfow.
+    """
+
     def __init__(self, target_state, brightness=255, color=(255, 255, 255)):
         """
         Initializes a new instance of this class.
@@ -920,6 +938,11 @@ class LabRoomLightControlWorkflow(CombinedWorkflow):
 
 
 class ServerRoomLightControlWorkflow(CombinedWorkflow):
+    """
+    This workflow controls all LED stripes in the server room in one
+    single workfow.
+    """
+
     def __init__(self, target_state, brightness=255, color=(255, 255, 255)):
         """
         Initializes a new instance of this class.
