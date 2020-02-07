@@ -105,6 +105,16 @@ function onMessageArrived(msg) {
 }
 
 /**
+ * Is called when the mqtt connection is lost
+ * @param responseObject
+ */
+function onConnectionLost(responseObject) {
+    setSpinner(true);
+    console.log("Connection lost: " + JSON.stringify(responseObject));
+    setTimeout(mqttConnect, reconnectTimeout);
+}
+
+/**
  * Creates and connects the mqtt client
  */
 async function mqttConnect() {
@@ -112,6 +122,7 @@ async function mqttConnect() {
     setSpinner(true);
     mqtt = new Paho.Client(host, port, "", "ws-client-d" + ~~(Date.now() / 1000));
     mqtt.onMessageArrived = onMessageArrived;
+    mqtt.onConnectionLost = onConnectionLost;
     mqtt.connect({timeout: 3, onSuccess: onConnect, onFailure: onFailure});
 }
 
