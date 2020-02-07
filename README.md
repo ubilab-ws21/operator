@@ -218,11 +218,13 @@ There are three main components of the workflow engine, which allows to build ar
 
 3. **ParallelWorkflow**: This workflow is a *composition* of other workflows which should be executed in parallel.
 
-The composition workflows allows to slot workflows together and building more complex workflows.
-
-To implement special workflows the model allows to simply inherit from the main components. The following class diagram illustrates the class dependencies.
+The composition workflows allows to slot workflows together and building more complex workflows. The following class diagram illustrates the base workflow dependencies.
 
 ![Workflow engine model](doc/design/workflow_engine_model.svg)
+
+To implement special workflows the model allows to simply inherit from the main components. In our case we had to implement so custom workflow definitions due to some technical issues or to simplify routines.
+
+![Workflow engine model special classes](doc/design/workflow_engine_model_special_workflows.svg)
 
 ### Workflow definition
 The definition of main workflow takes place in a python file ([our escape room workflow](logic/workflow_definition.py)).
