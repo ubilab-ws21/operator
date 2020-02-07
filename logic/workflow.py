@@ -634,6 +634,9 @@ class ParallelWorkflow(BaseWorkflow):
 
 
 class SendTriggerWorkflow(BaseWorkflow):
+    """
+    This workflow sends trigger:on and trigger:off to a given topic.
+    """
 
     def __init__(self, name, topic, target_state):
         """
@@ -674,7 +677,39 @@ class SendTriggerWorkflow(BaseWorkflow):
             print(f"[{self.name}] Triggered '{state.name}'...")
 
 
+class CombinedWorkflow(SequenceWorkflow):
+    """
+    This workflow is a special sequence workflows displaying all
+    it's capsulate workflows as one node in the graph config.
+    """
+
+    def get_graph(self, predecessors=None, parent=None):
+        """
+        Generates a graph from the workflow and returns a tuple:
+        (nodes, edges, final_states)
+
+        Parameters
+        ----------
+        predecessors : str[]
+            The IDs of the predecessor states.
+
+        parent : str
+            The ID of the parent state (group).
+
+        Return
+        ------
+        (nodes, edges, final_state_ids) : Tuple
+            Graph as a tuple.
+        """
+        return BaseWorkflow.get_graph(self, predecessors, parent)
+
+
 class ScaleWorkflow(Workflow):
+    """
+    This workflow handles the special solved condition of the scale riddle.
+    The riddle is solved if the scale is unbalanced and after that is
+    balanced again.
+    """
 
     def __init__(self, name, topic, settings=None):
         """
@@ -705,30 +740,11 @@ class ScaleWorkflow(Workflow):
         self.scale_status = State.ACTIVE
 
 
-class CombinedWorkflow(SequenceWorkflow):
-
-    def get_graph(self, predecessors=None, parent=None):
-        """
-        Generates a graph from the workflow and returns a tuple:
-        (nodes, edges, final_states)
-
-        Parameters
-        ----------
-        predecessors : str[]
-            The IDs of the predecessor states.
-
-        parent : str
-            The ID of the parent state (group).
-
-        Return
-        ------
-        (nodes, edges, final_state_ids) : Tuple
-            Graph as a tuple.
-        """
-        return BaseWorkflow.get_graph(self, predecessors, parent)
-
-
 class InitWorkflow(CombinedWorkflow):
+    """
+    This workflow is just a named ("Init") combined workflow to do some initial
+    tasks.
+    """
 
     def __init__(self, workflows, settings=None):
         """
@@ -746,6 +762,10 @@ class InitWorkflow(CombinedWorkflow):
 
 
 class ExitWorkflow(CombinedWorkflow):
+    """
+    This workflow is just a named ("Exit") combined workflow to do some
+    finalization tasks.
+    """
 
     def __init__(self, workflows, settings=None):
         """
@@ -763,6 +783,10 @@ class ExitWorkflow(CombinedWorkflow):
 
 
 class AudioControlWorkflow(BaseWorkflow):
+    """
+    This workflow sends messages to text-to-speech or play defined
+    audio files over the audio system.
+    """
 
     def __init__(self, name, payload, from_file=False):
         """
@@ -810,6 +834,9 @@ class AudioControlWorkflow(BaseWorkflow):
 
 
 class LightControlWorkflow(BaseWorkflow):
+    """
+    This workflow allows to contol the light of the room.
+    """
 
     def __init__(self, name, topic, target_state,
                  brightness=255, color=(255, 255, 255)):
@@ -869,6 +896,10 @@ class LightControlWorkflow(BaseWorkflow):
 
 
 class LabRoomLightControlWorkflow(CombinedWorkflow):
+    """
+    This workflow controls all LED stripes in the lab room in one
+    single workfow.
+    """
 
     def __init__(self, target_state, brightness=255, color=(255, 255, 255)):
         """
@@ -907,6 +938,10 @@ class LabRoomLightControlWorkflow(CombinedWorkflow):
 
 
 class ServerRoomLightControlWorkflow(CombinedWorkflow):
+    """
+    This workflow controls all LED stripes in the server room in one
+    single workfow.
+    """
 
     def __init__(self, target_state, brightness=255, color=(255, 255, 255)):
         """
