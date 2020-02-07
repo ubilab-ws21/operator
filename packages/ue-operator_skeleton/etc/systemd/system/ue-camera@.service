@@ -1,5 +1,6 @@
 [Unit]
 Description=Starts camera multiplexer No. %I
+PartOf=ue-camera.target
 
 [Service]
 Type=simple
