@@ -289,7 +289,7 @@ function envSet() {
                 return parseInt(v, 16)
             }).join(",");
             break;
-        case "stroboscop":
+        case "blink":
             let hex1 = getID("env-rgb").value;
             hex1 = hex1.match(/[A-Za-z0-9]{2}/g).map(function (v) {
                 return parseInt(v, 16)
@@ -373,7 +373,7 @@ function validateValues(cmd) {
         case "patternAdjust":
             getID("env-adjust").disabled = false;
             break;
-        case "stroboscop":
+        case "blink":
             getID("env-rgb").disabled = false;
             getID("env-rgb2").disabled = false;
             getID("env-delay").disabled = false;
