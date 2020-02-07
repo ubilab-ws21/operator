@@ -163,7 +163,8 @@ if __name__ == "__main__":
                     pl.wait()
                     pl.append(["sudo", "systemctl", "daemon-reload"])
                     pl.wait()
-                    pl.append(["sudo", "systemctl", "restart", "ue-operator"])
+                    pl.append(["sudo", "systemctl", "restart", "ue-operator.service"])
+                    pl.append(["sudo", "systemctl", "restart", "ue-camera.target"])
                     pl.wait()
                 else:
                     s = input("Do you want to keep the downloaded files? y/N")
