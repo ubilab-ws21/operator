@@ -121,7 +121,7 @@ class WorkflowController:
         client.on_message = self.__on_message
         client.subscribe(self.game_control_topic)
         client.subscribe(self.game_option_topic)
-        print("Main workflow connected...")
+        print("Main workflow (re)connected...")
 
     def __on_message(self, client, userdata, msg):
         if msg.topic == self.game_control_topic:
