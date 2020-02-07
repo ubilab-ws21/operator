@@ -696,7 +696,8 @@ class ScaleWorkflow(Workflow):
 
     def _on_received_status_inactive(self, data):
         if self.scale_status == State.ACTIVE:
-            self.on_finished(self.name)
+            # call super().super() on_finished to avoid sending trigger:off
+            BaseWorkflow.on_finished(self, self.name)
         else:
             self.scale_status = State.INACTIVE
 
@@ -705,23 +706,6 @@ class ScaleWorkflow(Workflow):
 
 
 class CombinedWorkflow(SequenceWorkflow):
-
-    def __init__(self, name, workflows, settings=None):
-        """
-        Initializes a new instance of this class.
-
-        Parameters
-        ----------
-        name : str
-            Display name of the workflow.
-
-        workflows : Workflow[]
-            Collection of workflows should be executed in parallel.
-
-        settings: keywords
-            An dictionary of global settings.
-        """
-        super().__init__(name, workflows, settings)
 
     def get_graph(self, predecessors=None, parent=None):
         """
@@ -745,6 +729,7 @@ class CombinedWorkflow(SequenceWorkflow):
 
 
 class InitWorkflow(CombinedWorkflow):
+
     def __init__(self, workflows, settings=None):
         """
         Initializes a new instance of this class.
@@ -761,6 +746,7 @@ class InitWorkflow(CombinedWorkflow):
 
 
 class ExitWorkflow(CombinedWorkflow):
+
     def __init__(self, workflows, settings=None):
         """
         Initializes a new instance of this class.
@@ -883,6 +869,7 @@ class LightControlWorkflow(BaseWorkflow):
 
 
 class LabRoomLightControlWorkflow(CombinedWorkflow):
+
     def __init__(self, target_state, brightness=255, color=(255, 255, 255)):
         """
         Initializes a new instance of this class.
@@ -920,6 +907,7 @@ class LabRoomLightControlWorkflow(CombinedWorkflow):
 
 
 class ServerRoomLightControlWorkflow(CombinedWorkflow):
+
     def __init__(self, target_state, brightness=255, color=(255, 255, 255)):
         """
         Initializes a new instance of this class.

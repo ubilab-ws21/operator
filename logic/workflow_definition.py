@@ -14,6 +14,8 @@ class WorkflowDefinition:
             InitWorkflow([
                 SendTriggerWorkflow("Reset safe",
                                     "5/safe/control", State.OFF),
+                SendTriggerWorkflow("Reset scale",
+                                    "6/puzzle/scale", State.OFF),
                 SendTriggerWorkflow("Close lab room door",
                                     "4/door/entrance", State.OFF),
                 SendTriggerWorkflow("Close server room door",
