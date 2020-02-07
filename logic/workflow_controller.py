@@ -53,7 +53,9 @@ class WorkflowController:
         and subscripes to the game control topic.
         """
         self.client = mqtt.Client()
+        self.client._clean_session = False
         self.client.on_connect = self.__on_connect
+        self.client.on_message = self.__on_message
         self.client.connect(self.mqtt_url)
         self.client.loop_start()
         print("Waiting for game control commands...")
@@ -118,7 +120,6 @@ class WorkflowController:
         Subscribing in on_connect() means that if we lose the connection and
         reconnect then subscriptions will be renewed.
         """
-        client.on_message = self.__on_message
         client.subscribe(self.game_control_topic)
         client.subscribe(self.game_option_topic)
         print("Main workflow (re)connected...")
