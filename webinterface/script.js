@@ -298,7 +298,7 @@ function envSet() {
             hex2 = hex2.match(/[A-Za-z0-9]{2}/g).map(function (v) {
                 return parseInt(v, 16)
             }).join(",");
-            command.data = getID("env-delay") + "," + hex1 + "," + hex2;
+            command.data = getID("env-delay").value + "," + hex1 + "," + hex2;
             break;
         default:
             command.data = getID("env-" + command.state).value;
