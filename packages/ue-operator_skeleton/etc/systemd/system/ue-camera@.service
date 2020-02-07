@@ -1,0 +1,10 @@
+[Unit]
+Description=Starts camera multiplexer No. %I
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python /opt/mjpeg-relay/relay.py -p 808%i -w 1234%i http://10.0.1.%i
+Restart=on-failure
+
+[Install]
+WantedBy=ue-camera.target

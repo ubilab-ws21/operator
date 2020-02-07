@@ -69,6 +69,12 @@ The base system controls the deployment of software and requirements. This is do
 - Plugin scripts of all groups
 - Logging to `/var/log/mosquitto/`
 
+Starting and stopping of the processes should be done with `systemd`:
+
+- Control the operator: `sudo systemctl start|stop|restart|enable|disable|status ue-operator.service` 
+- Control the cameras: `sudo systemctl start|stop|restart|enable|disable|status ue-camera.target`
+- In case of (network) problems, the camera fallback script can be started with `ue-camera`, the systemd target must be turned off before
+
 ### Deployment process
 Requirements (for Ubuntu 18.04 LTS, others may differ):
 

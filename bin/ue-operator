@@ -88,8 +88,6 @@ if __name__ == "__main__":
                         choices=["init", "start", "update", "help"], nargs="?",
                         help='the command to execute\n(init, start)',
                         default="help")
-    parser.add_argument("-f", "--fallback", action="store_true", default=False,
-                        help="use the fallback camera control")
     help_text = "definition of the workflow.\n" \
                 "Format: module:class\n" \
                 "with get method returning an array of Workflows."
@@ -112,6 +110,7 @@ if __name__ == "__main__":
             pl.append(["git", "clone", "--recurse-submodules",
                        "https://github.com/OliverF/mjpeg-relay.git",
                        "/opt/mjpeg-relay"])
+            pl.append(["sudo", "systemctl", "deamon-reload"])
             pl.wait()
             pl.append(
                 ["python3", "-m", "pip", "install", "-r", "requirements.txt"],
@@ -119,6 +118,8 @@ if __name__ == "__main__":
             pl.append(
                 ["python", "-m", "pip", "install", "-r", "requirements.txt"],
                 cwd="/opt/mjpeg-relay/")
+            for i in range(1, 6):
+                pl.append(["sudo", "systemctl", "enable", f"ue-camera@{i}.service"])
             pl.wait()
 
         """
@@ -175,8 +176,8 @@ if __name__ == "__main__":
 
         """
             Command START: Starting all services and scripts, including:
-             text-to-speech, camera relay/camera fallback script, mosquitto,
-             game logic, mqtt logging and the script for monitoring the scale
+             text-to-speech, mosquitto, game logic, mqtt logging and the
+             script for monitoring the scale
         """
         if args.command == "start":
             pl.append(
@@ -184,15 +185,6 @@ if __name__ == "__main__":
                  "/home/alexa/text_to_speech/text_to_speech.cfg"],
                 stderr=subprocess.STDOUT
             )
-            if args.fallback:
-                pl.append(["python3", "/usr/bin/ue-camera"])
-            else:
-                for i in range(1, 6):
-                    pl.append(
-                        ["python", "relay.py", "-p", "808" + str(i), "-w",
-                         "1234" + str(i), "http://10.0.1." + str(i)],
-                        cwd="/opt/mjpeg-relay/"
-                    )
             pl.append("mosquitto -c " + OPT + "mosquitto.conf | grep Error")
             logic_command = ["python3", OPT + "logic/main.py"]
             if args.workflow_def:
