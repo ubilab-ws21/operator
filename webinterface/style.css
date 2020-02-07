@@ -301,3 +301,20 @@ input[type="checkbox"]:checked + .newcheck {
         height: calc(95vh - 12em);
     }
 }
+
+#loader-control, #loader-mosquitto {
+	border: 10px dotted #cb4b16;
+	border-radius: 50%;
+	width: 4em;
+	height: 4em;
+	animation: spin 1.5s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+	position: absolute;
+	margin-top: 1em;
+	margin-left: calc(50vw - 3em);
+    display: none;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

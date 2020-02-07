@@ -17,12 +17,23 @@ function getID(id) {
 }
 
 /**
+ * This function toggles the spinner and sets the opacity of the tabs
+ * @param activate Whether to activate or deactivate the spinner and opacity
+ */
+function setSpinner(activate) {
+    getID("loader-control").style.display = activate ? "block" : "none";
+    getID("loader-mosquitto").style.display = activate ? "block" : "none";
+    getID("control").style.filter = activate ? "opacity(0.2)" : "";
+    getID("mosquitto").style.filter = activate ? "opacity(0.2)" : "";
+}
+
+/**
  * Is called when the connection fails for the mqtt client
  * Tries to restart the client connection
  * @param message
  */
 function onFailure(message) {
-    console.log("Connection attempt failed");
+    setSpinner(true);
     console.log(message);
     setTimeout(mqttConnect, reconnectTimeout);
 }
@@ -31,7 +42,7 @@ function onFailure(message) {
  * Is called when the client connected
  */
 function onConnect() {
-    console.log("Connected debug");
+    setSpinner(false);
     for (let topic of topicsUI) {
         mqtt.subscribe(topic);
     }
@@ -43,7 +54,7 @@ function onConnect() {
  * @param msg
  */
 function onMessageArrived(msg) {
-    let topic = msg.destinationName
+    let topic = msg.destinationName;
     if (topicsUser.has(topic.substr(0, 1)) && (!topic.startsWith("1/gameTime") || printTime)) {
         let op = getID("output");
         op.value += "Topic " + topic + "; time ";
@@ -95,10 +106,10 @@ function onMessageArrived(msg) {
 
 /**
  * Creates and connects the mqtt client
- * @constructor
  */
-function mqttConnect() {
+async function mqttConnect() {
     console.log("Connecting mqtt client to " + host + ":" + port + "...");
+    setSpinner(true);
     mqtt = new Paho.Client(host, port, "", "ws-client-d" + ~~(Date.now() / 1000));
     mqtt.onMessageArrived = onMessageArrived;
     mqtt.connect({timeout: 3, onSuccess: onConnect, onFailure: onFailure});
@@ -401,18 +412,47 @@ function addEnterEvent(target, button) {
 }
 
 /**
- * Triggers all functions started on load
+ * Triggers all functions started on load in parallel
  */
 async function onLoad() {
-    new mqttConnect();
     if (window.location.href.includes("?")) {
         changeTab(window.location.href.split("?")[1])
     }
+    let promises = [];
+    promises.push(mqttConnect());
+    promises.push(onLoadAddEnterEvents());
+    promises.push(onLoadTopicHelp());
+    promises.push(onLoadTopicsSelect());
+    promises.push(onLoadBustAudioCache());
+    await Promise.all(promises);
+}
+
+/**
+ * Adds all enter events for buttons
+ * @returns {Promise<void>}
+ */
+async function onLoadAddEnterEvents() {
     addEnterEvent(getID("tts"), getID("tts-button"));
     addEnterEvent(getID("send-topic"), getID("send-button"));
     addEnterEvent(getID("send-message"), getID("send-button"));
+}
 
-    // Read topics into textarea (add timestamp to defy caching)
+/**
+ * Bust the HTTP cache for audio streaming
+ * @returns {Promise<void>}
+ */
+async function onLoadBustAudioCache() {
+    let aud = document.querySelector('audio source');
+    aud.src = encodeURI(aud.src + '?nocache=' + Math.random().toString(36));
+    aud.parentElement.load();
+    aud.parentElement.play();
+}
+
+/**
+ * Read topics into textarea (add timestamp to defy caching)
+ * @returns {Promise<void>}
+ */
+async function onLoadTopicHelp() {
     let client = new XMLHttpRequest();
     client.open('GET', 'MQTTTopics.md?v=' + Date.now().toString());
     client.onload = function () {
@@ -423,8 +463,13 @@ async function onLoad() {
         }
     };
     client.send();
+}
 
-    // Add topic options to simple send
+/**
+ * Add topic options to simple send
+ * @returns {Promise<void>}
+ */
+async function onLoadTopicsSelect() {
     let topicList2 = typeof topicList === 'undefined' ? ["0/dummy"] : topicList;
     let selectTopic = getID("simple-topic");
     for (let topic of topicList2) {
@@ -432,15 +477,9 @@ async function onLoad() {
         option.text = topic;
         selectTopic.add(option);
     }
-
-    // Bust the HTTP cache for audio streaming
-    var aud = document.querySelector('audio source');
-    aud.src = encodeURI(aud.src + '?nocache=' + Math.random().toString(36));
-    aud.parentElement.load();
-    aud.parentElement.play();
 }
 
-async function displayGraph(data) {
+function displayGraph(data) {
     let cy = window.cy = cytoscape({
         container: document.getElementById('cytoscape-container'),
         style: [

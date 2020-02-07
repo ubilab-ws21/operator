@@ -14,7 +14,7 @@
     <script src="topics.js" type="text/javascript"></script>
     <link href="style.css" rel="stylesheet">
 </head>
-<body onload="onLoad();">
+<body>
 <!-- NAVIGATION STARTS HERE -->
 <nav>
     <div><a class="navlink selected" onclick="changeTab('control');"
@@ -24,7 +24,7 @@
     <div><a class="navlink" onclick="changeTab('mosquitto');" id="b-mosquitto">Mosquitto</a>
     </div>
     <div id="nav-audio">
-        <audio controls preload='none'>
+        <audio muted preload='none'>
             <source src="http://10.0.0.2:8554/stream.ogg" type="audio/ogg">
         </audio>
     </div>
@@ -32,6 +32,7 @@
 <!-- NAVIGATION ENDS HERE -->
 <!-- CONTROL PAGE STARTS HERE -->
 <div id="control">
+    <div id="loader-control"></div>
     <div id="control-main">
         <div id="control-left">
             <!-- GAME CONTROL STARTS HERE -->
@@ -250,6 +251,7 @@
 <!-- CAMERA FALLBACK PAGE ENDS HERE -->
 <!-- MOSQUITTO PAGE STARTS HERE -->
 <div id="mosquitto" style="display: none">
+    <div id="loader-mosquitto"></div>
     <textarea id="output" readonly></textarea>
     <div id="topics" style="display: none;"></div>
     <footer>
@@ -289,5 +291,6 @@
     </footer>
 </div>
 <!-- MOSQUITTO PAGE ENDS HERE -->
+<script type="text/javascript">onLoad();</script>
 </body>
 </html>
