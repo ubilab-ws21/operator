@@ -111,6 +111,10 @@ nav div {
 	display: none;
 }
 
+#env-delay {
+    width: 5em;
+}
+
 .subs.on button, #start {
     background-color: #859900;
 }
