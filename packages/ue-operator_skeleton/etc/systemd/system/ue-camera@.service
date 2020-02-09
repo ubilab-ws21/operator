@@ -1,5 +1,5 @@
 [Unit]
-Description=Starts camera multiplexer No. %I
+Description=Camera Multiplexer No. %I
 PartOf=ue-camera.target
 
 [Service]
