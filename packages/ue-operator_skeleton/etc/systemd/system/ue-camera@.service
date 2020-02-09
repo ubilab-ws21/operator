@@ -6,6 +6,7 @@ PartOf=ue-camera.target
 Type=simple
 ExecStart=/usr/bin/python /opt/mjpeg-relay/relay.py -p 808%i -w 1234%i http://10.0.1.%i
 Restart=on-failure
+WorkingDirectory=/opt/mjpeg-relay
 
 [Install]
 WantedBy=ue-camera.target
