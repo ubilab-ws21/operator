@@ -99,6 +99,7 @@ function onMessageArrived(msg) {
     else if (topic === "1/gameState") {
         try {
             displayGraph(JSON.parse(msg.payloadString));
+            getID("startnote").style.display = "none";
         } catch {
         }
     }
