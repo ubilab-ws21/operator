@@ -1,7 +1,7 @@
 [Unit]
 Description=ue-camera target
-Requires=multi-user.target
-After=multi-user.target
+Requires=multi-user.target network-online.target
+After=multi-user.target network-online.target
 Wants=ue-camera@1.service ue-camera@2.service ue-camera@3.service ue-camera@4.service ue-camera@5.service
 
 [Install]
