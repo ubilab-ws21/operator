@@ -799,7 +799,7 @@ class GlobesWorkflow(Workflow):
         """
         if not self.running_timer:
             self.running_timer = RepeatTimer(30.0, publish_tts,
-                                             args="Please close the door")
+                                             args=("Please close the door",))
             self.running_timer.start()
             print("==> Hint timer started")
         else:
