@@ -1,6 +1,7 @@
 import json
 from message import Message, Method, State, fromJSON
 from enum import Enum
+from util import RepeatTimer, publish_tts
 
 
 class WorkflowState(Enum):
@@ -780,6 +781,44 @@ class ScaleWorkflow(Workflow):
 
     def _on_received_status_active(self, data):
         self.scale_status = State.ACTIVE
+
+
+class GlobesWorkflow(Workflow):
+    """
+    Special workflow for the globes puzzle to play a hint via tts while
+    the entrance door is still opened
+    """
+    running_timer = None
+
+    def _on_received_status_active(self, data):
+        """
+        This method overrides the method in Workflow to start a
+        timer if it is not already set
+        :param data:
+        :return:
+        """
+        if not self.running_timer:
+            self.running_timer = RepeatTimer(30.0, publish_tts,
+                                             args="Please close the door")
+            self.running_timer.start()
+            print("==> Hint timer started")
+        else:
+            print("==> Hint timer already running, nothing to do")
+
+    def _on_received_status_finished(self, data):
+        """
+        This method overrides the method in Workflow to stop the
+        timer if it is already set
+        :param data:
+        :return:
+        """
+        if self.running_timer:
+            self.running_timer.cancel()
+            self.running_timer = None
+            print("==> Hint timer stopped")
+        else:
+            print("==> Hint timer not running, nothing to do")
+        self.on_finished(self.name)
 
 
 class IPWorkflow(Workflow):

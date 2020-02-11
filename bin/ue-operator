@@ -38,7 +38,7 @@ def on_scale(client, userdata, message):
             gyro = "on"
             if not running_timer:
                 publish_tts("Put the prototype back!")
-                running_timer = RepeatTimer(5, publish_tts, args="Put the prototype back!")
+                running_timer = RepeatTimer(5.0, publish_tts, args="Put the prototype back!")
                 running_timer.start()
         else:
             gyro = "off"

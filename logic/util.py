@@ -19,8 +19,8 @@ class ProcessList(list):
         :return: None
         """
         if isinstance(cmd, str) or isinstance(cmd, list):
-            process = subprocess.Popen(cmd, shell=isinstance(cmd, str), cwd=cwd,
-                                       stdout=stdout, stderr=stderr)
+            process = subprocess.Popen(cmd, shell=isinstance(cmd, str),
+                                       cwd=cwd, stdout=stdout, stderr=stderr)
         else:
             raise TypeError("Expecting a string or a list as cmd")
         # process.check_returncode()
