@@ -647,7 +647,7 @@ class ParallelWorkflow(BaseWorkflow):
         self.workflow_finished[name] = True
         if all(list(self.workflow_finished.values())):
             print(f"  ==> Parallel workflow sequence"
-                    f" '{self.name}' finished...")
+                  f" '{self.name}' finished...")
             super().on_finished(self.name)
 
 

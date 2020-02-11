@@ -39,7 +39,8 @@ class WorkflowDefinition:
                 SendTriggerWorkflow("Open lab room door",
                                     "4/door/entrance", State.ON),
                 # Second puzzle for closing lab door
-                GlobesWorkflow("Globes riddle", "4/globes", {'data': participants}),
+                GlobesWorkflow("Globes riddle", "4/globes",
+                               {'data': participants}),
                 LabRoomLightControlWorkflow(State.ON)
             ]),
             # Allow multiple riddles in lab room
