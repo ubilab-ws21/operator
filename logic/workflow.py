@@ -805,11 +805,12 @@ class GlobesWorkflow(Workflow):
         else:
             print("==> Hint timer already running, nothing to do")
 
-    def _on_received_status_finished(self, data):
+    def on_finished(self, name, skipped=False):
         """
         This method overrides the method in Workflow to stop the
-        timer if it is already set
-        :param data:
+        timer if it is already set (for normal finishing and skipping)
+        :param name:
+        :param skipped:
         :return:
         """
         if self.running_timer:
@@ -818,7 +819,7 @@ class GlobesWorkflow(Workflow):
             print("==> Hint timer stopped")
         else:
             print("==> Hint timer not running, nothing to do")
-        self.on_finished(self.name)
+        super().on_finished(name, skipped)
 
 
 class IPWorkflow(Workflow):
