@@ -98,10 +98,11 @@ class WorkflowDefinition:
     def apply_initial_settings(self, workflow, skip_to):
         skip_node_reached = False
         for w in workflow:
+            name = w.name.upper()
             # Highlight room nodes
             w.highlight = True
             # Skip until the "skip_to" node reached
-            if skip_to and w.name != skip_to and not skip_node_reached:
-                w.skip(w.name)
+            if skip_to and name != skip_to.upper() and not skip_node_reached:
+                w.skip(name)
             else:
                 skip_node_reached = True
