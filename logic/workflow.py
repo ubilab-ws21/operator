@@ -33,6 +33,7 @@ class BaseWorkflow:
         self._on_workflow_finished = None
         self.state = WorkflowState.INACTIVE
         self.type = self.__class__.__name__
+        self.highlight = False
 
     def execute(self, client):
         """
@@ -156,7 +157,8 @@ class BaseWorkflow:
 
         return json.dumps(graphConfig)
 
-    def get_graph(self, predecessors=None, parent=None, name=None):
+    def get_graph(self, predecessors=None, parent=None,
+                  name=None, highlight=None):
         """
         Generates a graph from the workflow and returns a tuple:
         (nodes, edges, final_states)
@@ -178,9 +180,14 @@ class BaseWorkflow:
         if name:
             name_id = name
 
+        hl = self.highlight
+        if highlight is not None:
+            hl = highlight
+
         nodeData = {
             'id': name_id,
             'name': name_id,
+            'highlight': hl,
             'status': self.state.name,
             'type': self.type
         }
@@ -712,8 +719,9 @@ class CombinedWorkflow(SequenceWorkflow):
         edges.extend(node[1])
 
         if self.settings and self.settings.get('wrap_parent'):
-            child = BaseWorkflow.get_graph(self, None, self.name,
-                                           f"{self.name} routines")
+            child = BaseWorkflow.get_graph(
+                self, None, self.name,
+                f"{self.name} routines", False)
             nodes.extend(child[0])
             edges.extend(child[1])
 

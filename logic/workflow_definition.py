@@ -3,13 +3,18 @@ from message import State
 
 
 class WorkflowDefinition:
+    """
+    This class serves as factory for the defined workflow.
+    """
 
     def create(self, settings):
         participants = 4
+        skip_to = None
         if settings:
-            participants = settings['participants']
+            participants = settings.get('participants')
+            skip_to = settings.get('skipTo')
 
-        return [
+        workflow = [
             # Init
             InitWorkflow([
                 SendTriggerWorkflow("Reset safe",
@@ -85,3 +90,18 @@ class WorkflowDefinition:
                 )
             ])
         ]
+
+        self.apply_initial_settings(workflow, skip_to)
+
+        return workflow
+
+    def apply_initial_settings(self, workflow, skip_to):
+        skip_node_reached = False
+        for w in workflow:
+            # Highlight room nodes
+            w.highlight = True
+            # Skip until the "skip_to" node reached
+            if w.name != skip_to and not skip_node_reached:
+                w.skip(w.name)
+            else:
+                skip_node_reached = True

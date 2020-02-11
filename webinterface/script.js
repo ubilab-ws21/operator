@@ -456,6 +456,13 @@ async function displayGraph(data) {
                 }
             },
             {
+                selector: 'node[?highlight]',
+                css: {
+                    'font-weight': 'bold',
+                    'font-size': '1.2em'
+                }
+            },
+            {
                 selector: 'node[status="FINISHED"]',
                 css: {
                     'background-color': '#859900'
