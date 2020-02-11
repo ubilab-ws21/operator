@@ -101,7 +101,7 @@ class WorkflowDefinition:
             # Highlight room nodes
             w.highlight = True
             # Skip until the "skip_to" node reached
-            if w.name != skip_to and not skip_node_reached:
+            if skip_to and w.name != skip_to and not skip_node_reached:
                 w.skip(w.name)
             else:
                 skip_node_reached = True
