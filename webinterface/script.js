@@ -77,6 +77,7 @@ function onMessageArrived(msg) {
                 getID("time").className = "started";
                 getID("playercount").disabled = true;
                 getID("playtime").disabled = true;
+                getID("skipto").disabled = true;
                 break;
             case "pause":
                 getID("start").disabled = false;
@@ -92,6 +93,7 @@ function onMessageArrived(msg) {
                 getID("time").className = "stopped";
                 getID("playercount").disabled = false;
                 getID("playtime").disabled = false;
+                getID("skipto").disabled = false;
                 break;
         }
     }
@@ -286,6 +288,9 @@ function command(content) {
         participants: parseInt(getID("playercount").value),
         duration: parseInt(getID("playtime").value)
     };
+    if(getID("skipto").value !== "0") {
+        options["skipTo"] = getID("skipto").value;
+    }
     mqtt.send("1/gameOptions", JSON.stringify(options), 2, true);
     mqtt.send("1/gameControl", content, 2, true);
 }

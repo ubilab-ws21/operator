@@ -43,6 +43,16 @@
                 <label>Duration (mins):
                     <input type="number" id="playtime" value="45" min="1">
                 </label>
+                <label>Skip to:
+                    <select id="skipto">
+                        <option value="0" selected>Disabled</option>
+                        <option>Init</option>
+                        <option>Entrance Room</option>
+                        <option>Lab Room</option>
+                        <option>Server Room</option>
+                        <option>Exit</option>
+                    </select>
+                </label>
                 <div style="clear:both;">
                     <button type="button" id="start"
                             onclick="command('start');">Start
