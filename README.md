@@ -299,8 +299,13 @@ There are two ways to control the workflow engine on runtime:
    Defined JSON schema of the options:
    ```javascript
    {
-     "participants": 3, // number of players
-     "duration": 5 // in seconds
+     // number of players
+     "participants": 3,
+     // in seconds
+     "duration": 5
+     // name of the parent workflow (direct childs of main workflow)
+     // to be skipped to for the initial state.
+     "skipTo": "Server room"
     }
    ```
 
