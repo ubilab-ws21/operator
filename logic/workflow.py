@@ -644,50 +644,6 @@ class ParallelWorkflow(BaseWorkflow):
                 super().on_finished(self.name)
 
 
-class SendTriggerWorkflow(BaseWorkflow):
-    """
-    This workflow sends trigger:on and trigger:off to a given topic.
-    """
-
-    def __init__(self, name, topic, target_state):
-        """
-        Initializes a new instance of this class.
-
-        Parameters
-        ----------
-        name : str
-            Display name of the workflow.
-
-        topic : str
-            Name of the MQTT topic.
-
-        target_state: State
-            Target state of the workflow.
-        """
-        self.target_state = target_state
-        self.topic = topic
-        super().__init__(name)
-
-    def _execute(self, client):
-        """
-        Executes this workflow.
-
-        Parameters
-        ----------
-        client : Client
-            MQTT client
-        """
-        super()._execute(client)
-        self._publishTrigger(client, self.target_state)
-        self.on_finished(self.name)
-
-    def _publishTrigger(self, client, state):
-        if self.topic is not None:
-            message = Message(Method.TRIGGER, state)
-            client.publish(self.topic, message.toJSON(), 2)
-            print(f"[{self.name}] Triggered '{state.name}'...")
-
-
 class CombinedWorkflow(SequenceWorkflow):
     """
     This workflow is a special sequence workflows displaying all
@@ -726,52 +682,6 @@ class CombinedWorkflow(SequenceWorkflow):
             edges.extend(child[1])
 
         return nodes, edges, [self.name]
-
-
-class ScaleWorkflow(Workflow):
-    """
-    This workflow handles the special solved condition of the scale riddle.
-    The riddle is solved if the scale is unbalanced and after that is
-    balanced again.
-    """
-
-    def __init__(self, name, topic, settings=None):
-        """
-        Initializes a new instance of this class.
-
-        Parameters
-        ----------
-        name : str
-            Display name of the workflow.
-
-        topic : str
-            Name of the MQTT topic.
-
-        settings: keywords
-            An dictionary of global settings.
-        """
-        super().__init__(name, topic, settings)
-        self.scale_status = State.INACTIVE
-
-    def _on_received_status_inactive(self, data):
-        if self.scale_status == State.ACTIVE:
-            # call super().super() on_finished to avoid sending trigger:off
-            BaseWorkflow.on_finished(self, self.name)
-        else:
-            self.scale_status = State.INACTIVE
-
-    def _on_received_status_active(self, data):
-        self.scale_status = State.ACTIVE
-
-
-class IPWorkflow(Workflow):
-    """
-    Special workflow for the IP puzzle avoiding a trigger:off
-    if the puzzle is finished.
-    """
-
-    def on_finished(self, name, skipped=False):
-        BaseWorkflow.on_finished(self, name, skipped)
 
 
 class InitWorkflow(CombinedWorkflow):
@@ -826,6 +736,96 @@ class ExitWorkflow(CombinedWorkflow):
             settings = {wrap_parent: True}
 
         super().__init__("Exit", workflows, settings)
+
+
+class ScaleWorkflow(Workflow):
+    """
+    This workflow handles the special solved condition of the scale riddle.
+    The riddle is solved if the scale is unbalanced and after that is
+    balanced again.
+    """
+
+    def __init__(self, name, topic, settings=None):
+        """
+        Initializes a new instance of this class.
+
+        Parameters
+        ----------
+        name : str
+            Display name of the workflow.
+
+        topic : str
+            Name of the MQTT topic.
+
+        settings: keywords
+            An dictionary of global settings.
+        """
+        super().__init__(name, topic, settings)
+        self.scale_status = State.INACTIVE
+
+    def _on_received_status_inactive(self, data):
+        if self.scale_status == State.ACTIVE:
+            # call super().super() on_finished to avoid sending trigger:off
+            BaseWorkflow.on_finished(self, self.name)
+        else:
+            self.scale_status = State.INACTIVE
+
+    def _on_received_status_active(self, data):
+        self.scale_status = State.ACTIVE
+
+
+class IPWorkflow(Workflow):
+    """
+    Special workflow for the IP puzzle avoiding a trigger:off
+    if the puzzle is finished.
+    """
+
+    def on_finished(self, name, skipped=False):
+        BaseWorkflow.on_finished(self, name, skipped)
+
+
+class SendTriggerWorkflow(BaseWorkflow):
+    """
+    This workflow sends trigger:on and trigger:off to a given topic.
+    """
+
+    def __init__(self, name, topic, target_state):
+        """
+        Initializes a new instance of this class.
+
+        Parameters
+        ----------
+        name : str
+            Display name of the workflow.
+
+        topic : str
+            Name of the MQTT topic.
+
+        target_state: State
+            Target state of the workflow.
+        """
+        self.target_state = target_state
+        self.topic = topic
+        super().__init__(name)
+
+    def _execute(self, client):
+        """
+        Executes this workflow.
+
+        Parameters
+        ----------
+        client : Client
+            MQTT client
+        """
+        super()._execute(client)
+        self._publishTrigger(client, self.target_state)
+        self.on_finished(self.name)
+
+    def _publishTrigger(self, client, state):
+        if self.topic is not None:
+            message = Message(Method.TRIGGER, state)
+            client.publish(self.topic, message.toJSON(), 2)
+            print(f"[{self.name}] Triggered '{state.name}'...")
 
 
 class AudioControlWorkflow(BaseWorkflow):
