@@ -446,12 +446,16 @@ class SequenceWorkflow(BaseWorkflow):
         super()._dispose(client)
 
     def skip(self, name):
-        super().skip(name)
-        for workflow in self.workflows:
-            if self.state == WorkflowState.SKIPPED:
-                workflow.skip(workflow.name)
-            else:
-                workflow.skip(name)
+        if self.state not in [WorkflowState.SKIPPED, WorkflowState.FINISHED]:
+            if name.upper() == self.name.upper():
+                print(f"[{self.name}] Mark sequence workflow as skipped...")
+                self.state = WorkflowState.SKIPPED
+
+            for workflow in self.workflows:
+                if self.state is WorkflowState.SKIPPED:
+                    workflow.skip(workflow.name)
+                else:
+                    workflow.skip(name)
 
     def on_message(self, msg):
         """
@@ -581,12 +585,16 @@ class ParallelWorkflow(BaseWorkflow):
         super()._dispose(client)
 
     def skip(self, name):
-        super().skip(name)
-        for workflow in self.workflows:
-            if self.state is WorkflowState.SKIPPED:
-                workflow.skip(workflow.name)
-            else:
-                workflow.skip(name)
+        if self.state not in [WorkflowState.SKIPPED, WorkflowState.FINISHED]:
+            if name.upper() == self.name.upper():
+                print(f"[{self.name}] Mark parallel workflow as skipped...")
+                self.state = WorkflowState.SKIPPED
+
+            for workflow in self.workflows:
+                if self.state is WorkflowState.SKIPPED:
+                    workflow.skip(workflow.name)
+                else:
+                    workflow.skip(name)
 
     def on_message(self, msg):
         """
@@ -784,7 +792,44 @@ class IPWorkflow(Workflow):
         BaseWorkflow.on_finished(self, name, skipped)
 
 
-class SendTriggerWorkflow(BaseWorkflow):
+class SingleCommandWorkflow(BaseWorkflow):
+    """
+    This workflow executes a single command without waiting for an answer.
+    """
+
+    def _execute(self, client):
+        """
+        Executes this workflow.
+
+        Parameters
+        ----------
+        client : Client
+            MQTT client
+        """
+        super()._execute(client)
+        self._execute_single_command(client)
+        self.on_finished(self.name)
+
+    def _execute_single_command(self, client):
+        """
+        Executes an atomic command.
+
+        Parameters
+        ----------
+        client : Client
+            MQTT client
+        """
+        pass
+
+    def skip(self, name):
+        """
+        Overridden: On skip there is nothing to do, because it's a
+        single command (atomic).
+        """
+        pass
+
+
+class SendTriggerWorkflow(SingleCommandWorkflow):
     """
     This workflow sends trigger:on and trigger:off to a given topic.
     """
@@ -808,18 +853,16 @@ class SendTriggerWorkflow(BaseWorkflow):
         self.topic = topic
         super().__init__(name)
 
-    def _execute(self, client):
+    def _execute_single_command(self, client):
         """
-        Executes this workflow.
+        Executes an atomic command.
 
         Parameters
         ----------
         client : Client
             MQTT client
         """
-        super()._execute(client)
         self._publishTrigger(client, self.target_state)
-        self.on_finished(self.name)
 
     def _publishTrigger(self, client, state):
         if self.topic is not None:
@@ -828,7 +871,7 @@ class SendTriggerWorkflow(BaseWorkflow):
             print(f"[{self.name}] Triggered '{state.name}'...")
 
 
-class AudioControlWorkflow(BaseWorkflow):
+class AudioControlWorkflow(SingleCommandWorkflow):
     """
     This workflow sends messages to text-to-speech or play defined
     audio files over the audio system.
@@ -854,16 +897,15 @@ class AudioControlWorkflow(BaseWorkflow):
         self.topic = "2/textToSpeech"
         super().__init__(name)
 
-    def _execute(self, client):
+    def _execute_single_command(self, client):
         """
-        Executes this workflow.
+        Executes an atomic command.
 
         Parameters
         ----------
         client : Client
             MQTT client
         """
-        super()._execute(client)
         if self.from_file:
             message = {
                 "method": "message",
@@ -876,10 +918,9 @@ class AudioControlWorkflow(BaseWorkflow):
                 "data": self.payload
             }
         client.publish(self.topic, json.dumps(message), 2)
-        self.on_finished(self.name)
 
 
-class LightControlWorkflow(BaseWorkflow):
+class LightControlWorkflow(SingleCommandWorkflow):
     """
     This workflow allows to contol the light of the room.
     """
@@ -912,22 +953,19 @@ class LightControlWorkflow(BaseWorkflow):
         self.topic = topic
         super().__init__(name)
 
-    def _execute(self, client):
+    def _execute_single_command(self, client):
         """
-        Executes this workflow.
+        Executes an atomic command.
 
         Parameters
         ----------
         client : Client
             MQTT client
         """
-        super()._execute(client)
-
         col = f"{self.color[0]},{self.color[1]},{self.color[2]}"
         self._publishTrigger(client, 'rgb', col)
         self._publishTrigger(client, 'brightness', self.brightness)
         self._publishTrigger(client, 'power', self.target_state.name.lower())
-        self.on_finished(self.name)
 
     def _publishTrigger(self, client, state, data):
         client.publish(

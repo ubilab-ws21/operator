@@ -15,6 +15,15 @@ class ParallelWorkflow {
 class CombinedWorkflow {
 }
 
+class InitWorkflow {
+}
+
+class ExitWorkflow {
+}
+
+class SingleCommandWorkflow {
+}
+
 class SendTriggerWorkflow {
 }
 
@@ -22,12 +31,6 @@ class ScaleWorkflow {
 }
 
 class IPWorkflow {
-}
-
-class InitWorkflow {
-}
-
-class ExitWorkflow {
 }
 
 class AudioControlWorkflow {
@@ -48,9 +51,10 @@ WorkflowBase <|-- ParallelWorkflow
 
 SequenceWorkflow <|-- CombinedWorkflow
 
-WorkflowBase <|-- SendTriggerWorkflow
-WorkflowBase <|-- AudioControlWorkflow
-WorkflowBase <|-- LightControlWorkflow
+WorkflowBase <|-- SingleCommandWorkflow
+SingleCommandWorkflow <|-- SendTriggerWorkflow
+SingleCommandWorkflow <|-- AudioControlWorkflow
+SingleCommandWorkflow <|-- LightControlWorkflow
 
 Workflow <|-- ScaleWorkflow
 Workflow <|-- IPWorkflow
