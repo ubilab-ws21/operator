@@ -88,10 +88,11 @@ class BaseWorkflow:
     def skip(self, name):
         if self.state not in [WorkflowState.SKIPPED, WorkflowState.FINISHED]:
             if name.upper() == self.name.upper():
-                if self.state is WorkflowState.ACTIVE:
-                    self.on_finished(self.name, True)
                 print(f"[{self.name}] Mark workflow as skipped...")
+                old_state = self.state
                 self.state = WorkflowState.SKIPPED
+                if old_state is WorkflowState.ACTIVE:
+                    self.on_finished(self.name, True)
 
     def on_message(self, msg):
         """
@@ -109,10 +110,10 @@ class BaseWorkflow:
             self._on_workflow_failed(name, error)
 
     def on_finished(self, name, skipped=False):
-        if self._on_workflow_finished:
-            self._on_workflow_finished(name)
         if not skipped:
             self.state = WorkflowState.FINISHED
+        if self._on_workflow_finished:
+            self._on_workflow_finished(name)
 
     def get_settings(self):
         data = None
@@ -261,6 +262,7 @@ class Workflow(BaseWorkflow):
         """
         super().__init__(name, settings)
         self.topic = topic
+        self.client = None
 
     def _execute(self, client):
         """
@@ -351,7 +353,7 @@ class Workflow(BaseWorkflow):
         super().on_finished(name, skipped)
 
     def _publishTrigger(self, client, state, skipped=False):
-        if self.topic is not None:
+        if self.topic and client:
             if state is State.OFF and skipped:
                 data = "skipped"
             else:
@@ -447,13 +449,14 @@ class SequenceWorkflow(BaseWorkflow):
         super()._dispose(client)
 
     def skip(self, name):
-        if self.state not in [WorkflowState.SKIPPED, WorkflowState.FINISHED]:
+        skipped = False
+        if self.state is not WorkflowState.FINISHED:
             if name.upper() == self.name.upper():
-                print(f"[{self.name}] Mark sequence workflow as skipped...")
-                self.state = WorkflowState.SKIPPED
+                print(f"[{self.name}] Set workflow sequence to skipped...")
+                skipped = True
 
             for workflow in self.workflows:
-                if self.state is WorkflowState.SKIPPED:
+                if skipped:
                     workflow.skip(workflow.name)
                 else:
                     workflow.skip(name)
@@ -504,16 +507,13 @@ class SequenceWorkflow(BaseWorkflow):
         return nodes, edges, [self.name]
 
     def on_finished(self, name, skipped=False):
-        if skipped and name == self.name:
-            super().on_finished(self.name, True)
+        self.__unsubscribe_current_workflow(self.client)
+        self.current_workflow += 1
+        if self.current_workflow >= len(self.workflows):
+            print(f"  ==> Workflow sequence '{self.name}' finished...")
+            super().on_finished(self.name)
         else:
-            self.__unsubscribe_current_workflow(self.client)
-            self.current_workflow += 1
-            if self.current_workflow >= len(self.workflows):
-                print(f"  ==> Workflow sequence '{self.name}' finished...")
-                super().on_finished(self.name)
-            else:
-                self.__subscribe_current_workflow(self.client)
+            self.__subscribe_current_workflow(self.client)
 
     def __subscribe_current_workflow(self, client):
         workflow = self.workflows[self.current_workflow]
@@ -586,13 +586,14 @@ class ParallelWorkflow(BaseWorkflow):
         super()._dispose(client)
 
     def skip(self, name):
-        if self.state not in [WorkflowState.SKIPPED, WorkflowState.FINISHED]:
+        skipped = False
+        if self.state is not WorkflowState.FINISHED:
             if name.upper() == self.name.upper():
-                print(f"[{self.name}] Mark parallel workflow as skipped...")
-                self.state = WorkflowState.SKIPPED
+                print(f"[{self.name}] Set parallel workflows to skipped...")
+                skipped = True
 
             for workflow in self.workflows:
-                if self.state is WorkflowState.SKIPPED:
+                if skipped:
                     workflow.skip(workflow.name)
                 else:
                     workflow.skip(name)
@@ -643,14 +644,11 @@ class ParallelWorkflow(BaseWorkflow):
         return nodes, edges, final_states
 
     def on_finished(self, name, skipped=False):
-        if skipped and name == self.name:
-            super().on_finished(self.name, True)
-        else:
-            self.workflow_finished[name] = True
-            if all(list(self.workflow_finished.values())):
-                print(f"  ==> Parallel workflow sequence"
-                      f" '{self.name}' finished...")
-                super().on_finished(self.name)
+        self.workflow_finished[name] = True
+        if all(list(self.workflow_finished.values())):
+            print(f"  ==> Parallel workflow sequence"
+                    f" '{self.name}' finished...")
+            super().on_finished(self.name)
 
 
 class CombinedWorkflow(SequenceWorkflow):
