@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import sys
+sys.path.append('/opt/ue-operator/logic')
 from paho.mqtt import subscribe, publish
 from argparse import ArgumentParser
 from os import remove, environ
@@ -8,46 +10,11 @@ import subprocess
 import json
 from gnupg import GPG
 from urllib.error import HTTPError
+from util import ProcessList, RepeatTimer, publish_tts
 
 OPT = "/opt/ue-operator/"
 GITHUB = "https://github.com/ubilab-escape/operator/"
-
-
-class ProcessList(list):
-    """
-    List to manage created processes
-    """
-
-    def append(self, cmd, cwd=None, stdout=None, stderr=None):
-        """
-        Creates a new process and adds it to the list
-
-        :param cmd: The command to execute
-        :param cwd: An optional working directory
-        :param stderr: An optional stderr redirection
-        :param stdout: An optional stdout redirection
-        :return: None
-        """
-        if isinstance(cmd, str) or isinstance(cmd, list):
-            process = subprocess.Popen(cmd, shell=isinstance(cmd, str), cwd=cwd,
-                                       stdout=stdout, stderr=stderr)
-        else:
-            raise TypeError("Expecting a string or a list as cmd")
-        # process.check_returncode()
-        super().append(process)
-
-    def wait(self):
-        """
-        Waits for all processes in list to finish -> locks process
-
-        :return:
-        """
-        try:
-            for process in self:
-                process.wait()
-        except subprocess.CalledProcessError as e:
-            print(str(e))
-            self.wait()
+running_timer = None
 
 
 def on_scale(client, userdata, message):
@@ -66,11 +33,18 @@ def on_scale(client, userdata, message):
                 and data["state"]
                 and data["state"] in ["active", "inactive"]):
             return
-        gyro = "off"
+        global running_timer
         if data["state"] == "active":
             gyro = "on"
-            msg = '{"method":"message","data":"Put the prototype back!"}'
-            publish.single("2/textToSpeech", msg, hostname="10.0.0.2")
+            if not running_timer:
+                publish_tts("Put the prototype back!")
+                running_timer = RepeatTimer(5, publish_tts, args="Put the prototype back!")
+                running_timer.start()
+        else:
+            gyro = "off"
+            if running_timer:
+                running_timer.cancel()
+                running_timer = None
         publish.single("powermeter/switch", gyro, hostname="10.0.0.2")
     except json.JSONDecodeError:
         pass
