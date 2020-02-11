@@ -52,8 +52,7 @@ class WorkflowController:
         Connects the game to the MQTT server
         and subscripes to the game control topic.
         """
-        self.client = mqtt.Client()
-        self.client._clean_session = False
+        self.client = mqtt.Client("EscapeRoomGameLogic", False)
         self.client.on_connect = self.__on_connect
         self.client.on_message = self.__on_message
         self.client.connect(self.mqtt_url)
