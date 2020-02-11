@@ -33,6 +33,7 @@ class BaseWorkflow:
         self._on_workflow_finished = None
         self.state = WorkflowState.INACTIVE
         self.type = self.__class__.__name__
+        self.highlight = False
 
     def execute(self, client):
         """
@@ -156,7 +157,8 @@ class BaseWorkflow:
 
         return json.dumps(graphConfig)
 
-    def get_graph(self, predecessors=None, parent=None):
+    def get_graph(self, predecessors=None, parent=None,
+                  name=None, highlight=None):
         """
         Generates a graph from the workflow and returns a tuple:
         (nodes, edges, final_states)
@@ -174,9 +176,18 @@ class BaseWorkflow:
         (nodes, edges, final_state_ids) : Tuple
             Graph as a tuple.
         """
+        name_id = self.name
+        if name:
+            name_id = name
+
+        hl = self.highlight
+        if highlight is not None:
+            hl = highlight
+
         nodeData = {
-            'id': self.name,
-            'name': self.name,
+            'id': name_id,
+            'name': name_id,
+            'highlight': hl,
             'status': self.state.name,
             'type': self.type
         }
@@ -474,18 +485,18 @@ class SequenceWorkflow(BaseWorkflow):
         (nodes, edges, final_state_ids) : Tuple
             Graph as a tuple.
         """
-        graph = super().get_graph(None, parent)
+        graph = super().get_graph(predecessors, parent)
         nodes = graph[0]
         edges = graph[1]
 
-        last_final_state_ids = predecessors
+        last_final_state_ids = None
         for workflow in self.workflows:
             graph = workflow.get_graph(last_final_state_ids, self.name)
             nodes.extend(graph[0])
             edges.extend(graph[1])
             last_final_state_ids = graph[2]
 
-        return nodes, edges, last_final_state_ids
+        return nodes, edges, [self.name]
 
     def on_finished(self, name, skipped=False):
         if skipped and name == self.name:
@@ -701,7 +712,20 @@ class CombinedWorkflow(SequenceWorkflow):
         (nodes, edges, final_state_ids) : Tuple
             Graph as a tuple.
         """
-        return BaseWorkflow.get_graph(self, predecessors, parent)
+        node = BaseWorkflow.get_graph(self, predecessors, parent)
+        nodes = []
+        nodes.extend(node[0])
+        edges = []
+        edges.extend(node[1])
+
+        if self.settings and self.settings.get('wrap_parent'):
+            child = BaseWorkflow.get_graph(
+                self, None, self.name,
+                f"{self.name} routines", False)
+            nodes.extend(child[0])
+            edges.extend(child[1])
+
+        return nodes, edges, [self.name]
 
 
 class ScaleWorkflow(Workflow):
@@ -758,6 +782,12 @@ class InitWorkflow(CombinedWorkflow):
         settings: keywords
             An dictionary of global settings.
         """
+        wrap_parent = 'wrap_parent'
+        if settings and wrap_parent not in settings:
+            settings[wrap_parent] = True
+        else:
+            settings = {wrap_parent: True}
+
         super().__init__("Init", workflows, settings)
 
 
@@ -779,6 +809,12 @@ class ExitWorkflow(CombinedWorkflow):
         settings: keywords
             An dictionary of global settings.
         """
+        wrap_parent = 'wrap_parent'
+        if settings and wrap_parent not in settings:
+            settings[wrap_parent] = True
+        else:
+            settings = {wrap_parent: True}
+
         super().__init__("Exit", workflows, settings)
 
 

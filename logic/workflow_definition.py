@@ -3,13 +3,18 @@ from message import State
 
 
 class WorkflowDefinition:
+    """
+    This class serves as factory for the defined workflow.
+    """
 
     def create(self, settings):
         participants = 4
+        skip_to = None
         if settings:
-            participants = settings['participants']
+            participants = settings.get('participants')
+            skip_to = settings.get('skipTo')
 
-        return [
+        workflow = [
             # Init
             InitWorkflow([
                 SendTriggerWorkflow("Reset safe",
@@ -27,14 +32,16 @@ class WorkflowDefinition:
                 LabRoomLightControlWorkflow(State.OFF),
                 ServerRoomLightControlWorkflow(State.OFF)
             ]),
-            # First puzzle
-            Workflow("Input keypad code", "4/puzzle"),
-            # Open door after successfully solved previous puzzle
-            SendTriggerWorkflow("Open lab room door",
-                                "4/door/entrance", State.ON),
-            # Second puzzle for closing lab door
-            Workflow("Globes riddle", "4/globes", {'data': participants}),
-            LabRoomLightControlWorkflow(State.ON),
+            SequenceWorkflow("Entrance room", [
+                # First puzzle
+                Workflow("Input keypad code", "4/puzzle"),
+                # Open door after successfully solved previous puzzle
+                SendTriggerWorkflow("Open lab room door",
+                                    "4/door/entrance", State.ON),
+                # Second puzzle for closing lab door
+                Workflow("Globes riddle", "4/globes", {'data': participants}),
+                LabRoomLightControlWorkflow(State.ON)
+            ]),
             # Allow multiple riddles in lab room
             ParallelWorkflow("Lab room", [
                 SequenceWorkflow("Solve safe", [
@@ -61,15 +68,16 @@ class WorkflowDefinition:
                     ServerRoomLightControlWorkflow(State.ON)
                 ])
             ]),
-            # Allow multiple riddles in server room
-            ParallelWorkflow("Server room", [
-                Workflow("Terminal riddle", "6/puzzle/terminal"),
-                SequenceWorkflow("Server cabinet", [
-                    Workflow("Maze riddle", "8/puzzle/maze"),
-                    Workflow("IP riddle", "8/puzzle/IP")
-                ])
+            SequenceWorkflow("Server room", [
+                ParallelWorkflow("Server cabinets", [
+                    Workflow("Terminal riddle", "6/puzzle/terminal"),
+                    SequenceWorkflow("Left Server cabinet", [
+                        Workflow("Maze riddle", "8/puzzle/maze"),
+                        Workflow("IP riddle", "8/puzzle/IP")
+                    ])
+                ]),
+                Workflow("Simon riddle", "8/puzzle/simon")
             ]),
-            Workflow("Simon riddle", "8/puzzle/simon"),
             ExitWorkflow([
                 SendTriggerWorkflow("Open escape room door",
                                     "4/door/entrance", State.ON),
@@ -82,3 +90,18 @@ class WorkflowDefinition:
                 )
             ])
         ]
+
+        self.apply_initial_settings(workflow, skip_to)
+
+        return workflow
+
+    def apply_initial_settings(self, workflow, skip_to):
+        skip_node_reached = False
+        for w in workflow:
+            # Highlight room nodes
+            w.highlight = True
+            # Skip until the "skip_to" node reached
+            if w.name != skip_to and not skip_node_reached:
+                w.skip(w.name)
+            else:
+                skip_node_reached = True
