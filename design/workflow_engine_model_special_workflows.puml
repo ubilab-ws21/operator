@@ -21,6 +21,9 @@ class SendTriggerWorkflow {
 class ScaleWorkflow {
 }
 
+class IPWorkflow {
+}
+
 class InitWorkflow {
 }
 
@@ -50,6 +53,7 @@ WorkflowBase <|-- AudioControlWorkflow
 WorkflowBase <|-- LightControlWorkflow
 
 Workflow <|-- ScaleWorkflow
+Workflow <|-- IPWorkflow
 
 CombinedWorkflow <|-- InitWorkflow
 CombinedWorkflow <|-- ExitWorkflow

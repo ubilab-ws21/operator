@@ -27,8 +27,8 @@ class WorkflowDefinition:
                                     "4/door/server", State.OFF),
                 SendTriggerWorkflow("Deactivate laser",
                                     "7/laser", State.OFF),
-                SendTriggerWorkflow("Deactivate laser",
-                                    "7/laser", State.OFF),
+                SendTriggerWorkflow("Deactivate IP riddle",
+                                    "8/puzzle/IP", State.OFF),
                 LabRoomLightControlWorkflow(State.OFF),
                 ServerRoomLightControlWorkflow(State.OFF)
             ]),
@@ -73,7 +73,7 @@ class WorkflowDefinition:
                     Workflow("Terminal riddle", "6/puzzle/terminal"),
                     SequenceWorkflow("Left Server cabinet", [
                         Workflow("Maze riddle", "8/puzzle/maze"),
-                        Workflow("IP riddle", "8/puzzle/IP")
+                        IPWorkflow("IP riddle", "8/puzzle/IP")
                     ])
                 ]),
                 Workflow("Simon riddle", "8/puzzle/simon")

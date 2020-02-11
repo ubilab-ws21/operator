@@ -764,6 +764,16 @@ class ScaleWorkflow(Workflow):
         self.scale_status = State.ACTIVE
 
 
+class IPWorkflow(Workflow):
+    """
+    Special workflow for the IP puzzle avoiding a trigger:off
+    if the puzzle is finished.
+    """
+
+    def on_finished(self, name, skipped=False):
+        BaseWorkflow.on_finished(self, name, skipped)
+
+
 class InitWorkflow(CombinedWorkflow):
     """
     This workflow is just a named ("Init") combined workflow to do some initial
