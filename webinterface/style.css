@@ -333,3 +333,24 @@ input[type="checkbox"]:checked + .newcheck {
     margin: 1em 0 1em 8em;
     transform: scale(5,3);
 }
+
+.popper {
+    color: #cb4b16;
+    font-weight: bold;
+    font-size: 13px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: #fdf6e3;
+    display: none;
+}
+
+.popper::after {
+  content: " ";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #fdf6e3 transparent transparent transparent;
+}

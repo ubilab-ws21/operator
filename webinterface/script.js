@@ -288,7 +288,7 @@ function command(content) {
         participants: parseInt(getID("playercount").value),
         duration: parseInt(getID("playtime").value)
     };
-    if(getID("skipto").value !== "0") {
+    if (getID("skipto").value !== "0") {
         options["skipTo"] = getID("skipto").value;
     }
     mqtt.send("1/gameOptions", JSON.stringify(options), 2, true);
@@ -322,7 +322,7 @@ function envSet() {
             hex1 = hex1.match(/[A-Za-z0-9]{2}/g).map(function (v) {
                 return parseInt(v, 16)
             }).join(",");
-            let hex2  = getID("env-rgb2").value;
+            let hex2 = getID("env-rgb2").value;
             hex2 = hex2.match(/[A-Za-z0-9]{2}/g).map(function (v) {
                 return parseInt(v, 16)
             }).join(",");
@@ -527,13 +527,19 @@ function displayGraph(data) {
             {
                 selector: 'node[status="ACTIVE"]',
                 css: {
-                    'background-color': '#cb4b16'
+                    'background-color': '#b58900'
                 }
             },
             {
                 selector: 'node[status="SKIPPED"]',
                 css: {
                     'background-color': '#000000'
+                }
+            },
+            {
+                selector: 'node[status="FAILED"]',
+                css: {
+                    'background-color': '#cb4b16'
                 }
             },
             {
@@ -634,6 +640,46 @@ function displayGraph(data) {
                 enabled: true
             }
         ],
+
+    });
+
+    for (let el of cy.elements('node[status="FAILED"][message]')) {
+        let popper = el.popper({
+            content: () => {
+                let div = document.createElement('div');
+                div.innerHTML = el.data("message");
+                div.className = "popper";
+                div.id = btoa(el.data("id"));
+                document.body.appendChild(div);
+                return div;
+            },
+            popper: {
+                placement: "top",
+                modifiers: {
+                    offset: {
+                        offset: "0,5"
+                    },
+                    preventOverflow: {
+                        boundariesElement: getID("cytoscape-container")
+                    },
+                    flip: {
+                        enabled: false
+                    }
+                }
+            }
+        });
+        let update = () => {
+            popper.scheduleUpdate();
+        };
+        el.on('position mouseover', update);
+        cy.on('pan zoom resize', update);
+
+    }
+    cy.on("mouseover", 'node[status="FAILED"][message]', function (evt) {
+        getID(btoa(evt.target.data("id"))).style.display = "block";
+    });
+    cy.on("mouseout", 'node[status="FAILED"][message]', function (evt) {
+        getID(btoa(evt.target.data("id"))).style.display = "none";
 
     });
 }
