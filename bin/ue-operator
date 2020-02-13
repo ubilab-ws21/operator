@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-sys.path.append('/opt/ue-operator/logic')
+from time import sleep
 from paho.mqtt import subscribe, publish
 from argparse import ArgumentParser
 from os import remove, environ
@@ -10,6 +10,7 @@ import subprocess
 import json
 from gnupg import GPG
 from urllib.error import HTTPError
+sys.path.append('/opt/ue-operator/logic')
 from util import ProcessList, RepeatTimer, publish_tts
 
 OPT = "/opt/ue-operator/"
@@ -161,6 +162,7 @@ if __name__ == "__main__":
                 stderr=subprocess.STDOUT
             )
             pl.append("mosquitto -c " + OPT + "mosquitto.conf | grep Error")
+            sleep(1)
             logic_command = ["python3", OPT + "logic/main.py"]
             if args.workflow_def:
                 logic_command.extend(["-d", args.workflow_def])
