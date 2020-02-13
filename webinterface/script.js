@@ -528,19 +528,13 @@ function displayGraph(data) {
             {
                 selector: 'node[status="ACTIVE"]',
                 css: {
-                    'background-color': '#b58900'
+                    'background-color': '#cb4b16'
                 }
             },
             {
                 selector: 'node[status="SKIPPED"]',
                 css: {
                     'background-color': '#000000'
-                }
-            },
-            {
-                selector: 'node[status="FAILED"]',
-                css: {
-                    'background-color': '#cb4b16'
                 }
             },
             {
@@ -644,12 +638,12 @@ function displayGraph(data) {
 
     });
 
-    for (let el of cy.elements('node[status="FAILED"][message]')) {
+    for (let el of cy.elements('node[message]')) {
         let popper = el.popper({
             content: () => {
                 let div = document.createElement('div');
                 div.innerHTML = el.data("message");
-                div.className = "popper";
+                div.className = "popper " + el.data("messageState");
                 div.id = btoa(el.data("id"));
                 document.body.appendChild(div);
                 return div;
@@ -676,10 +670,10 @@ function displayGraph(data) {
         cy.on('pan zoom resize', update);
 
     }
-    cy.on("mouseover", 'node[status="FAILED"][message]', function (evt) {
+    cy.on("mouseover", 'node[message]', function (evt) {
         getID(btoa(evt.target.data("id"))).style.display = "block";
     });
-    cy.on("mouseout", 'node[status="FAILED"][message]', function (evt) {
+    cy.on("mouseout", 'node[message]', function (evt) {
         getID(btoa(evt.target.data("id"))).style.display = "none";
 
     });
