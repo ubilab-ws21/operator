@@ -9,7 +9,7 @@ messageSequence = [
     ['4/puzzle', '{"method": "STATUS", "state": "Invalid}'],
     ['4/puzzle', '{"method": "STATUS", "state": "UNSOLVED"}'],
     ['4/puzzle', '{"method": "STATUS", "state": "SOLVED"}'],
-    ['4/globes', '{"method": "status", "state": "solved"}'],
+    ['4/globes', '{"method": "status", "state": "solved", "data": "Worked!"}'],
     # Lab room
     ['5/safe/activate', '{"method": "STATUS", "state": "SOLVED"}'],
     ['7/fusebox/laserDetection', '{"method": "STATUS", "state": "SOLVED"}'],

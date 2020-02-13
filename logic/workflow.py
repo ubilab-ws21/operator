@@ -173,10 +173,39 @@ class BaseWorkflow:
         parent : str
             The ID of the parent state (group).
 
+        name : str
+            A divergent name for the node.
+
+        highlight : bool
+            Set the node as highlighted.
+
         Return
         ------
         (nodes, edges, final_state_ids) : Tuple
             Graph as a tuple.
+        """
+        nodeData = self._create_node_data(name, highlight)
+
+        if parent is not None:
+            nodeData['parent'] = parent
+
+        node = {
+            'data': nodeData
+        }
+
+        edges = self._create_edges(self.name, predecessors)
+
+        return [node], edges, [self.name]
+
+    def _create_node_data(self, name=None, highlight=None):
+        """
+        Creates the main node data.
+
+        name : str
+            A divergent name for the node.
+
+        highlight : bool
+            Set the node as highlighted.
         """
         name_id = self.name
         if name:
@@ -194,19 +223,7 @@ class BaseWorkflow:
             'type': self.type
         }
 
-        if hasattr(self, "topic"):
-            nodeData['topic'] = self.topic
-
-        if parent is not None:
-            nodeData['parent'] = parent
-
-        node = {
-            'data': nodeData
-        }
-
-        edges = self._create_edges(self.name, predecessors)
-
-        return [node], edges, [self.name]
+        return nodeData
 
     def _create_edges(self, target, predecessors):
         """
@@ -263,6 +280,8 @@ class Workflow(BaseWorkflow):
         super().__init__(name, settings)
         self.topic = topic
         self.client = None
+        self.message_state = None
+        self.message = None
 
     def execute(self, client):
         """
@@ -321,6 +340,8 @@ class Workflow(BaseWorkflow):
             obj = fromJSON(message)
             if obj.method == Method.STATUS:
                 print(f"[{self.name}] State change to '{obj.state.name}'")
+                self.message_state = obj.state
+                self.message = obj.data
                 if obj.state == State.INACTIVE:
                     self._on_received_status_inactive(obj.data)
                 elif obj.state == State.ACTIVE:
@@ -360,6 +381,24 @@ class Workflow(BaseWorkflow):
             self.on_error(self.name, error_msg)
 
         super().on_message(msg)
+
+    def _create_node_data(self, name=None, highlight=None):
+        """
+        Creates the main node data.
+
+        name : str
+            A divergent name for the node.
+
+        highlight : bool
+            Set the node as highlighted.
+        """
+        nodeData = super()._create_node_data(name, highlight)
+        nodeData['topic'] = self.topic
+        if self.message_state:
+            nodeData['messageState'] = self.message_state.name
+        if self.message:
+            nodeData['message'] = self.message
+        return nodeData
 
     def on_finished(self, name, skipped=False):
         self._publishTrigger(self.client, State.OFF, skipped)
