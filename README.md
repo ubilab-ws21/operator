@@ -117,8 +117,6 @@ It's making use of several open-source JavaScript libraries:
 - cytoscape-cxtmenu ([Documentation](https://github.com/cytoscape/cytoscape.js-cxtmenu), [MIT License](https://github.com/cytoscape/cytoscape.js-cxtmenu/blob/master/LICENSE))
 - cytoscape-dagre ([Documentation](https://github.com/cytoscape/cytoscape.js-dagre), [MIT License](https://github.com/cytoscape/cytoscape.js-dagre/blob/master/LICENSE))
 - dagre ([Documentation](https://github.com/dagrejs/dagre), [MIT License](https://github.com/dagrejs/dagre/blob/master/LICENSE))
-- cytoscape-popper ([Documentation](https://github.com/cytoscape/cytoscape.js-popper), [MIT License](https://github.com/cytoscape/cytoscape.js-popper/blob/master/LICENSE))
-- popper ([Documentation](https://popper.js.org/docs/v1), [MIT License](https://github.com/popperjs/popper-core/blob/master/LICENSE.md))
 - markdown-it ([Documentation](https://github.com/markdown-it/markdown-it), [MIT License](https://github.com/markdown-it/markdown-it/blob/master/LICENSE))
 
 For providing offline capabilities, these libraries are saved in the subfolder `libs`

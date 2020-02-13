@@ -538,6 +538,13 @@ function displayGraph(data) {
                 }
             },
             {
+                selector: 'node[message][messageState]',
+                css: {
+                    'border-width': '5px',
+                    'border-color': "#5f5faf",
+                }
+            },
+            {
                 selector: ':parent',
                 css: {
                     'text-valign': 'top',
@@ -638,37 +645,18 @@ function displayGraph(data) {
 
     });
 
+    /**
+     * This part displays a tooltip for those nodes who have a message set
+     */
+    for (let popper of document.getElementsByClassName("popper")) {
+        popper.remove();
+    }
     for (let el of cy.elements('node[message]')) {
-        let popper = el.popper({
-            content: () => {
-                let div = document.createElement('div');
-                div.innerHTML = el.data("message");
-                div.className = "popper " + el.data("messageState");
-                div.id = btoa(el.data("id"));
-                document.body.appendChild(div);
-                return div;
-            },
-            popper: {
-                placement: "top",
-                modifiers: {
-                    offset: {
-                        offset: "0,5"
-                    },
-                    preventOverflow: {
-                        boundariesElement: getID("cytoscape-container")
-                    },
-                    flip: {
-                        enabled: false
-                    }
-                }
-            }
-        });
-        let update = () => {
-            popper.scheduleUpdate();
-        };
-        el.on('position mouseover', update);
-        cy.on('pan zoom resize', update);
-
+        let div = document.createElement('div');
+        div.innerHTML = el.data("message");
+        div.className = "popper " + el.data("messageState");
+        div.id = btoa(el.data("id"));
+        document.body.appendChild(div);
     }
     cy.on("mouseover", 'node[message]', function (evt) {
         getID(btoa(evt.target.data("id"))).style.display = "block";

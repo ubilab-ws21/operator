@@ -336,22 +336,29 @@ input[type="checkbox"]:checked + .newcheck {
 }
 
 .popper {
-    color: #cb4b16;
     font-weight: bold;
     font-size: 13px;
     padding: 4px 8px;
     border-radius: 4px;
     background-color: #fdf6e3;
     display: none;
+    position: fixed;
+    top: 1.8em;
+    right: 50vw;
 }
 
-.popper::after {
-  content: " ";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #fdf6e3 transparent transparent transparent;
+.popper.SOLVED {
+	color: #859900;
+}
+
+.popper.ACTIVE {
+    color: #b58900;
+}
+
+.popper.INACTIVE {
+    color: #5f5faf;
+}
+
+.popper.FAILED {
+    color: #cb4b16;
 }
