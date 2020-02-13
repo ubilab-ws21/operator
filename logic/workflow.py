@@ -796,7 +796,7 @@ class GlobesWorkflow(Workflow):
         :return:
         """
         if not self.running_timer:
-            self.running_timer = RepeatTimer(30.0, publish_tts,
+            self.running_timer = RepeatTimer(20.0, publish_tts,
                                              args=("Please close the door",))
             self.running_timer.start()
             print("==> Hint timer started")
