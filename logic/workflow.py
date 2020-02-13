@@ -264,6 +264,20 @@ class Workflow(BaseWorkflow):
         self.topic = topic
         self.client = None
 
+    def execute(self, client):
+        """
+        Executes this workflow.
+        OVERRIDDEN: In case of the workflow is skipped.
+        The client has to be set for this class.
+
+        Parameters
+        ----------
+        client : Client
+            MQTT client
+        """
+        self.client = client
+        super().execute(client)
+
     def _execute(self, client):
         """
         Executes this workflow.
@@ -273,7 +287,6 @@ class Workflow(BaseWorkflow):
         client : Client
             MQTT client
         """
-        self.client = client
         self._publishTrigger(client, State.ON)
         self._subscripeToTopic(client)
         super()._execute(client)
