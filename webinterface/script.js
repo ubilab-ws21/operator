@@ -365,7 +365,9 @@ function command(content) {
         options["skipTo"] = getID("skipto").value;
         getID("skipto").value = "0";
     }
-    mqtt.send("1/gameOptions", JSON.stringify(options), 2, true);
+    if(content === "start") {
+        mqtt.send("1/gameOptions", JSON.stringify(options), 2, true);
+    }
     mqtt.send("1/gameControl", content, 2, true);
 }
 
