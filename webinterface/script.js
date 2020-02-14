@@ -279,12 +279,14 @@ function changeState(dst_b64, state) {
  * Sends the input message to the text-to-speech script
  */
 function playMessage() {
-    if (getID("tts").value === "") {
+    let tts = getID("tts").value.trim();
+    if (tts === "") {
         alert("Message must be set");
+        return;
     }
     mqtt.send("2/textToSpeech", JSON.stringify({
         method: "message",
-        data: `<speak><prosody rate="${getID("tts-rate").value}" pitch="${getID("tts-pitch").value}" volume="${getID("tts-volume").value}">${getID("tts").value}</prosody></speak>`,
+        data: `<speak><prosody rate="${getID("tts-rate").value}" pitch="${getID("tts-pitch").value}" volume="${getID("tts-volume").value}">${tts}</prosody></speak>`,
         kwargs: {
             TextType: "ssml",
             VoiceId: getID("tts-voice").value,
