@@ -275,6 +275,13 @@ input[type=color] {
     line-height: initial;
 }
 
+#toggle-left {
+	position: absolute;
+	left: 22em;
+	margin: 5px;
+    z-index: 10;
+}
+
 input[type="checkbox"] {
     display: none;
 }

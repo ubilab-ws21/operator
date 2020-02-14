@@ -6,6 +6,7 @@ let topicsUser = new Set();
 let topicsUI = new Set(["1/gameTime_formatted", "1/gameControl", "1/gameOptions", "1/gameState", "4/door/entrance", "4/door/serverRoom"]);
 let tabs = new Set(["control", "cameras", "cameras-fallback", "mosquitto"]);
 let printTime = false;
+let controlleft = true;
 
 /**
  * Short version of getElementById
@@ -225,6 +226,24 @@ function toggleTopics() {
         getID("topics").style.display = "none";
         getID("output").style.display = "inline-block";
     }
+}
+
+/**
+ * Toggles the left control bar
+ */
+function toggleControlLeft() {
+    if(controlleft) {
+        getID("toggle-left").style.left = "0.8em";
+        getID("control-left").style.display = "none";
+        getID("cytoscape-container").style.width = "100%";
+        controlleft = false;
+    } else {
+        getID("toggle-left").style.left = "22em";
+        getID("control-left").style.display = "block";
+        getID("cytoscape-container").style.width = "calc(100% - 20em)";
+        controlleft = true;
+    }
+
 }
 
 /**
