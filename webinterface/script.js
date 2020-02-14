@@ -494,7 +494,7 @@ function validateValues(cmd) {
  * @param button The button to trigger
  */
 function addEnterEvent(target, button) {
-    target.addEventListener("keyup", function (event) {
+    target.addEventListener("keydown", function (event) {
         if (event.keyCode === 13) {
             event.preventDefault();
             button.click();
