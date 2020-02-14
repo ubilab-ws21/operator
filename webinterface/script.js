@@ -3,7 +3,7 @@ let reconnectTimeout = 2000;
 let host = "10.0.0.2";
 let port = 9001;
 let topicsUser = new Set();
-let topicsUI = new Set(["1/gameTime_formatted", "1/gameControl", "1/gameState", "4/door/entrance", "4/door/serverRoom"]);
+let topicsUI = new Set(["1/gameTime_formatted", "1/gameControl", "1/gameOptions", "1/gameState", "4/door/entrance", "4/door/serverRoom"]);
 let tabs = new Set(["control", "cameras", "cameras-fallback", "mosquitto"]);
 let printTime = false;
 
