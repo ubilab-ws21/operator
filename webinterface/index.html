@@ -101,6 +101,52 @@
             <div class="control-item">
                 <b>Text-to-speech</b>
                 <textarea placeholder="Message" id="tts"></textarea>
+                <select id="tts-rate">
+                    <option value="default" selected>default speed</option>
+                    <option>x-slow</option>
+                    <option>slow</option>
+                    <option>medium</option>
+                    <option>fast</option>
+                    <option>x-fast</option>
+                </select>
+                <select id="tts-pitch">
+                    <option value="default" selected>default pitch</option>
+                    <option>x-low</option>
+                    <option>low</option>
+                    <option>medium</option>
+                    <option>high</option>
+                    <option>x-high</option>
+                </select>
+                <select id="tts-volume">
+                    <option value="default" selected>default vol.</option>
+                    <option>silent</option>
+                    <option>x-soft</option>
+                    <option>soft</option>
+                    <option>medium</option>
+                    <option>loud</option>
+                    <option>x-loud</option>
+                </select>
+                <select id="tts-voice">
+                    <option value="Nicole">Nicole (AU)</option>
+                    <option value="Russel">Russel (AU)</option>
+                    <option value="Amy">Amy (GB)</option>
+                    <option value="Emma">Emma (GB)</option>
+                    <option value="Brian">Brian (GB)</option>
+                    <option value="Aditi">Aditi (IN)</option>
+                    <option value="Raveena">Raveena (IN)</option>
+                    <option value="Ivy">Ivy (US)</option>
+                    <option value="Joanna" selected>Joanna (US)</option>
+                    <option value="Kendra">Kendra (US)</option>
+                    <option value="Kimberly">Kimberly (US)</option>
+                    <option value="Salli">Salli (US)</option>
+                    <option value="Joey">Joey (US)</option>
+                    <option value="Justin">Justin (US)</option>
+                    <option value="Matthew">Matthew (US)</option>
+                    <option value="Geraint">Geraint (WLS)</option>
+                    <option value="Marlene">Marlene (DE)</option>
+                    <option value="Vicki">Vicki (DE)</option>
+                    <option value="Hans">Hans (DE)</option>
+                </select>
                 <div>
                     <button id="tts-button" type="button"
                             onclick="playMessage();">Play

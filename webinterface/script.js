@@ -284,9 +284,51 @@ function playMessage() {
     }
     mqtt.send("2/textToSpeech", JSON.stringify({
         method: "message",
-        data: getID("tts").value
+        data: `<speak><prosody rate="${getID("tts-rate").value}" pitch="${getID("tts-pitch").value}" volume="${getID("tts-volume").value}">${getID("tts").value}</prosody></speak>`,
+        kwargs: {
+            TextType: "ssml",
+            VoiceId: getID("tts-voice").value,
+            LanguageCode: getLanguageByVoice(getID("tts-voice").value)
+        }
     }), 2, false);
     getID("tts").value = "";
+    getID("tts-rate").value = "default";
+    getID("tts-pitch").value = "default";
+    getID("tts-volume").value = "default";
+    getID("tts-voice").value = "Joanna";
+}
+
+/**
+ * Translates a voiceid to the corresponding language code
+ */
+function getLanguageByVoice(voice) {
+    switch (voice) {
+        case "Nicole":
+        case "Russel":
+            return "en-AU";
+        case "Amy":
+        case "Emma":
+        case "Brian":
+            return "en-GB";
+        case "Aditi":
+        case "Raveena":
+            return "en-IN";
+        case "Ivy":
+        case "Joanna":
+        case "Kendra":
+        case "Kimberly":
+        case "Sally":
+        case "Joey":
+        case "Justin":
+        case "Matthew":
+            return "en-US";
+        case "Geraint":
+            return "en-GB-WLS";
+        case "Marlene":
+        case "Vicki":
+        case "Hans":
+            return "de-DE";
+    }
 }
 
 /**
