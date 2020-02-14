@@ -67,7 +67,7 @@ if __name__ == "__main__":
                 "Format: module:class\n" \
                 "with get method returning an array of Workflows."
     parser.add_argument("--workflow_def", "-d", help=help_text)
-    parser.add_argument("--ignore-gpg", "-i", help="Skips GPG in update process")
+    parser.add_argument("--ignore-gpg", "-i", action="store_true", help="Skips GPG in update process")
     parser.add_argument("-v", "--version", action="version",
                         version="%(prog)s %VERSION%")
     args = parser.parse_args()
