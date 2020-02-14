@@ -195,6 +195,7 @@ class WorkflowController:
                 "-h", self.mqtt_url,
                 "-t", "#",
                 "-T", "1/gameControl",
+                "-T", "1/gameOptions",
                 "--remove-retained",
                 "--retained-only"], stdout=subprocess.PIPE)
         except subprocess.CalledProcessError:

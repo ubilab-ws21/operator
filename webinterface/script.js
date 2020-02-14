@@ -105,6 +105,18 @@ function onMessageArrived(msg) {
         } catch {
         }
     }
+    // Show game options when game is running
+    else if (topic === "1/gameOptions" && msg.payloadString) {
+        try {
+            let opts = JSON.parse(msg.payloadString);
+            getID("playercount").value = opts.participants;
+            getID("playtime").value = opts.duration;
+            if(msg.skipTo) {
+                getID("skipto").value = opts.skipTo;
+            }
+        } catch {
+        }
+    }
 }
 
 /**
