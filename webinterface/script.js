@@ -292,10 +292,6 @@ function playMessage() {
         }
     }), 2, false);
     getID("tts").value = "";
-    getID("tts-rate").value = "default";
-    getID("tts-pitch").value = "default";
-    getID("tts-volume").value = "default";
-    getID("tts-voice").value = "Joanna";
 }
 
 /**
