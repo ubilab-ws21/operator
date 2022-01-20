@@ -23,9 +23,13 @@
     </div>
     <div><a class="navlink" onclick="changeTab('mosquitto');" id="b-mosquitto">Mosquitto</a>
     </div>
+    <div>
+        <label>Host: <input type="text" id="input-host"></label>
+        <button type="button" onclick="setHost();">Set</button>
+    </div>
     <div id="nav-audio">
         <audio controls muted preload='none'>
-            <source src="http://10.0.0.2:8554/stream.ogg" type="audio/ogg">
+            <source id="audio-src" type="audio/ogg">
         </audio>
     </div>
 </nav>
@@ -288,18 +292,18 @@
 <!-- CONTROL PAGE STARTS HERE -->
 <!-- CAMERA PAGE STARTS HERE -->
 <div id="cameras" style="display: none">
-    <img class="webcam" src="http://10.0.0.2:8081/stream">
-    <img class="webcam" src="http://10.0.0.2:8082/stream">
-    <img class="webcam" src="http://10.0.0.2:8083/stream">
-    <img class="webcam" src="http://10.0.0.2:8084/stream">
-    <img class="webcam" src="http://10.0.0.2:8085/stream"><br>
+    <img id="cam-1-src" class="webcam" >
+    <img id="cam-2-src" class="webcam" >
+    <img id="cam-3-src" class="webcam" >
+    <img id="cam-4-src" class="webcam" >
+    <img id="cam-5-src" class="webcam" ><br>
     <a class="navlink" onclick="changeTab('cameras-fallback')"
        id="b-cameras-fallback">Cameras (fallback)</a>
 </div>
 <!-- CAMERA PAGE ENDS HERE -->
 <!-- CAMERA FALLBACK PAGE STARTS HERE -->
 <div id="cameras-fallback" style="display: none">
-    <img class="webcam" src="http://10.0.0.2:8080/stream">
+    <img id="cam-f-src" class="webcam" >
     <form>
         <select name="camera" id="camera-selection">
             <option value="1">Camera 1</option>

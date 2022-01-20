@@ -17,6 +17,24 @@ function getID(id) {
     return document.getElementById(id);
 }
 
+
+function setHost() {
+    // TODO: input sanitation
+    let hostip = getID("input-host").value;
+    if (ValidateIPaddress(hostip)) {
+        host = hostip;
+        console.log("Host set to " + host);
+    }
+}
+
+function ValidateIPaddress(ipaddress) {
+  if (/^(?!0)(?!.*\.$)((1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/.test(ipaddress)) {
+    return (true)
+  }
+  alert("You have entered an invalid IP address!")
+  return (false)
+}
+
 /**
  * This function toggles the spinner and sets the opacity of the tabs
  * @param activate Whether to activate or deactivate the spinner and opacity
@@ -139,7 +157,7 @@ async function mqttConnect() {
     mqtt = new Paho.Client(host, port, "", "ws-client-d" + ~~(Date.now() / 1000));
     mqtt.onMessageArrived = onMessageArrived;
     mqtt.onConnectionLost = onConnectionLost;
-    mqtt.connect({timeout: 3, onSuccess: onConnect, onFailure: onFailure});
+    mqtt.connect({timeout: 10, onSuccess: onConnect, onFailure: onFailure});
 }
 
 /**
@@ -509,6 +527,16 @@ async function onLoad() {
     if (window.location.href.includes("?")) {
         changeTab(window.location.href.split("?")[1])
     }
+    host = window.location.host;
+    getID("input-host").value = host;
+    getID("audio-src").src = "http://" + host + ":8554/stream.ogg";
+    getID("cam-f-src").src = "http://" + host + ":8080/stream";
+    getID("cam-1-src").src = "http://" + host + ":8081/stream";
+    getID("cam-2-src").src = "http://" + host + ":8082/stream";
+    getID("cam-3-src").src = "http://" + host + ":8083/stream";
+    getID("cam-4-src").src = "http://" + host + ":8084/stream";
+    getID("cam-5-src").src = "http://" + host + ":8085/stream";
+
     let promises = [];
     promises.push(mqttConnect());
     promises.push(onLoadAddEnterEvents());
