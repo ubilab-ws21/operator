@@ -60,7 +60,7 @@ if __name__ == "__main__":
     parser = ArgumentParser(
         description='Command-line interface for the ubilab-ws21 operator')
     parser.add_argument('command', metavar='CMD', type=str,
-                        choices=["init", "start", "update", "help"], nargs="?",
+                        choices=["init", "start", "update", "update-dependencies", "help"], nargs="?",
                         help='the command to execute\n(init, start)',
                         default="help")
     help_text = "definition of the workflow.\n" \
@@ -100,15 +100,20 @@ if __name__ == "__main__":
             pl.wait()
 
         """
-            Command UPDATE: Updating git repos for the camera relay and text-to-
-             speech and installing the newest release from GitHub
+            Command UPDATE-DEPENDENCIES: Update git repos for the camera relay and text-to-speech
+        """
+        if args.command == "update-dependencies":
+            # update deps
+            pl.append(["git", "pull"], cwd=OPT + "environment")
+            pl.append(["git", "pull"], cwd="/opt/mjpeg-relay")
+            pl.wait()
+
+        
+        """
+            Command UPDATE: Install the newest release from GitHub, or a specified version
              This also checks the GPG signature of the release
         """
         if args.command == "update":
-            # install deps
-            pl.append(["git", "pull"], cwd=OPT + "environment")
-            pl.append(["git", "pull"], cwd="/opt/mjpeg-relay")
-
             # cleanup and download release
             try:
                 remove("ue-operator.deb")
