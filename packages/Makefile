@@ -42,7 +42,8 @@ build:
 	sudo rm -rf $(TMP_DIR)
 
 publish:
-	git tag -s -m "Version $(VERSION)" v$(VERSION)
+	git tag -f -s -m "Version $(VERSION)" v$(VERSION)
+	git push origin v$(VERSION) --force
 	gpg -ab $(TMP_DIR).deb
-	hub release create -a $(TMP_DIR).deb -a $(TMP_DIR).deb.asc -m "Version $(VERSION)" v$(VERSION)
+	gh release create v$(VERSION) $(TMP_DIR).deb $(TMP_DIR).deb.asc -t "Version $(VERSION)" -n "https://github.com/ubilab-ws21/operator/tree/v$(VERSION)"
 	rm $(TMP_DIR).deb $(TMP_DIR).deb.asc

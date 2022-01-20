@@ -79,8 +79,8 @@ Starting and stopping of the processes should be done with `systemd`:
 Requirements (for Ubuntu 18.04 LTS, others may differ):
 
 - `build-essential`
-- `hub` with either credentials or a configured token ([hub configuration](https://hub.github.com/hub.1.html#configuration), [OAuth Token](https://github.com/settings/tokens))
-- `gpg` with a valid GPG key configured in `git` and in GitHub ([Configuring git](https://git-scm.com/book/en/v2/Git-Tools-Signing-Your-Work), [Add key in GitHub](https://github.com/settings/keys))
+- Github CLI `gh` ([Install](https://garywoodfine.com/how-to-install-github-cli-on-linux/), [Configure](https://cli.github.com/manual/gh_auth_login))
+- `gpg` with a valid GPG key configured in `git` and in GitHub ([Configuring git 1](https://git-scm.com/book/en/v2/Git-Tools-Signing-Your-Work), [Configuring git 2](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key), [Add key in GitHub](https://github.com/settings/keys))
 
 Process:
 
