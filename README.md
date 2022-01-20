@@ -87,7 +87,7 @@ Process:
 1. On dev client: `cd %REPO/packages && make VERSION=X.Y-Z`
    * The flag `make VERSION=X.Y-Z LOCAL=true` only creates the file without uploading it
 2. On server:
-   * first install: `wget https://github.com/ubilab-escape/operator/releases/latest/download/ue-operator.deb && sudo apt install ./ue-operator.deb`
+   * first install: `wget https://github.com/ubilab-ws21/operator/releases/latest/download/ue-operator.deb && sudo apt install ./ue-operator.deb`
    * update: `ue-operator update`
 
 ## UI Control Board

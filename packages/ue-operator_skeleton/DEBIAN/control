@@ -1,7 +1,7 @@
 Package: ue-operator
 Version: %VERSION%
 Section: games
-Homepage: https://github.com/ubilab-escape/operator
+Homepage: https://github.com/ubilab-ws21/operator
 Priority: optional
 Architecture: all
 Depends: python3, mosquitto, mosquitto-clients, git, apache2, python, python-pip, python3-paho-mqtt, moreutils, awscli, python3-wget, python3-gnupg, vlc

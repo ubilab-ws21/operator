@@ -47,7 +47,7 @@ if __name__ == "__main__":
     """
     This starts the web server on a given port
     """
-    parser = ArgumentParser(description='ubilab-escape camera control server')
+    parser = ArgumentParser(description='ubilab-ws21 camera control server')
     parser.add_argument('--port', '-p', action='store', default=9000, type=int,
                         help='set the port to listen on')
     args = parser.parse_args()

@@ -14,7 +14,7 @@ sys.path.append('/opt/ue-operator/logic')
 from util import ProcessList, RepeatTimer, publish_tts
 
 OPT = "/opt/ue-operator/"
-GITHUB = "https://github.com/ubilab-escape/operator/"
+GITHUB = "https://github.com/ubilab-ws21/operator/"
 running_timer = None
 
 
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     initializing
     """
     parser = ArgumentParser(
-        description='Command-line interface for the ubilab-escape operator')
+        description='Command-line interface for the ubilab-ws21 operator')
     parser.add_argument('command', metavar='CMD', type=str,
                         choices=["init", "start", "update", "help"], nargs="?",
                         help='the command to execute\n(init, start)',
@@ -81,7 +81,7 @@ if __name__ == "__main__":
         """
         if args.command == "init":
             pl.append(
-                ["git", "clone", "https://github.com/ubilab-escape/environment",
+                ["git", "clone", "https://github.com/ubilab-ws21/environment",
                  OPT + "environment"])
             pl.append(["git", "clone", "--recurse-submodules",
                        "https://github.com/OliverF/mjpeg-relay.git",

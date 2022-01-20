@@ -70,7 +70,7 @@ class Message:
     Represents the specified data transfer object for the communication
     with other participants over MQTT.
     Definition:
-    https://github.com/ubilab-escape/operator#communication-format
+    https://github.com/ubilab-ws21/operator#communication-format
     """
 
     def __init__(self, method, state, data=None):

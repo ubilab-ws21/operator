@@ -259,7 +259,7 @@ class Workflow(BaseWorkflow):
     """
     This class represents the default workflow implementation of a puzzle,
     defined in following UML sequence diagram:
-    https://github.com/ubilab-escape/operator/blob/master/doc/design/general_%CE%BCC_workflow.svg
+    https://github.com/ubilab-ws21/operator/blob/master/doc/design/general_%CE%BCC_workflow.svg
     """
 
     def __init__(self, name, topic, settings=None):
