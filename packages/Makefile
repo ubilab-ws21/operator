@@ -38,6 +38,7 @@ build:
 	# Write version and build
 	sed -i 's/%VERSION%/$(VERSION)/g' $(TMP_DIR)/DEBIAN/control
 	sudo sed -i 's/%VERSION%/$(VERSION)/g' $(TMP_DIR)/usr/bin/ue-operator
+	sudo sed -i 's/%VERSION%/$(VERSION)/g' $(TMP_DIR)/var/www/html/index.html
 	dpkg-deb --build $(TMP_DIR)
 	sudo rm -rf $(TMP_DIR)
 

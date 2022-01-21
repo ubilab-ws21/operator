@@ -24,9 +24,11 @@
     </div>
     <div><a class="navlink" onclick="changeTab('mosquitto');" id="b-mosquitto">Mosquitto</a>
     </div>
-    <div>
+    <div style="text-align: left;">
         <label>Host: <input type="text" id="input-host"></label>
         <button type="button" onclick="setHost();">Set</button>
+        <br>
+        <label>Version: %VERSION%</label>
     </div>
     <div id="nav-audio">
         <audio controls muted preload='none'>
