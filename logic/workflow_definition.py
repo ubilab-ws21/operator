@@ -1,3 +1,4 @@
+from logic.workflow import SendMessageWorkflow
 from workflow import *                                       # noqa ignore=F405
 from message import State
 
@@ -17,68 +18,61 @@ class WorkflowDefinition:
         workflow = [
             # Init
             InitWorkflow([
+                # legacy init
                 SendTriggerWorkflow("Reset safe",
                                     "5/safe/control", State.OFF),
-                SendTriggerWorkflow("Reset scale",
-                                    "6/puzzle/scale", State.OFF),
                 SendTriggerWorkflow("Close lab room door",
                                     "4/door/entrance", State.OFF),
                 SendTriggerWorkflow("Close server room door",
                                     "4/door/server", State.OFF),
-                SendTriggerWorkflow("Deactivate laser",
-                                    "7/laser", State.OFF),
-                SendTriggerWorkflow("Deactivate IP riddle",
-                                    "8/puzzle/IP", State.OFF),
-                LabRoomLightControlWorkflow(State.OFF),
-                ServerRoomLightControlWorkflow(State.OFF)
+                LabRoomLightControlWorkflow(State.ON),
+                ServerRoomLightControlWorkflow(State.ON),
+
+                # Puzzle 3 init
+                SendMessageWorkflow("Reset Radio", "3/gamecontrol", "idle"),
+                SendMessageWorkflow("Set Radio Mode", "3/touchgame/displayTime", False),
+
+                # Puzzle 5 init
+                SendMessageWorkflow("Set Battery Level", "5/battery/1/level", 0),
+                #SendMessageWorkflow("Set Battery UID", "5/battery/1/uid", 0),
+                #SendTriggerWorkflow("Open Safe", "5/safe/control", State.ON),
             ]),
-            SequenceWorkflow("Entrance room", [
-                # First puzzle
-                Workflow("Input keypad code", "4/puzzle"),
-                # Open door after successfully solved previous puzzle
-                SendTriggerWorkflow("Open lab room door",
-                                    "4/door/entrance", State.ON),
-                # Second puzzle for closing lab door
-                GlobesWorkflow("Globes riddle", "4/globes",
-                               {'data': participants}),
-                LabRoomLightControlWorkflow(State.ON)
-            ]),
-            # Allow multiple riddles in lab room
-            ParallelWorkflow("Lab room", [
-                SequenceWorkflow("Solve safe", [
-                    Workflow("Activate safe", "5/safe/activate"),
-                    Workflow("Open safe", "5/safe/control"),
-                    ScaleWorkflow("Scale riddle", "6/puzzle/scale")
+
+
+            SequenceWorkflow("Lobby Room", [
+                Workflow("Power Outage", "0/dummy"),
+                SequenceWorkflow("Puzzle 1 - Cube", [
+                    Workflow("Panels Released", "0/dummy"),
+                    Workflow("Panels Placed", "0/dummy"),
                 ]),
-                SequenceWorkflow("Solve door riddle", [
-                    SendTriggerWorkflow("Activate laser", "7/laser", State.ON),
-                    ParallelWorkflow("Solve fuse box", [
-                        Workflow("Redirect laser in fusebox",
-                                 "7/fusebox/laserDetection"),
-                        Workflow("First rewiring of fusebox",
-                                 "7/fusebox/rewiring0"),
-                        Workflow("Second rewiring of fusebox",
-                                 "7/fusebox/rewiring1"),
-                        Workflow("Set potentiometer of fusebox",
-                                 "7/fusebox/potentiometer")
-                    ]),
-                    ServerRoomLightControlWorkflow(State.ON, 100),
-                    Workflow("Control robot", "7/robot"),
-                    SendTriggerWorkflow("Open server room door",
-                                        "4/door/server", State.ON),
-                    ServerRoomLightControlWorkflow(State.ON)
-                ])
+                SendTriggerWorkflow("Open Control Room Door", "4/door/entrance", State.ON),
             ]),
+
+            SequenceWorkflow("Control room", [
+                SequenceWorkflow("Puzzle 5 - Battery", [
+                    Workflow("Safe Unlocked", "0/dummy"),
+                    Workflow("Battery Placed", "0/dummy"),
+                ]),
+                SequenceWorkflow("Puzzle 3 - Radio", [
+                    Workflow("Radio Turned On", "0/dummy"),
+                    Workflow("Antenna Aligned", "0/dummy"),
+                    Workflow("Radio Tuned", "0/dummy"),
+                    Workflow("Touch Game Finished", "0/dummy"),
+                ]),
+                SendTriggerWorkflow("Open Server Room Door", "4/door/server", State.ON),
+            ]),
+
             SequenceWorkflow("Server room", [
-                ParallelWorkflow("Server cabinets", [
-                    Workflow("Terminal riddle", "6/puzzle/terminal"),
-                    SequenceWorkflow("Left Server cabinet", [
-                        Workflow("Maze riddle", "8/puzzle/maze"),
-                        IPWorkflow("IP riddle", "8/puzzle/IP")
-                    ])
+                SequenceWorkflow("Puzzle 2 - Switchboard", [
+                    Workflow("Switchboard Opened", "0/dummy"),
+                    Workflow("Switches Correct", "0/dummy"),
                 ]),
-                Workflow("Simon riddle", "8/puzzle/simon")
+                SequenceWorkflow("Puzzle 4 - Server", [
+                    Workflow("Puzzle Solved", "0/dummy"),
+                ]),
             ]),
+
+
             ExitWorkflow([
                 SendTriggerWorkflow("Open escape room door",
                                     "4/door/entrance", State.ON),
@@ -88,7 +82,7 @@ class WorkflowDefinition:
                     "Play success",
                     "/opt/ue-operator/sounds/success.mp3",
                     True
-                )
+                ),
             ])
         ]
 

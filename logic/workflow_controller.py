@@ -35,10 +35,10 @@ class WorkflowController:
         """
         self.client = None
         self.mqtt_url = mqtt_url
-        self.game_control_topic = "1/gameControl"
-        self.game_timer_topic = "1/gameTime"
-        self.game_state_topic = "1/gameState"
-        self.game_option_topic = "1/gameOptions"
+        self.game_control_topic = "op/gameControl"
+        self.game_timer_topic = "op/gameTime"
+        self.game_state_topic = "op/gameState"
+        self.game_option_topic = "op/gameOptions"
         self.options = None
         self.workflow_factory = workflow_factory
         self.last_graph_config = None
@@ -194,8 +194,8 @@ class WorkflowController:
                 "/opt/ue-operator/mosquitto_sub",
                 "-h", self.mqtt_url,
                 "-t", "#",
-                "-T", "1/gameControl",
-                "-T", "1/gameOptions",
+                "-T", "op/gameControl",
+                "-T", "op/gameOptions",
                 "--remove-retained",
                 "--retained-only"], stdout=subprocess.PIPE)
         except subprocess.CalledProcessError:

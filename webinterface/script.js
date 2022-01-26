@@ -3,7 +3,7 @@ let reconnectTimeout = 2000;
 let host = "10.0.0.2";
 let port = 9001;
 let topicsUser = new Set();
-let topicsUI = new Set(["1/gameTime_formatted", "1/gameControl", "1/gameOptions", "1/gameState", "4/door/entrance", "4/door/serverRoom"]);
+let topicsUI = new Set(["op/gameTime_formatted", "op/gameControl", "op/gameOptions", "op/gameState", "4/door/entrance", "4/door/serverRoom"]);
 let tabs = new Set(["control", "cameras", "cameras-fallback", "mosquitto"]);
 let printTime = false;
 let controlleft = true;
@@ -74,7 +74,7 @@ function onConnect() {
  */
 function onMessageArrived(msg) {
     let topic = msg.destinationName;
-    if (topicsUser.has(topic.substr(0, 1)) && (!topic.startsWith("1/gameTime") || printTime)) {
+    if (topicsUser.has(topic.substr(0, 1)) && (!topic.startsWith("op/gameTime") || printTime)) {
         let op = getID("output");
         op.value += "Topic " + topic + "; time ";
         if (!msg.payloadString.match(/\d{10}: .*/i)) op.value += ~~(Date.now() / 1000) + " ";
@@ -83,11 +83,11 @@ function onMessageArrived(msg) {
     }
 
     // Displays game time
-    if (topic === "1/gameTime_formatted") {
+    if (topic === "op/gameTime_formatted") {
         getID("time").innerText = msg.payloadString;
     }
     // Dis-/enables game controls
-    else if (topic === "1/gameControl") {
+    else if (topic === "op/gameControl") {
         switch (msg.payloadString) {
             case "start":
                 getID("start").disabled = true;
@@ -117,7 +117,7 @@ function onMessageArrived(msg) {
         }
     }
     // Draw graph from gameState
-    else if (topic === "1/gameState") {
+    else if (topic === "op/gameState") {
         try {
             displayGraph(JSON.parse(msg.payloadString));
             getID("startnote").style.display = "none";
@@ -125,7 +125,7 @@ function onMessageArrived(msg) {
         }
     }
     // Show game options when game is running
-    else if (topic === "1/gameOptions" && msg.payloadString) {
+    else if (topic === "op/gameOptions" && msg.payloadString) {
         try {
             let opts = JSON.parse(msg.payloadString);
             getID("playercount").value = opts.participants;
@@ -382,9 +382,9 @@ function command(content) {
         getID("skipto").value = "0";
     }
     if(content === "start") {
-        mqtt.send("1/gameOptions", JSON.stringify(options), 2, true);
+        mqtt.send("op/gameOptions", JSON.stringify(options), 2, true);
     }
-    mqtt.send("1/gameControl", content, 2, true);
+    mqtt.send("op/gameControl", content, 2, true);
 }
 
 /**
@@ -700,7 +700,7 @@ function displayGraph(data) {
                 fillColor: 'rgba(0, 0, 255, 0.75)',
                 content: 'Skip',
                 select: function (ele) {
-                    mqtt.send("1/gameControl", "SKIP " + ele.id(), 2, false);
+                    mqtt.send("op/gameControl", "SKIP " + ele.id(), 2, false);
                 },
                 enabled: true
             }
@@ -716,7 +716,7 @@ function displayGraph(data) {
                 fillColor: 'rgba(0, 0, 255, 0.75)',
                 content: 'Skip',
                 select: function (ele) {
-                    mqtt.send("1/gameControl", "SKIP " + ele.id(), 2, false);
+                    mqtt.send("op/gameControl", "SKIP " + ele.id(), 2, false);
                 },
                 enabled: true
             },

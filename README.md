@@ -97,7 +97,7 @@ Process:
 The UI Control Board is implemented by HTML files served by an Apache HTTP server which is listening on port 80. The main functions of the UI consist of:
 
 - Displaying and changing the current states of all puzzles and actors (**Control**)
-   * A graph displays the current state of the workflow with data sent by the logic over mqtt into the topic `1/gameState`. It also allows to skip parts and send on/off triggers to puzzles in it
+   * A graph displays the current state of the workflow with data sent by the logic over mqtt into the topic `op/gameState`. It also allows to skip parts and send on/off triggers to puzzles in it
    * Buttons allow to control the doors
    * A form allows to control the state of the escape room and to change settings as duration and number of players
    * Another form allows to send mqtt messages using the defind communication format by simply selecting predefined fields
@@ -288,13 +288,13 @@ optional arguments:
 ### Contolling the workflow engine
 There are two ways to control the workflow engine on runtime:
 
-1. Sending commands to topic "1/gameControl":
+1. Sending commands to topic "op/gameControl":
    1. **START**: Starts or resume the workflow.
    2. **PAUSE**: Pauses the workflow (simply pauses game timer).
    3. **STOP**: Stops the workflow and resets it's states.
    4. **SKIP** \<workflow_name>: Skips the workflow with the given \<workflow_name>.
 
-2. Applying options in topic "1/gameOptions" before starting the workflow.
+2. Applying options in topic "op/gameOptions" before starting the workflow.
    
    Defined JSON schema of the options:
    ```javascript

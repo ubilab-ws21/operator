@@ -872,16 +872,6 @@ class GlobesWorkflow(Workflow):
         super().on_finished(name, skipped)
 
 
-class IPWorkflow(Workflow):
-    """
-    Special workflow for the IP puzzle avoiding a trigger:off
-    if the puzzle is finished.
-    """
-
-    def on_finished(self, name, skipped=False):
-        BaseWorkflow.on_finished(self, name, skipped)
-
-
 class SingleCommandWorkflow(BaseWorkflow):
     """
     This workflow executes a single command without waiting for an answer.
@@ -959,6 +949,48 @@ class SendTriggerWorkflow(SingleCommandWorkflow):
             message = Message(Method.TRIGGER, state)
             client.publish(self.topic, message.toJSON(), 2)
             print(f"[{self.name}] Triggered '{state.name}'...")
+
+
+class SendMessageWorkflow(SingleCommandWorkflow):
+    """
+    This workflow sends a message to a given topic.
+    """
+
+    def __init__(self, name, topic, message_to_send):
+        """
+        Initializes a new instance of this class.
+
+        Parameters
+        ----------
+        name : str
+            Display name of the workflow.
+
+        topic : str
+            Name of the MQTT topic.
+
+        message_to_send: str
+            Message to send.
+        """
+        self.message = message_to_send
+        self.topic = topic
+        super().__init__(name)
+
+    def _execute_single_command(self, client):
+        """
+        Executes an atomic command.
+
+        Parameters
+        ----------
+        client : Client
+            MQTT client
+        """
+        self._publishTrigger(client, self.message)
+
+    def _publishTrigger(self, client, message_str):
+        if self.topic is not None:
+            message_obj = Message(Method.MESSAGE, State.NONE, message_str)
+            client.publish(self.topic, message_obj.toJSON(), 2)
+            print(f"[{self.name}] Message sent '{message_str}'...")
 
 
 class AudioControlWorkflow(SingleCommandWorkflow):

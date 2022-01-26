@@ -15,6 +15,7 @@ class State(Enum):
     ACTIVE = 3
     SOLVED = 4
     FAILED = 5
+    NONE = 99
 
 
 def fromJSON(text):
