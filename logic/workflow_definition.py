@@ -1,4 +1,3 @@
-from logic.workflow import SendMessageWorkflow
 from workflow import *                                       # noqa ignore=F405
 from message import State
 
