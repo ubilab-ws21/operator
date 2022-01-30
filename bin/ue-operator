@@ -18,39 +18,6 @@ GITHUB = "https://github.com/ubilab-ws21/operator/"
 running_timer = None
 
 
-def on_scale(client, userdata, message):
-    """
-    Listener for new messages in the scale mqtt topic
-
-    :param client: The mqtt client
-    :param userdata: User information
-    :param message: The received message (message.payload / message.topic)
-    :return: None
-    """
-    try:
-        data = json.loads(message.payload.lower())
-        if not (data["method"]
-                and data["method"] == "status"
-                and data["state"]
-                and data["state"] in ["active", "inactive"]):
-            return
-        global running_timer
-        if data["state"] == "active":
-            gyro = "on"
-            if not running_timer:
-                publish_tts("Put the prototype back!")
-                running_timer = RepeatTimer(5.0, publish_tts, args=("Put the prototype back!",))
-                running_timer.start()
-        else:
-            gyro = "off"
-            if running_timer:
-                running_timer.cancel()
-                running_timer = None
-        publish.single("powermeter/switch", gyro, hostname="10.0.0.2")
-    except json.JSONDecodeError:
-        pass
-
-
 if __name__ == "__main__":
     """
     This script controls the whole server logic
@@ -192,7 +159,6 @@ if __name__ == "__main__":
             pl.append("mosquitto_sub -t \\# -v | ts '%s' >"
                       "/var/log/mosquitto/message_log_"
                       "$(date +%Y-%m-%d_%H%M%S).txt")
-            subscribe.callback(on_scale, "6/puzzle/scale", hostname="10.0.0.2")
             pl.wait()
 
         """

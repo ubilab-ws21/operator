@@ -1,5 +1,6 @@
-from workflow import *                                       # noqa ignore=F405
+from workflow import *
 from message import State
+from util import Location
 
 
 class WorkflowDefinition:
@@ -18,14 +19,11 @@ class WorkflowDefinition:
             # Init
             InitWorkflow([
                 # legacy init
-                SendTriggerWorkflow("Reset safe",
-                                    "5/safe/control", State.OFF),
-                SendTriggerWorkflow("Close lab room door",
-                                    "4/door/entrance", State.OFF),
-                SendTriggerWorkflow("Close server room door",
-                                    "4/door/server", State.OFF),
-                LabRoomLightControlWorkflow(State.ON),
-                ServerRoomLightControlWorkflow(State.ON),
+                SendTriggerWorkflow("Reset safe", "5/safe/control", State.OFF),
+                SendTriggerWorkflow("Close lab room door", "4/door/entrance", State.OFF),
+                SendTriggerWorkflow("Close server room door", "4/door/server", State.OFF),
+                LightControlWorkflow(Location.MAINROOM, State.ON),
+                LightControlWorkflow(Location.SERVERROOM, State.ON),
 
                 # Puzzle 3 init
                 SendMessageWorkflow("Reset Radio", "3/gamecontrol", "idle"),
@@ -73,15 +71,10 @@ class WorkflowDefinition:
 
 
             ExitWorkflow([
-                SendTriggerWorkflow("Open escape room door",
-                                    "4/door/entrance", State.ON),
-                ServerRoomLightControlWorkflow(State.ON, 255, (0, 255, 0)),
-                LabRoomLightControlWorkflow(State.ON, 255, (0, 255, 0)),
-                AudioControlWorkflow(
-                    "Play success",
-                    "/opt/ue-operator/sounds/success.mp3",
-                    True
-                ),
+                SendTriggerWorkflow("Open escape room door", "4/door/entrance", State.ON),
+                LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (0, 255, 0)),
+                LightControlWorkflow(Location.MAINROOM, State.ON, 255, (0, 255, 0)),
+                TTSAudioWorkflow("Play success", "/opt/ue-operator/sounds/success.mp3", True),
             ])
         ]
 

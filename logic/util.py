@@ -1,6 +1,13 @@
 from threading import Timer
 import subprocess
+from enum import Enum
 from paho.mqtt import publish
+
+
+class Location(Enum):
+    LOBBYROOM = 0
+    MAINROOM = 1
+    SERVERROOM = 2
 
 
 class ProcessList(list):
