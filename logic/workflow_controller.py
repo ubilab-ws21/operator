@@ -1,9 +1,10 @@
 import paho.mqtt.client as mqtt
 import subprocess
 import json
-from workflow import SequenceWorkflow, AudioControlWorkflow
-from workflow import LightControlWorkflow
+from workflow import SequenceWorkflow
+from workflow_extras import LightControlWorkflow, TTSAudioWorkflow
 from message import State
+from util import Location
 from game_timer import GameTimer
 from enum import Enum
 
@@ -166,12 +167,16 @@ class WorkflowController:
         print("==================")
         print("Game time expired!")
         print("==================")
-        for led in ["labroom/north", "labroom/south", "labroom/middle",
-                    "serverroom", "doorserverroom"]:
-            lwf = LightControlWorkflow("Turn red " + led, "2/ledstrip/" + led,
-                                       State.ON, 255, "255,0,0")
-            lwf.execute(self.client)
-        awf = AudioControlWorkflow(
+        # for led in ["labroom/north", "labroom/south", "labroom/middle",
+        #             "serverroom", "doorserverroom"]:
+        #     lwf = LightControlWorkflow("Turn red " + led, "2/ledstrip/" + led,
+        #                                State.ON, 255, "255,0,0")
+        #     lwf.execute(self.client)
+        lwf = LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (255, 0, 0))
+        lwf.execute(self.client)
+        lwf = LightControlWorkflow(Location.MAINROOM, State.ON, 255, (255, 0, 0))
+        lwf.execute(self.client)
+        awf = TTSAudioWorkflow(
             "Play gameover",
             "/opt/ue-operator/sounds/gameover.mp3",
             True
