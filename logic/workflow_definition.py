@@ -26,52 +26,50 @@ class WorkflowDefinition:
                 LightControlWorkflow(Location.SERVERROOM, State.ON),
 
                 # Puzzle 3 init
-                SendMessageWorkflow("Reset Radio", "3/gamecontrol", "idle"),
-                SendMessageWorkflow("Set Radio Mode", "3/touchgame/displayTime", False),
+                #SendMessageWorkflow("Reset Radio", "3/gamecontrol", "idle"),
+                #SendMessageWorkflow("Set Radio Mode", "3/touchgame/displayTime", False),
 
                 # Puzzle 5 init
-                SendMessageWorkflow("Set Battery Level", "5/battery/1/level", 0),
+                #SendMessageWorkflow("Set Battery Level", "5/battery/1/level", 0),
                 #SendMessageWorkflow("Set Battery UID", "5/battery/1/uid", 0),
                 #SendTriggerWorkflow("Open Safe", "5/safe/control", State.ON),
             ]),
 
 
             SequenceWorkflow("Lobby Room", [
-                Workflow("Power Outage", "0/dummy"),
                 SequenceWorkflow("Puzzle 1 - Cube", [
-                    Workflow("Panels Released", "0/dummy"),
-                    Workflow("Panels Placed", "0/dummy"),
+                    Workflow("Panels Released", "1/cube/state"),
+                    Workflow("Panels Placed", "1/panel/state"),
                 ]),
+                Workflow("Input Keypad Code", "4/puzzle"),
                 SendTriggerWorkflow("Open Control Room Door", "4/door/entrance", State.ON),
             ]),
 
             SequenceWorkflow("Control room", [
                 SequenceWorkflow("Puzzle 5 - Battery", [
-                    Workflow("Safe Unlocked", "0/dummy"),
-                    Workflow("Battery Placed", "0/dummy"),
+                    Workflow("Battery Recharged", "5/control_room/power"),
                 ]),
                 SequenceWorkflow("Puzzle 3 - Radio", [
-                    Workflow("Radio Turned On", "0/dummy"),
-                    Workflow("Antenna Aligned", "0/dummy"),
-                    Workflow("Radio Tuned", "0/dummy"),
-                    Workflow("Touch Game Finished", "0/dummy"),
+                    Workflow("Antenna Aligned", "3/gamecontrol/antenna"),
+                    Workflow("Radio Tuned", "3/gamecontrol/map"),
+                    Workflow("Touch Game Solved", "3/gamecontrol/touchgame"),
                 ]),
+                #SequenceWorkflow("Puzzle 2 - Switchboard", [
+                #    Workflow("Switchboard Opened", "0/dummy"),
+                #    Workflow("Switches Correct", "0/dummy"),
+                #]),
                 SendTriggerWorkflow("Open Server Room Door", "4/door/server", State.ON),
             ]),
 
             SequenceWorkflow("Server room", [
-                SequenceWorkflow("Puzzle 2 - Switchboard", [
-                    Workflow("Switchboard Opened", "0/dummy"),
-                    Workflow("Switches Correct", "0/dummy"),
-                ]),
                 SequenceWorkflow("Puzzle 4 - Server", [
-                    Workflow("Puzzle Solved", "0/dummy"),
+                    Workflow("Server Access Unlocked", "4/gamecontrol"),
                 ]),
             ]),
 
 
             ExitWorkflow([
-                SendTriggerWorkflow("Open escape room door", "4/door/entrance", State.ON),
+                Workflow("Radio Success", "3/audiocontrol/roomsolved"),
                 LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (0, 255, 0)),
                 LightControlWorkflow(Location.MAINROOM, State.ON, 255, (0, 255, 0)),
                 TTSAudioWorkflow("Play success", "/opt/ue-operator/sounds/success.mp3", True),
