@@ -100,5 +100,8 @@ class GameTimer:
             self.timer = threading.Timer(self.interval, self.publish_game_time)
             self.timer.start()
             formatted_game_time = str(timedelta(seconds=self.game_time_sec))
+            formatted_game_time_remain = str(timedelta(seconds=( self.game_duration_in_sec - self.game_time_sec)))
             self.client.publish(self.topic + "_in_sec", self.game_time_sec)
+            self.client.publish(self.topic + "_remain_in_sec", self.game_duration_in_sec - self.game_time_sec)
             self.client.publish(self.topic + "_formatted", formatted_game_time)
+            self.client.publish(self.topic + "_remain_formatted", formatted_game_time_remain)
