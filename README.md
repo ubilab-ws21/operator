@@ -301,11 +301,11 @@ There are two ways to control the workflow engine on runtime:
    {
      // number of players
      "participants": 3,
-     // in seconds
+     // in minutes
      "duration": 5
      // name of the parent workflow (direct childs of main workflow)
      // to be skipped to for the initial state.
-     "skipTo": "Server room"
+     "skipTo": "Server Room"
     }
    ```
 

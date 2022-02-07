@@ -46,7 +46,7 @@ class WorkflowDefinition:
                 SendTriggerWorkflow("Open Control Room Door", "4/door/entrance", State.ON),
             ]),
 
-            SequenceWorkflow("Control room", [
+            SequenceWorkflow("Control Room", [
                 SequenceWorkflow("Puzzle 5 - Battery", [
                     Workflow("Battery Recharged", "5/control_room/power"),
                 ]),
@@ -62,7 +62,7 @@ class WorkflowDefinition:
                 SendTriggerWorkflow("Open Server Room Door", "4/door/server", State.ON),
             ]),
 
-            SequenceWorkflow("Server room", [
+            SequenceWorkflow("Server Room", [
                 SequenceWorkflow("Puzzle 4 - Server", [
                     Workflow("Server Access Unlocked", "4/gamecontrol"),
                 ]),
