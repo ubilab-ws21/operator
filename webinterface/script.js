@@ -86,6 +86,9 @@ function onMessageArrived(msg) {
     if (topic === "op/gameTime_formatted") {
         getID("time").innerText = msg.payloadString;
     }
+    else if (topic === "op/gameTime_remain_formatted") {
+        getID("timeremain").innerText = msg.payloadString;
+    }
     // Dis-/enables game controls
     else if (topic === "op/gameControl") {
         switch (msg.payloadString) {
@@ -94,6 +97,7 @@ function onMessageArrived(msg) {
                 getID("pause").disabled = false;
                 getID("stop").disabled = false;
                 getID("time").className = "started";
+                getID("timeremain").className = "started";
                 getID("playercount").disabled = true;
                 getID("playtime").disabled = true;
                 getID("skipto").disabled = true;
@@ -103,6 +107,7 @@ function onMessageArrived(msg) {
                 getID("pause").disabled = true;
                 getID("stop").disabled = false;
                 getID("time").className = "paused";
+                getID("timeremain").className = "paused";
                 break;
             case "":
             case "stop":
@@ -110,6 +115,7 @@ function onMessageArrived(msg) {
                 getID("pause").disabled = true;
                 getID("stop").disabled = true;
                 getID("time").className = "stopped";
+                getID("timeremain").className = "stopped";
                 getID("playercount").disabled = false;
                 getID("playtime").disabled = false;
                 getID("skipto").disabled = false;

@@ -31,7 +31,7 @@ class WorkflowDefinition:
                 #SendMessageWorkflow("Set Radio Mode", "3/touchgame/displayTime", False),
 
                 # Puzzle 5 init
-                #SendMessageWorkflow("Set Battery Level", "5/battery/1/level", 0),
+                SendMessageWorkflow("Set Battery Level", "5/battery/1/level", 0),
                 #SendMessageWorkflow("Set Battery UID", "5/battery/1/uid", 0),
                 #SendTriggerWorkflow("Open Safe", "5/safe/control", State.ON),
             ]),
@@ -73,7 +73,7 @@ class WorkflowDefinition:
                 Workflow("Radio Success", "3/audiocontrol/roomsolved"),
                 LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (0, 255, 0)),
                 LightControlWorkflow(Location.MAINROOM, State.ON, 255, (0, 255, 0)),
-                TTSAudioWorkflow("Play success", "/opt/ue-operator/sounds/success.mp3", True),
+                TTSAudioWorkflow("Play success", "success.mp3", True),
             ])
         ]
 

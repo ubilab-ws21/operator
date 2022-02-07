@@ -176,11 +176,7 @@ class WorkflowController:
         lwf.execute(self.client)
         lwf = LightControlWorkflow(Location.MAINROOM, State.ON, 255, (255, 0, 0))
         lwf.execute(self.client)
-        awf = TTSAudioWorkflow(
-            "Play gameover",
-            "/opt/ue-operator/sounds/gameover.mp3",
-            True
-        )
+        awf = TTSAudioWorkflow("Play gameover", "gameover.mp3", True)
         awf.execute(self.client)
         self.client.publish(self.game_control_topic, None, 2, True)
         self.stop()
