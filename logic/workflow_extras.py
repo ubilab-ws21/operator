@@ -276,37 +276,19 @@ class LightControlWorkflow(CombinedWorkflow):
             Color of the light decoded in hex.
         """
         if target_location == Location.LOBBYROOM:
-            workflows = []
+            workflows = [
+                SingleLightControlWorkflow("Control lobbyroom light", "2/ledstrip/lobby", target_state, brightness, color)
+            ]
         elif target_location == Location.MAINROOM:  
             workflows = [
-                SingleLightControlWorkflow("Turn off light north",
-                                    "2/ledstrip/labroom/north",
-                                    target_state,
-                                    brightness,
-                                    color),
-                SingleLightControlWorkflow("Turn off light south",
-                                    "2/ledstrip/labroom/south",
-                                    target_state,
-                                    brightness,
-                                    color),
-                SingleLightControlWorkflow("Turn off light middle",
-                                    "2/ledstrip/labroom/middle",
-                                    target_state,
-                                    brightness,
-                                    color)
+                SingleLightControlWorkflow("Control mainroom light north", "2/ledstrip/labroom/north", target_state, brightness, color),
+                SingleLightControlWorkflow("Control mainroom light south", "2/ledstrip/labroom/south", target_state, brightness, color),
+                SingleLightControlWorkflow("Control mainroom light middle", "2/ledstrip/labroom/middle", target_state, brightness, color)
             ]
         elif target_location == Location.SERVERROOM:
             workflows = [
-                SingleLightControlWorkflow("Turn off light serverroom",
-                                    "2/ledstrip/serverroom",
-                                    target_state,
-                                    brightness,
-                                    color),
-                SingleLightControlWorkflow("Turn off light door server room",
-                                    "2/ledstrip/doorserverroom",
-                                    target_state,
-                                    brightness,
-                                    color)
+                SingleLightControlWorkflow("Control serverroom light", "2/ledstrip/serverroom", target_state, brightness, color),
+                SingleLightControlWorkflow("Control serverroom light door", "2/ledstrip/doorserverroom", target_state, brightness, color)
             ]
         else:
             workflows = []

@@ -1,9 +1,9 @@
 | Group No. | Group Name                         | Topic Name                   | Control Topic | Description                                                                                          |
 | :-------- | :--------------------------------- | :------------------------    | :-----------: | :--------------------------------------------------------------------------------------------------- |
 | **op**    | **Operator Room**                  | op/gameTime_in_sec           |               | game time in seconds.                                                                                |
-|           |                                    | op/gameTime_remain_in_sec    |               | remaining game time in seconds.                                                                                |
+|           |                                    | op/gameTime_remain_in_sec    |               | remaining game time in seconds.                                                                      |
 |           |                                    | op/gameTime_formatted        |               | game time as a formatted string.                                                                     |
-|           |                                    | op/gameTime_remain_formatted |               | remaining game time as a formatted string.                                                                     |
+|           |                                    | op/gameTime_remain_formatted |               | remaining game time as a formatted string.                                                           |
 |           |                                    | op/gameControl               |               | control the workflow engine. Commands: START, STOP, PAUSE, SKIP \<workflow_name>                     |
 |           |                                    | op/gameState                 |               | cytoscape graph configuration with the current workflow states.                                      |
 |           |                                    | op/gameOptions               |               | set game options (ex. player count, game duration).                                                  |
@@ -17,6 +17,7 @@
 |           |                                    | 2/ledstrip/labroom/south     |               | *(legacy)* LED strip in the lab room at the back wall on the opposite of the entrance door.          |
 |           |                                    | 2/ledstrip/labroom/middle    |               | *(legacy)* LED strip in the lab room at the server room wall on the opposite of the entrance door.   |
 |           |                                    | 2/ledstrip/labroom/north     |               | *(legacy)* LED strip in the lab room above the entrance door.                                        |
+|           |                                    | 2/ledstrip/lobby             |               | *(legacy)* LED strip in the lobby                           .                                        |
 |           |                                    | 2/gyrophare                  |               | *(legacy)* control the gyrophare.                                                                    |
 |           |                                    | 2/textToSpeech               |               | *(legacy)* interact with the text to speech module.                                                  |
 | **3**     | **Group/Puzzle 3**                 | 3/gamecontrol/antenna        | x             | start the first puzzle & receive updates on it                                                       |

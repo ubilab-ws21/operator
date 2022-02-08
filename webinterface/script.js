@@ -444,6 +444,9 @@ function envSet() {
             mqtt.send("2/ledstrip/serverroom", JSON.stringify(command), 2, false);
             mqtt.send("2/ledstrip/doorserverroom", JSON.stringify(command), 2, false);
         }
+        if (target === "lobby lights" || target === "all lights") {
+            mqtt.send("2/ledstrip/lobby", JSON.stringify(command), 2, false);
+        }
     } else {
         mqtt.send(target, JSON.stringify(command), 2, false);
     }

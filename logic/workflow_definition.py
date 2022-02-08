@@ -23,6 +23,7 @@ class WorkflowDefinition:
                 SendTriggerWorkflow("Reset safe", "5/safe/control", State.OFF),
                 SendTriggerWorkflow("Close lab room door", "4/door/entrance", State.OFF),
                 SendTriggerWorkflow("Close server room door", "4/door/server", State.OFF),
+                LightControlWorkflow(Location.LOBBYROOM, State.ON),
                 LightControlWorkflow(Location.MAINROOM, State.ON),
                 LightControlWorkflow(Location.SERVERROOM, State.ON),
 
@@ -71,8 +72,9 @@ class WorkflowDefinition:
 
             ExitWorkflow([
                 Workflow("Radio Success", "3/audiocontrol/roomsolved"),
-                LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (0, 255, 0)),
+                LightControlWorkflow(Location.LOBBYROOM, State.ON, 255, (0, 255, 0)),
                 LightControlWorkflow(Location.MAINROOM, State.ON, 255, (0, 255, 0)),
+                LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (0, 255, 0)),
                 TTSAudioWorkflow("Play success", "success.mp3", True),
             ])
         ]
