@@ -1,5 +1,5 @@
 import json, time
-from workflow import CombinedWorkflow, SingleCommandWorkflow
+from workflow import WorkflowState, Workflow, CombinedWorkflow, SingleCommandWorkflow
 from message import Message, Method, State
 from util import Location
 
@@ -98,7 +98,7 @@ class SendTriggerWorkflow(SingleCommandWorkflow):
         if self.topic is not None:
             message = Message(Method.TRIGGER, state, data)
             client.publish(self.topic, message.toJSON(), 2)
-            print(f"[{self.name}] Triggered '{state.name}'...")
+            print(f"[{self.name}] Trigger '{state.name}' on topic '{self.topic}'...")
 
 
 class SendMessageWorkflow(SingleCommandWorkflow):
@@ -140,7 +140,7 @@ class SendMessageWorkflow(SingleCommandWorkflow):
         if self.topic is not None:
             message_obj = Message(Method.MESSAGE, State.NONE, message_str)
             client.publish(self.topic, message_obj.toJSON(), 2)
-            print(f"[{self.name}] Message sent '{message_str}'...")
+            print(f"[{self.name}] Message '{message_str}' sent to '{self.topic}'...")
 
 
 class TTSAudioWorkflow(SingleCommandWorkflow):
@@ -253,7 +253,7 @@ class SingleLightControlWorkflow(SingleCommandWorkflow):
 
 class LightControlWorkflow(CombinedWorkflow):
     """
-    This workflow controls the LED stripes at the specified locationin one single workfow.
+    This workflow controls the LED stripes at the specified location in one single workfow.
     """
 
     def __init__(self, target_location, target_state, brightness=255, color=(255, 255, 255)):
@@ -291,11 +291,11 @@ class LightControlWorkflow(CombinedWorkflow):
         else:
             workflows = []
 
-        name = f"Turn {target_state.name} {target_location.name} lights ({brightness})/255"
+        name = f"Turn {target_state.name} {target_location.name} lights {brightness}/255"
         super().__init__(name, workflows, None)
 
 
-class DelayWorkflow(SingleCommandWorkflow):
+class DelayWorkflow(Workflow):
     """
     This workflow implements a blocking delay.
     """
@@ -313,8 +313,51 @@ class DelayWorkflow(SingleCommandWorkflow):
             The number of seconds delay.
         """
         self.delay_sec = delay_sec
-        super().__init__(name)
+        self.start_time = 0
+        super().__init__(name, "op/gameTime_in_sec")
 
-    def _execute_single_command(self, client):
-        if self.delay_sec > 0:
-            time.sleep(self.delay_sec)
+    def _execute(self, client):
+        """
+        Executes this workflow.
+
+        Parameters
+        ----------
+        client : Client
+            MQTT client
+        """
+        print(f"[{self.name}] DelayWorkflow started with delay of {self.delay_sec}s.")
+        super()._subscripeToTopic(client)
+        self.state = WorkflowState.ACTIVE
+
+    def on_message(self, msg):
+        """
+        Processes the message sent by the MQTT server.
+
+        Parameters
+        ----------
+        msg : Message
+            Message from the MQTT topic.
+        """
+        try:
+            # Check for relevant topic
+            if msg.topic != self.topic:
+                return
+
+            try:
+                current_sec = float(msg.payload.decode("utf-8"))
+            except:
+                return
+
+            if self.start_time > 0 and current_sec - self.start_time >= self.delay_sec:
+                print(f"[{self.name}] DelayWorkflow delay reached, done.")
+                self.state = WorkflowState.FINISHED
+                if self._on_workflow_finished:
+                    self._on_workflow_finished(self.name)
+            elif self.start_time <= 0:
+                print(f"[{self.name}] DelayWorkflow start_time set to {current_sec} (was {self.start_time})")
+                self.start_time = current_sec
+
+        except Exception as e:
+            error_msg = f"[{self.name}] Error: {str(e)}"
+            print(error_msg)
+            self.on_error(self.name, error_msg)

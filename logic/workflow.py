@@ -756,6 +756,7 @@ class SingleCommandWorkflow(BaseWorkflow):
         client : Client
             MQTT client
         """
+        print(f"[{self.name}] Executing single command workflow.")
         super()._execute(client)
         self._execute_single_command(client)
         self.on_finished(self.name)

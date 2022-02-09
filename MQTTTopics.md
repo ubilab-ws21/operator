@@ -8,6 +8,7 @@
 |           |                                    | op/gameState                 |               | cytoscape graph configuration with the current workflow states.                                      |
 |           |                                    | op/gameOptions               |               | set game options (ex. player count, game duration).                                                  |
 | **env**   | **Environment**                    | env/video                    |               | Play video files on the beamer                                                                       |
+|           |                                    | env/powerfail                | x             | Blocking trigger waiting for signal from AR app to start the power fail scenario                     |
 | **1**     | **Group/Puzzle 1**                 | 1/cube/state                 | x             | Game state of the Cube puzzle                                                                        |
 |           |                                    | 1/panel/state                | x             | Game state of the Panel puzzle                                                                       |
 | **2**     | **Group/Puzzle 2**                 | 2/esp                        | x             | Control topic of the knock knock / switchboard puzzle                                                |
