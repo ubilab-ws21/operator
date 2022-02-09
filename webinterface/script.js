@@ -224,7 +224,7 @@ function simpleSend() {
     };
     let topic_str = getID("simple-topic-str").value;
     if (topic_str === "") {
-        let topic_str = getID("simple-topic").value;
+        topic_str = getID("simple-topic").value;
     }
     mqtt.publish(topic_str, JSON.stringify(message), parseInt(getID("simple-qos").value),
         getID("simple-retain").checked);

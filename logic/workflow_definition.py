@@ -49,8 +49,8 @@ class WorkflowDefinition:
                     Workflow("Panels Placed", "1/panel/state"),
                 ]),
                 Workflow("Input Keypad Code", "4/puzzle"),
-                SendTriggerWorkflow("Open Control Room Door", "4/door/entrance", State.ON),
-                CombinedWorkflow("First Door Open Env", [
+                CombinedWorkflow("1st Door", [
+                    SendTriggerWorkflow("Open Control Room Door", "4/door/entrance", State.ON),
                     LightControlWorkflow(Location.MAINROOM, State.ON, 255, (255, 0, 0)),
                     TTSAudioWorkflow("TTS2", "Warning, emergency backup battery empty, please recharge!"),
                 ]),
@@ -75,8 +75,8 @@ class WorkflowDefinition:
                 SequenceWorkflow("Puzzle 2 - Switchboard", [
                     Workflow("Switchboard Solved", "2/esp"),
                 ]),
-                SendTriggerWorkflow("Open Server Room Door", "4/door/server", State.ON),
-                CombinedWorkflow("Second Door Open Env", [
+                CombinedWorkflow("2nd Door", [
+                    SendTriggerWorkflow("Open Server Room Door", "4/door/server", State.ON),
                     LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (255, 255, 255)),
                 ]),
             ]),
