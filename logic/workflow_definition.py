@@ -40,7 +40,9 @@ class WorkflowDefinition:
                     LightControlWorkflow(Location.LOBBYROOM, State.ON, 255, (0, 0, 0)),
                     LightControlWorkflow(Location.MAINROOM, State.ON, 255, (0, 0, 0)),
                     LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (0, 0, 0)),
-                    TTSAudioWorkflow("TTS1", "Warning, power failure! Warning, power failure!"),
+                    DelayWorkflow("FailDelay1", 1),
+                    TTSAudioWorkflow("FailTTS1", "Warning, power failure! Warning, power failure!"),
+                    DelayWorkflow("FailDelay2", 5),
                     LightControlWorkflow(Location.LOBBYROOM, State.ON, 255, (255, 0, 0)),
                     #SendTriggerWorkflow("Play Video", "env/video", State.ON),
                 ]),
@@ -52,7 +54,7 @@ class WorkflowDefinition:
                 CombinedWorkflow("1st Door", [
                     SendTriggerWorkflow("Open Control Room Door", "4/door/entrance", State.ON),
                     LightControlWorkflow(Location.MAINROOM, State.ON, 255, (255, 0, 0)),
-                    TTSAudioWorkflow("TTS2", "Warning, emergency backup battery empty, please recharge!"),
+                    TTSAudioWorkflow("Door1TTS1", "Warning, emergency backup battery empty, please recharge!"),
                 ]),
             ]),
 
@@ -65,7 +67,7 @@ class WorkflowDefinition:
                     LightControlWorkflow(Location.LOBBYROOM, State.ON, 255, (255, 255, 255)),
                     LightControlWorkflow(Location.MAINROOM, State.ON, 255, (255, 255, 255)),
                     LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (255, 0, 0)),
-                    TTSAudioWorkflow("TTS3", "Emergency power restored! Generators offline! Restart server!"),
+                    TTSAudioWorkflow("RestoredTTS1", "Emergency power restored! Generators offline! Restart server!"),
                 ]),
                 SequenceWorkflow("Puzzle 3 - Radio", [
                     Workflow("Antenna Aligned", "3/gamecontrol/antenna"),

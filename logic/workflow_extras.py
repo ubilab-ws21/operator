@@ -1,5 +1,5 @@
-import json
-from workflow import *
+import json, time
+from workflow import CombinedWorkflow, SingleCommandWorkflow
 from message import Message, Method, State
 from util import Location
 
@@ -60,10 +60,10 @@ class ExitWorkflow(CombinedWorkflow):
 
 class SendTriggerWorkflow(SingleCommandWorkflow):
     """
-    This workflow sends trigger:on and trigger:off to a given topic.
+    This workflow sends trigger:on and trigger:off to a given topic. Can optionally send data as well.
     """
 
-    def __init__(self, name, topic, target_state):
+    def __init__(self, name, topic, target_state, data=None):
         """
         Initializes a new instance of this class.
 
@@ -80,6 +80,7 @@ class SendTriggerWorkflow(SingleCommandWorkflow):
         """
         self.target_state = target_state
         self.topic = topic
+        self.data = data
         super().__init__(name)
 
     def _execute_single_command(self, client):
@@ -91,11 +92,11 @@ class SendTriggerWorkflow(SingleCommandWorkflow):
         client : Client
             MQTT client
         """
-        self._publishTrigger(client, self.target_state)
+        self._publishTrigger(client, self.target_state, self.data)
 
-    def _publishTrigger(self, client, state):
+    def _publishTrigger(self, client, state, data=None):
         if self.topic is not None:
-            message = Message(Method.TRIGGER, state)
+            message = Message(Method.TRIGGER, state, data)
             client.publish(self.topic, message.toJSON(), 2)
             print(f"[{self.name}] Triggered '{state.name}'...")
 
@@ -250,8 +251,6 @@ class SingleLightControlWorkflow(SingleCommandWorkflow):
         )
 
 
-
-
 class LightControlWorkflow(CombinedWorkflow):
     """
     This workflow controls the LED stripes at the specified locationin one single workfow.
@@ -294,3 +293,28 @@ class LightControlWorkflow(CombinedWorkflow):
 
         name = f"Turn {target_state.name} {target_location.name} lights ({brightness})/255"
         super().__init__(name, workflows, None)
+
+
+class DelayWorkflow(SingleCommandWorkflow):
+    """
+    This workflow implements a blocking delay.
+    """
+
+    def __init__(self, name, delay_sec):
+        """
+        Initializes a new instance of this class.
+
+        Parameters
+        ----------
+        name : str
+            Display name of the workflow.
+
+        delay_sec : int
+            The number of seconds delay.
+        """
+        self.delay_sec = delay_sec
+        super().__init__(name)
+
+    def _execute_single_command(self, client):
+        if self.delay_sec > 0:
+            time.sleep(self.delay_sec)

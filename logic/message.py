@@ -104,9 +104,15 @@ class Message:
         >>> m.toJSON()
         '{"method": "trigger", "state": "on", "data": null}'
         """
-        result = json.dumps({
-            "method": self.method.name.lower(),
-            "state": self.state.name.lower(),
-            "data": self.data
-        })
+        if self.data:
+            result = json.dumps({
+                "method": self.method.name.lower(),
+                "state": self.state.name.lower(),
+                "data": self.data
+            })
+        else:
+            result = json.dumps({
+                "method": self.method.name.lower(),
+                "state": self.state.name.lower()
+            })
         return result
