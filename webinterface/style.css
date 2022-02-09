@@ -96,7 +96,7 @@ nav div {
 }
 
 .subs {
-    display: inline;
+    display: inline-flex;
 }
 
 .subs button, #command-container button {

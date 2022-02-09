@@ -185,6 +185,16 @@ function toggle(topic, button) {
         }
     }
     getID(button.parentElement.id === "soff" ? "son" : "soff").appendChild(button);
+    
+
+    if (getID(button.parentElement.id).innerHTML.trim() !== "" && getID(button.parentElement.id).style.display !== "inline-flex") {
+        console.log("new inline-flex")
+        getID(button.parentElement.id).style.display = "inline-flex";
+    }
+    if (getID(button.parentElement.id === "soff" ? "son" : "soff").innerHTML.trim() === "") {
+        console.log("old none")
+        getID(button.parentElement.id === "soff" ? "son" : "soff").style.display = "none";
+    }
 }
 
 /**
