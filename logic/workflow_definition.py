@@ -62,7 +62,7 @@ class WorkflowDefinition:
                     Workflow("Battery Recharged", "5/control_room/power"),
                 ]),
                 CombinedWorkflow("Backup Power Restored Env", [
-                    LightControlWorkflow(Location.LOBBY, State.ON, 255, (255, 255, 255)),
+                    LightControlWorkflow(Location.LOBBYROOM, State.ON, 255, (255, 255, 255)),
                     LightControlWorkflow(Location.MAINROOM, State.ON, 255, (255, 255, 255)),
                     LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (255, 0, 0)),
                     TTSAudioWorkflow("TTS3", "Emergency power restored! Generators offline! Restart server!"),
@@ -76,6 +76,9 @@ class WorkflowDefinition:
                     Workflow("Switchboard Solved", "2/esp"),
                 ]),
                 SendTriggerWorkflow("Open Server Room Door", "4/door/server", State.ON),
+                CombinedWorkflow("Second Door Open Env", [
+                    LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (255, 255, 255)),
+                ]),
             ]),
 
 

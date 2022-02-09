@@ -73,12 +73,11 @@ class WorkflowController:
             self.__purge_all_topics()
             if self.game_state == GameState.STOPPED:
                 workflow = self.workflow_factory.create(self.options)
-                self.main_sequence = SequenceWorkflow(
-                    "Main workflow", workflow)
+                self.main_sequence = SequenceWorkflow("Main workflow", workflow)
                 self.main_sequence.highlight = True
-                self.main_sequence.register_on_finished(
-                    self.__on_workflow_solved)
+                self.main_sequence.register_on_finished(self.__on_workflow_solved)
                 self.main_sequence.execute(self.client)
+            print("Starting game timer...")
             self.game_timer.set_duration(self.options["duration"])
             self.game_timer.start()
             self.game_state = GameState.STARTED
