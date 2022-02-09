@@ -31,6 +31,7 @@ input, button, select, #tts, .newcheck {
 
 label {
     display: inline-block;
+    white-space: nowrap;
 }
 
 button {
@@ -172,26 +173,25 @@ nav div {
     width: calc(100% - 20px);
 }
 
-.control-item input {
-    width: 10.5em;
-}
-
 .control-item button {
     width: 5em;
 }
 
-.control-item b, #command-container div, #tts + div {
+.control-item b, #tts + div {
     display: block;
 }
 
-.control-item label {
-    display: block;
+.control-item .simple-send-item, .control-item .game-control-item {
+    display: flex;
     line-height: 1.9em;
     text-align: justify;
 }
 
-.control-item label input, .control-item label select, .control-item label .newcheck {
-    float: right;
+.simple-send-item select, .game-control-item select {
+    width: 100%;
+}
+.simple-send-item input, .game-control-item input {
+    width: 100% !important;
 }
 
 #control table {

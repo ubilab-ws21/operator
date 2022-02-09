@@ -46,12 +46,16 @@
             <!-- GAME CONTROL STARTS HERE -->
             <div class="control-item" id="command-container">
                 <b>Game Control</b>
-                <label>Players: <input type="number" id="playercount" value="4"
-                                       min="1"></label>
-                <label>Duration (mins):
+                <div class="game-control-item">
+                    <label>Players:</label>
+                    <input type="number" id="playercount" value="4" min="1">
+                </div>
+                <div class="game-control-item">
+                    <label>Duration (mins):</label>
                     <input type="number" id="playtime" value="60" min="1">
-                </label>
-                <label>Skip to:
+                </div>
+                <div class="game-control-item">
+                    <label>Skip to:</label>
                     <select id="skipto">
                         <option value="0" selected>Disabled</option>
                         <option>Init</option>
@@ -60,7 +64,7 @@
                         <option>Server Room</option>
                         <option>Exit</option>
                     </select>
-                </label>
+                </div>
                 <div style="clear:both;">
                     <button type="button" id="start" onclick="command('start');">
                         Start
@@ -164,24 +168,21 @@
             <!-- SIMPLE MQTT SENDING STARTS HERE -->
             <div class="control-item">
                 <b>Simple send</b>
-                <label>
-                    Topic:
+                <div class="simple-send-item">
+                    <label for="simple-topic">Topic:</label>
                     <select id="simple-topic"></select>
-                </label>
-                <label>
-                    Topic:
                     <input type="text" id="simple-topic-str"></input>
-                </label>
-                <label>
-                    Method:
+                </div>
+                <div class="simple-send-item">
+                    <label for="simple-method">Method:</label>
                     <select id="simple-method">
                         <option>status</option>
                         <option>trigger</option>
                         <option>message</option>
                     </select>
-                </label>
-                <label>
-                    State:
+                </div>
+                <div class="simple-send-item">
+                    <label for="simple-state">State:</label>
                     <select id="simple-state">
                         <option>on</option>
                         <option>off</option>
@@ -190,18 +191,24 @@
                         <option>solved</option>
                         <option>failed</option>
                     </select>
-                </label>
-                <label>Data: <input type="text" id="simple-data"></label>
-                <label>
-                    QoS:
+                </div>
+                <div class="simple-send-item">
+                    <label for="simple-data">Data:</label>
+                    <input type="text" id="simple-data">
+                </div>
+                <div class="simple-send-item">
+                    <label for="simple-qos">QoS:</label>
                     <select id="simple-qos">
                         <option value="0">max once</option>
                         <option value="1">min once</option>
                         <option value="2" selected>once</option>
                     </select>
-                </label>
-                <label>Retained: <input type="checkbox"
-                                        id="simple-retain"><span class="newcheck">X</span></label>
+                </div>
+                <div class="simple-send-item">
+                    <label for="simple-retain">Retained:
+                        <input type="checkbox" id="simple-retain"><span class="newcheck">X</span>
+                    </label>
+                </div>
                 <div style="clear:both;">
                     <button type="button" onclick="simpleSend();">Send</button>
                 </div>
