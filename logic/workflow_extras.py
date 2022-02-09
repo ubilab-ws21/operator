@@ -288,7 +288,6 @@ class LightControlWorkflow(CombinedWorkflow):
         elif target_location == Location.SERVERROOM:
             workflows = [
                 SingleLightControlWorkflow("Control serverroom light", "2/ledstrip/serverroom", target_state, brightness, color),
-                SingleLightControlWorkflow("Control serverroom light door", "2/ledstrip/doorserverroom", target_state, brightness, color)
             ]
         else:
             workflows = []

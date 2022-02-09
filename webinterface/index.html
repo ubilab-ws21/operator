@@ -169,6 +169,10 @@
                     <select id="simple-topic"></select>
                 </label>
                 <label>
+                    Topic:
+                    <input type="text" id="simple-topic-str"></input>
+                </label>
+                <label>
                     Method:
                     <select id="simple-method">
                         <option>status</option>
@@ -218,24 +222,19 @@
             <select id="env-target" onchange="validateCommands(this)">
                 <option value="0" selected>&larr;select&rarr;</option>
                 <option value="2/ledstrip/timer">ledstrip/timer</option>
-                <option value="2/ledstrip/lobby">ledstrip/lobby</option>
+                <option>all lights</option>
+                <option>lobby room lights</option>
+                <option>main room lights</option>
+                <option>server room lights</option>
                 <option value="2/ledstrip/labroom/north">
-                    ledstrip/labroom/north
+                    main room north
                 </option>
                 <option value="2/ledstrip/labroom/south">
-                    ledstrip/labroom/south
+                    main room south
                 </option>
                 <option value="2/ledstrip/labroom/middle">
-                    ledstrip/labroom/middle
+                    main room middle
                 </option>
-                <option value="2/ledstrip/serverroom">ledstrip/serverroom
-                </option>
-                <option value="2/ledstrip/doorserverroom">
-                    ledstrip/doorserverroom
-                </option>
-                <option>all lights</option>
-                <option>lab room lights</option>
-                <option>server room lights</option>
                 <option value="powermeter/gyrophare1/switch">gyrophare 1
                 </option>
                 <option value="powermeter/gyrophare2/switch">gyrophare 2

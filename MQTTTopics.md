@@ -7,13 +7,12 @@
 |           |                                    | op/gameControl               |               | control the workflow engine. Commands: START, STOP, PAUSE, SKIP \<workflow_name>                     |
 |           |                                    | op/gameState                 |               | cytoscape graph configuration with the current workflow states.                                      |
 |           |                                    | op/gameOptions               |               | set game options (ex. player count, game duration).                                                  |
-| **env**   | **Environment**                    | env/                         |               |                                                                                                      |
+| **env**   | **Environment**                    | env/video                    |               | Play video files on the beamer                                                                       |
 | **1**     | **Group/Puzzle 1**                 | 1/cube/state                 | x             | Game state of the Cube puzzle                                                                        |
 |           |                                    | 1/panel/state                | x             | Game state of the Panel puzzle                                                                       |
-| **2**     | **Group/Puzzle 2**                 | 2/                           |               |                                                                                                      |
+| **2**     | **Group/Puzzle 2**                 | 2/esp                        | x             | Control topic of the knock knock / switchboard puzzle                                                |
 |           |                                    | 2/ledstrip/timer             |               | *(legacy)* game time display.                                                                        |
 |           |                                    | 2/ledstrip/serverroom        |               | *(legacy)* LED strip in the server room.                                                             |
-|           |                                    | 2/ledstrip/doorserverroom    |               | *(legacy)* LED strip in the server room above the door.                                              |
 |           |                                    | 2/ledstrip/labroom/south     |               | *(legacy)* LED strip in the lab room at the back wall on the opposite of the entrance door.          |
 |           |                                    | 2/ledstrip/labroom/middle    |               | *(legacy)* LED strip in the lab room at the server room wall on the opposite of the entrance door.   |
 |           |                                    | 2/ledstrip/labroom/north     |               | *(legacy)* LED strip in the lab room above the entrance door.                                        |
@@ -27,6 +26,7 @@
 | **4**     | **Group/Puzzle 4**                 | 4/gamecontrol                | x             | puzzle control topic                                                                                 |
 |           |                                    | 4/door/entrance              | x             | *(legacy)* entrance door.                                                                            |
 |           |                                    | 4/door/serverRoom            | x             | *(legacy)* server door.                                                                              |
+|           |                                    | 4/puzzle                     | x             | *(legacy)* first door keypad.                                                                        |
 | **5**     | **Group/Puzzle 5**                 | 5/battery/1/level            |               | The supposed battery level                                                                           |
 |           |                                    | 5/battery/1/location         |               | The current location of the battery                                                                  |
 |           |                                    | 5/battery/1/uid              |               | The NFC UID of the battery                                                                           |

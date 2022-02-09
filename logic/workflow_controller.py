@@ -167,11 +167,6 @@ class WorkflowController:
         print("==================")
         print("Game time expired!")
         print("==================")
-        # for led in ["labroom/north", "labroom/south", "labroom/middle",
-        #             "serverroom", "doorserverroom"]:
-        #     lwf = LightControlWorkflow("Turn red " + led, "2/ledstrip/" + led,
-        #                                State.ON, 255, "255,0,0")
-        #     lwf.execute(self.client)
         lwf = LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (255, 0, 0))
         lwf.execute(self.client)
         lwf = LightControlWorkflow(Location.MAINROOM, State.ON, 255, (255, 0, 0))

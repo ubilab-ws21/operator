@@ -222,7 +222,11 @@ function simpleSend() {
         state: getID("simple-state").value,
         data: getID("simple-data").value
     };
-    mqtt.publish(getID("simple-topic").value, JSON.stringify(message), parseInt(getID("simple-qos").value),
+    let topic_str = getID("simple-topic-str").value;
+    if (topic_str === "") {
+        let topic_str = getID("simple-topic").value;
+    }
+    mqtt.publish(topic_str, JSON.stringify(message), parseInt(getID("simple-qos").value),
         getID("simple-retain").checked);
 }
 
@@ -435,14 +439,13 @@ function envSet() {
             mqtt.send(target, command.data, 2, false);
         }
     } else if (target.includes(" lights")) {
-        if (target === "lab room lights" || target === "all lights") {
+        if (target === "main room lights" || target === "all lights") {
             mqtt.send("2/ledstrip/labroom/north", JSON.stringify(command), 2, false);
             mqtt.send("2/ledstrip/labroom/south", JSON.stringify(command), 2, false);
             mqtt.send("2/ledstrip/labroom/middle", JSON.stringify(command), 2, false);
         }
         if (target === "server room lights" || target === "all lights") {
             mqtt.send("2/ledstrip/serverroom", JSON.stringify(command), 2, false);
-            mqtt.send("2/ledstrip/doorserverroom", JSON.stringify(command), 2, false);
         }
         if (target === "lobby lights" || target === "all lights") {
             mqtt.send("2/ledstrip/lobby", JSON.stringify(command), 2, false);
