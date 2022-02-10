@@ -150,6 +150,10 @@ if __name__ == "__main__":
                  "/home/alexa/text_to_speech/text_to_speech.cfg"],
                 stderr=subprocess.STDOUT
             )
+            pl.append(
+                ["python3", OPT + "environment/videoplayer/videoplayer.py"],
+                stderr=subprocess.STDOUT
+            )
             pl.append("mosquitto -c " + OPT + "mosquitto.conf | grep Error")
             sleep(1)
             logic_command = ["python3", OPT + "logic/main.py"]

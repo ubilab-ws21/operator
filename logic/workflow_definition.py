@@ -21,8 +21,8 @@ class WorkflowDefinition:
             InitWorkflow([
                 # legacy init
                 SendTriggerWorkflow("Reset safe", "5/safe/control", State.OFF),
-                SendTriggerWorkflow("Close lab room door", "4/door/entrance", State.OFF),
-                SendTriggerWorkflow("Close server room door", "4/door/server", State.OFF),
+                SendTriggerWorkflow("Close Control Room Door", "4/door/entrance", State.OFF),
+                SendTriggerWorkflow("Close Server Room Door", "4/door/server", State.OFF),
                 LightControlWorkflow(Location.LOBBYROOM, State.ON, 255, (255, 255, 255)),
                 LightControlWorkflow(Location.MAINROOM, State.ON, 255, (255, 255, 255)),
                 LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (255, 255, 255)),
@@ -44,7 +44,7 @@ class WorkflowDefinition:
                     TTSAudioWorkflow("FailTTS1", "Warning, power failure! Warning, power failure!"),
                     DelayWorkflow("FailDelay2", 5),
                     LightControlWorkflow(Location.LOBBYROOM, State.ON, 255, (255, 0, 0)),
-                    #SendTriggerWorkflow("Play Video", "env/video", State.ON),
+                    SendTriggerWorkflow("Play Video Loop", "env/video", State.ON, data={"path":"/home/ubilab/Videos/PowerGridFailSplit/PowerGridFailSplit_2.mp4"}),
                 ]),
                 SequenceWorkflow("Puzzle 1 - Cube", [
                     Workflow("Panels Released", "1/cube/state"),
@@ -93,7 +93,7 @@ class WorkflowDefinition:
 
             ExitWorkflow([
                 SendTriggerWorkflow("Radio Success", "3/audiocontrol/roomsolved", State.ON),
-                #SendTriggerWorkflow("Play Video", "env/video", State.ON),
+                SendTriggerWorkflow("Play Video End", "env/video", State.ON, data={"path":"/home/ubilab/Videos/PowerGridFailSplit/PowerGridFailSplit_3.mp4"}),
                 LightControlWorkflow(Location.LOBBYROOM, State.ON, 255, (0, 255, 0)),
                 LightControlWorkflow(Location.MAINROOM, State.ON, 255, (0, 255, 0)),
                 LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (0, 255, 0)),
