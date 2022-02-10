@@ -27,6 +27,8 @@ class WorkflowDefinition:
                 LightControlWorkflow(Location.MAINROOM, State.ON, 255, (255, 255, 255)),
                 LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (255, 255, 255)),
 
+                SendTriggerWorkflow("Play Black Video", "env/video", State.OFF),
+
                 # Puzzle 5 init
                 SendMessageWorkflow("Set Battery Level", "5/battery/1/level", 0),
                 #SendMessageWorkflow("Set Battery UID", "5/battery/1/uid", 0),
