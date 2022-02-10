@@ -9,6 +9,21 @@ class Location(Enum):
     MAINROOM = 1
     SERVERROOM = 2
 
+class LEDPattern(Enum):
+    RGB = "solidColor"
+    WAVES = "colorwaves" 
+    PALETTE_TEST = "palettetest"
+    PRIDE =  "pride"
+    RAINBOW = "rainbow"
+    RAINBOW_GLITTER = "rainbowWithGlitter"
+    CONFETTI = "confetti"
+    SINELON = "sinelon"
+    JUGGLE = "juggle"
+    BPM = "bpm"
+    FIRE = "fire"
+    TIMERPRINT = "timerprint"
+    GLOBES = "globes"
+    STROBOSKOP = "stroboskop"
 
 class ProcessList(list):
     """

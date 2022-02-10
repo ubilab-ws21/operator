@@ -1,4 +1,5 @@
 import json, time
+from logic.util import LEDPattern
 from workflow import WorkflowState, Workflow, CombinedWorkflow, SingleCommandWorkflow
 from message import Message, Method, State
 from util import Location
@@ -198,7 +199,7 @@ class SingleLightControlWorkflow(SingleCommandWorkflow):
     """
 
     def __init__(self, name, topic, target_state,
-                 brightness=255, color=(255, 255, 255)):
+                 brightness=255, color=(255, 255, 255), pattern=LEDPattern.RGB):
         """
         Initializes a new instance of this class.
 
@@ -218,11 +219,15 @@ class SingleLightControlWorkflow(SingleCommandWorkflow):
 
         color: Tuple (r, g, b)
             Color of the light decoded in hex.
+
+        pattern: LEDPattern
+            Pattern of the LED stripe (see util.py)
         """
         self.target_state = target_state
         self.brightness = brightness
         self.color = color
         self.topic = topic
+        self.pattern = pattern
         super().__init__(name)
 
     def _execute_single_command(self, client):
@@ -234,8 +239,12 @@ class SingleLightControlWorkflow(SingleCommandWorkflow):
         client : Client
             MQTT client
         """
-        col = f"{self.color[0]},{self.color[1]},{self.color[2]}"
-        self._publishTrigger(client, 'rgb', col)
+        if self.pattern == LEDPattern.RGB:
+            col = f"{self.color[0]},{self.color[1]},{self.color[2]}"
+            self._publishTrigger(client, 'rgb', col)
+        else:
+            self._publishTrigger(client, 'pattern', str(self.pattern))
+
         self._publishTrigger(client, 'brightness', self.brightness)
         self._publishTrigger(client, 'power', self.target_state.name.lower())
 
@@ -256,7 +265,7 @@ class LightControlWorkflow(CombinedWorkflow):
     This workflow controls the LED stripes at the specified location in one single workfow.
     """
 
-    def __init__(self, target_location, target_state, brightness=255, color=(255, 255, 255)):
+    def __init__(self, target_location, target_state, brightness=255, color=(255, 255, 255), pattern=LEDPattern.RGB):
         """
         Initializes a new instance of this class.
 
@@ -273,25 +282,28 @@ class LightControlWorkflow(CombinedWorkflow):
 
         color: Tuple (r, g, b)
             Color of the light decoded in hex.
+
+        pattern: LEDPattern
+            Pattern of the LED stripe (see util.py)
         """
         if target_location == Location.LOBBYROOM:
             workflows = [
-                SingleLightControlWorkflow("Control lobbyroom light", "2/ledstrip/lobby", target_state, brightness, color)
+                SingleLightControlWorkflow("Control lobbyroom light", "2/ledstrip/lobby", target_state, brightness, color, pattern)
             ]
         elif target_location == Location.MAINROOM:  
             workflows = [
-                SingleLightControlWorkflow("Control mainroom light north", "2/ledstrip/labroom/north", target_state, brightness, color),
-                SingleLightControlWorkflow("Control mainroom light south", "2/ledstrip/labroom/south", target_state, brightness, color),
-                SingleLightControlWorkflow("Control mainroom light middle", "2/ledstrip/labroom/middle", target_state, brightness, color)
+                SingleLightControlWorkflow("Control mainroom light north", "2/ledstrip/labroom/north", target_state, brightness, color, pattern),
+                SingleLightControlWorkflow("Control mainroom light south", "2/ledstrip/labroom/south", target_state, brightness, color, pattern),
+                SingleLightControlWorkflow("Control mainroom light middle", "2/ledstrip/labroom/middle", target_state, brightness, color, pattern)
             ]
         elif target_location == Location.SERVERROOM:
             workflows = [
-                SingleLightControlWorkflow("Control serverroom light", "2/ledstrip/serverroom", target_state, brightness, color),
+                SingleLightControlWorkflow("Control serverroom light", "2/ledstrip/serverroom", target_state, brightness, color, pattern),
             ]
         else:
             workflows = []
 
-        name = f"Turn {target_state.name} {target_location.name} lights {brightness}/255"
+        name = f"Turn {target_state.name} {target_location.name} lights {brightness}/255 pattern {pattern}"
         super().__init__(name, workflows, None)
 
 
