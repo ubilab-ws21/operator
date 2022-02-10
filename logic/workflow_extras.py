@@ -1,8 +1,7 @@
-import json, time
-from logic.util import LEDPattern
+import json
 from workflow import WorkflowState, Workflow, CombinedWorkflow, SingleCommandWorkflow
 from message import Message, Method, State
-from util import Location
+from util import Location, LEDPattern
 
 
 class InitWorkflow(CombinedWorkflow):
