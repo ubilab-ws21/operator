@@ -172,14 +172,14 @@ class WorkflowController:
         lwf.execute(self.client)
         awf = TTSAudioWorkflow("Play gameover", "gameover.mp3", True)
         awf.execute(self.client)
-        self.client.publish(self.game_control_topic, None, 2, True)
+        self.client.publish(self.game_control_topic, "FAILED", 2, True)
         self.stop()
 
     def __on_workflow_solved(self, name):
         print("==================================")
         print("Escape room finished successfully!")
         print("==================================")
-        self.client.publish(self.game_control_topic, None, 2, True)
+        self.client.publish(self.game_control_topic, "SOLVED", 2, True)
         self.stop()
 
     def __purge_all_topics(self):

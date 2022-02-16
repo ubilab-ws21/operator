@@ -95,7 +95,7 @@ class WorkflowDefinition:
 
             ExitWorkflow([
                 SendTriggerWorkflow("Radio Success", "3/audiocontrol/roomsolved", State.ON),
-                SendTriggerWorkflow("Play Video End", "env/video", State.ON, data={"path":"/home/ubilab/Videos/PowerGridFailSplit/PowerGridFailSplit_3.mp4"}),
+                SendTriggerWorkflow("Play Video End", "env/video", State.ON, data={"path":"/home/ubilab/Videos/PowerGridFailSplit/PowerGridFailSplit_3.mp4","loop":False}),
                 LightControlWorkflow(Location.LOBBYROOM, State.ON, 255, (0, 255, 0)),
                 LightControlWorkflow(Location.MAINROOM, State.ON, 255, (0, 255, 0)),
                 LightControlWorkflow(Location.SERVERROOM, State.ON, 255, (0, 255, 0)),
